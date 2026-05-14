@@ -1,0 +1,29 @@
+# b2b-saas-workspace/compose.yaml
+# Docker Compose file
+
+name: b2b-saas-infra
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: b2b-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: peaky0501
+      POSTGRES_DB: b2b_saas
+      TZ: Asia/Seoul
+    volumes:
+      - b2b-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d b2b_saas"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  b2b-postgres-data:
+    name: b2b-postgres-data-volume
