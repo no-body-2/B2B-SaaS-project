@@ -13,6 +13,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -36,6 +37,18 @@ async function bootstrap() {
       // 5. exceptionFactory: NestJS의 기본 에러 응답을 해당 프로젝트에 맞춰 커스터마이징
     }),
   );
+
+  const config = new DocumentBuilder()
+    .setTitle('B2B SaaS API')
+    .setDescription('B2B SaaS 프로젝트의 내부 API 명세서 ')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
+  // http://localhost:3000/api-docs 경로로 접근 시 문서 열람 가능
+  SwaggerModule.setup('api-docs', app, documentFactory);
+
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();
