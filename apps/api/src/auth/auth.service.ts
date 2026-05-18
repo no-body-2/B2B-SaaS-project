@@ -108,13 +108,25 @@ export class AuthService {
     // 3. 검증 성공 시 JWT 토큰 발급
     // Payload에 비밀번호등의 민감한 정보를 제외한 최소한의 식별자 반환
     const payload = { sub: user.id, email: user.email };
-    const accessToken = await this.jwtService.signAsync(payload);
+
+    // Access Token 생성
+    const accessToken = await this.jwtService.signAsync(payload, {
+      secret: process.env.JWT_ACCESS_SECRET,
+      expiresIn: '1h',
+    });
+
+    // Refresh Token 생성
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      secret: process.env.JWT_REFRESH_SECRET,
+      expiresIn: '7d',
+    });
 
     // 4. Token & User 정보 반환
     const { password: _, ...userInfo } = user;
     return {
       user: userInfo,
       accessToken,
+      refreshToken,
     };
   }
 }
