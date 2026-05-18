@@ -10,13 +10,13 @@
     "db:migrate": "prisma migrate dev"
   },
   "dependencies": {
-    "@prisma/client": "^7.8.0"
+    "@prisma/client": "^7.8.0",
+    "dotenv": "^17.4.2"
   },
   "devDependencies": {
     "@b2b/typescript-config": "workspace:*",
     "@prisma/config": "^7.8.0",
     "@types/node": "^25.6.2",
-    "dotenv": "^17.4.2",
     "prisma": "^7.8.0"
   }
 }
