@@ -12,6 +12,7 @@
 
 import {
   Injectable,
+  Inject,
   ConflictException,
   UnauthorizedException,
   ForbiddenException,
@@ -21,12 +22,14 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import * as argon2 from 'argon2'; // bcrypt 대신 보안성이 더 훌륭한 (CPU 연산 뿐 아니라 RAM마저 소모해야함) argon2 사용
 import { JwtService } from '@nestjs/jwt';
+import Redis from 'ioredis';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    @Inject('REDIS_CLIENT') private readonly redis: Redis,
   ) {}
 
   /**
@@ -93,11 +96,12 @@ export class AuthService {
       );
     }
 
+    // 2. 사용자의 계정 활성 상태 확인
     if (user.deletedAt !== null) {
       throw new ForbiddenException('현재 탈퇴 대기 중인 계정입니다.');
     }
 
-    // 2. Argon2로 비밀번호 검증
+    // 3. Argon2로 비밀번호 검증
     const isPasswordValid = await argon2.verify(user.password, dto.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException(
@@ -105,23 +109,29 @@ export class AuthService {
       );
     }
 
-    // 3. 검증 성공 시 JWT 토큰 발급
+    // 4. 검증 성공 시 JWT 토큰 발급
     // Payload에 비밀번호등의 민감한 정보를 제외한 최소한의 식별자 반환
     const payload = { sub: user.id, email: user.email };
 
-    // Access Token 생성
+    // 4-1. Access Token 생성
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: process.env.JWT_ACCESS_SECRET,
       expiresIn: '1h',
     });
 
-    // Refresh Token 생성
+    // 4-2. Refresh Token 생성
     const refreshToken = await this.jwtService.signAsync(payload, {
       secret: process.env.JWT_REFRESH_SECRET,
       expiresIn: '7d',
     });
 
-    // 4. Token & User 정보 반환
+    // 5. TTL (Time To Live) 설정
+    const ttl = 7 * 24 * 60 * 60;
+
+    // 6. Redis에 Refresh Token 저장
+    await this.redis.set(`refreshToken:${user.id}`, refreshToken, 'EX', ttl);
+
+    // 7. Token & User 정보 반환
     const { password: _, ...userInfo } = user;
     return {
       user: userInfo,
