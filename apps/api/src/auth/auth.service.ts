@@ -12,7 +12,6 @@
 
 import {
   Injectable,
-  Inject,
   ConflictException,
   UnauthorizedException,
   ForbiddenException,
@@ -22,14 +21,12 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import * as argon2 from 'argon2'; // bcrypt 대신 보안성이 더 훌륭한 (CPU 연산 뿐 아니라 RAM마저 소모해야함) argon2 사용
 import { JwtService } from '@nestjs/jwt';
-import Redis from 'ioredis';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
-    @Inject('REDIS_CLIENT') private readonly redis: Redis,
   ) {}
 
   /**
@@ -78,12 +75,14 @@ export class AuthService {
    * @remarks
    * - 보안을 위해 이메일 존재 여부, 비밀번호 일치 여부와 상관없이 UnauthorizedException 발생
    * @param dto - Client 측에서 검증을 마친 로그인 데이터
+   * @param ipAddress - 접속한 Client Ip 주소
+   * @param userAgent - 접속한 Client 브라우저 및 디바이스 정보 (보안 로그용)
    * @returns 사용자 정보 (password 제외) & JWT Access Token이 담긴 객체
    * @throws
    * - {UnauthorizedException} - 이메일 또는 비밀번호가 올바르지 않은 경우
    * - {ForbiddenException} - 현재 탈퇴 대기 중인 계정인 경우
    */
-  async loginUser(dto: LoginDto) {
+  async loginUser(dto: LoginDto, ipAddress?: string, userAgent?: string) {
     // 1. 이메일로 사용자 찾기
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -113,25 +112,40 @@ export class AuthService {
     // Payload에 비밀번호등의 민감한 정보를 제외한 최소한의 식별자 반환
     const payload = { sub: user.id, email: user.email };
 
-    // 4-1. Access Token 생성
+    // 4-1. Access Token 생성 (1시간)
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: process.env.JWT_ACCESS_SECRET,
       expiresIn: '1h',
     });
 
-    // 4-2. Refresh Token 생성
+    // 4-2. Refresh Token 생성 (7일)
     const refreshToken = await this.jwtService.signAsync(payload, {
       secret: process.env.JWT_REFRESH_SECRET,
       expiresIn: '7d',
     });
 
-    // 5. TTL (Time To Live) 설정
-    const ttl = 7 * 24 * 60 * 60;
+    // 5. Argon2를 사용하여 Refresh Token 해싱
+    const hashedRefreshToken = await argon2.hash(refreshToken);
 
-    // 6. Redis에 Refresh Token 저장
-    await this.redis.set(`refreshToken:${user.id}`, refreshToken, 'EX', ttl);
+    // 6. 현재 시간 기준 7일 후로 만료 기간 설정
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
 
-    // 7. Token & User 정보 반환
+    // 7. DB에 세션 정보와 토큰 저장
+    await this.prisma.refreshToken.create({
+      data: {
+        // TS 권장에 따라 data 속성 사용
+        user: {
+          connect: { id: user.id },
+        },
+        hashedToken: hashedRefreshToken,
+        ipAddress: ipAddress || 'Unknown',
+        userAgent: userAgent || 'Unknown',
+        expiresAt,
+      },
+    });
+
+    // 8. Token & User 정보 반환
     const { password: _, ...userInfo } = user;
     return {
       user: userInfo,

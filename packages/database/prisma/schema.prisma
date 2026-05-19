@@ -29,6 +29,7 @@ model User {
   preference           UserPreference?
   workspaceMembers     WorkspaceMember[]
   WorkspaceInvitations WorkspaceInvitation[] @relation("InviterRelation")
+  refreshTokens RefreshToken[]
 
   @@map("users")
 }
@@ -252,4 +253,24 @@ model PendingNano {
   nano     Nano?           @relation(fields: [nanoId], references: [id])
 
   @@map("pending_nanos")
+}
+
+/// Refresh Token
+/// @namespace Token
+model RefreshToken {
+  id String @id @default(cuid())
+  userId String @map("user_id")
+  hashedToken String @map("hashed_token")
+
+  // 어느 기기에서 접속했는 지 정보를 얻기 위한 속성
+  userAgent String? @map("user_agent")
+  ipAddress String? @map("ip_address")
+
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Foreign Key 설정
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
 }
