@@ -16,10 +16,10 @@ datasource db {
 model User {
   id        String  @id @default(cuid()) @map("id")
   email     String? @unique @map("email")
-  password  String  @map("password")
+  password  String? @map("password")
   firstName String  @map("firstname")
   lastName  String? @map("lastname")
-  provider  String  @map("provider")
+  provider  String  @default("local") @map("provider")
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
@@ -29,7 +29,7 @@ model User {
   preference           UserPreference?
   workspaceMembers     WorkspaceMember[]
   WorkspaceInvitations WorkspaceInvitation[] @relation("InviterRelation")
-  refreshTokens RefreshToken[]
+  refreshTokens        RefreshToken[]
 
   @@map("users")
 }
@@ -258,8 +258,8 @@ model PendingNano {
 /// Refresh Token
 /// @namespace Token
 model RefreshToken {
-  id String @id @default(cuid())
-  userId String @map("user_id")
+  id          String @id @default(cuid())
+  userId      String @map("user_id")
   hashedToken String @map("hashed_token")
 
   // 어느 기기에서 접속했는 지 정보를 얻기 위한 속성
