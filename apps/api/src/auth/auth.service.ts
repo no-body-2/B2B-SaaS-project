@@ -197,6 +197,75 @@ export class AuthService {
   }
 
   /**
+   * AUTH-TOKEN-001
+   * @description
+   * - Refresh Token을 사용하여 새로운 Access Token을 발급
+   * @remarks
+   * - 기존에 사용된 Refresh Token은 DB에서 즉시 삭제하여 탈취, 재사용 가능성 차단
+   * @param userId - JWTRefreshStrategy에서 복호화하여 전달한 사용자 고유 식별자 (CUID)
+   * @param refreshToken - Client 측에서 Header를 통해 전달된 Refresh Token 문자열
+   * @param ipAddress - 재발급 요청을 보낸 Client IP 주소
+   * @param userAgent - 재발급 요청을 보낸 Client 기기 및 브라우저 정보
+   * @returns 신규 발급된 사용자 정보 및 새로운 AT/RT
+   * @throws
+   * - {UnauthorizedException} - 유효하지 않은 Refresh Token, 만료된 Refresh Token
+   * - {ForbiddenException} - 탈퇴 대기 중인 사용자의 요청인 경우
+   */
+  async refreshTokens(
+    userId: string,
+    refreshToken: string,
+    ipAddress?: string,
+    userAgent?: string,
+  ) {
+    // 1. 사용자 상태 조회
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException(
+        '존재하지 않거나 유효하지 않은 사용자 계정입니다.',
+      );
+    }
+
+    // 2. 사용자 탈퇴 대기 여부 검증
+    if (user.deletedAt !== null) {
+      throw new ForbiddenException(
+        '탈퇴 대기 중인 사용자는 토큰 재발급이 불가능합니다.',
+      );
+    }
+
+    // 3. 해당 사용자에게 발급된 활성 상태의 토큰 조회
+    const activeTokens = await this.prisma.refreshToken.findMany({
+      where: {
+        userId: user.id,
+        expiresAt: { gt: new Date() }, // 만료되지 않은 토큰만 조회
+      },
+    });
+
+    // 4. Client에서 전달 된 Token과 DB의 Token 해시값 검증
+    let validTokenSession;
+    for (const session of activeTokens) {
+      const isMatched = await argon2.verify(session.hashedToken, refreshToken);
+      if (isMatched) {
+        validTokenSession = session;
+        break;
+      }
+    }
+    if (!validTokenSession) {
+      throw new UnauthorizedException(
+        '유효하지 않거나 이미 만료된 토큰입니다. 다시 로그인해 주세요.',
+      );
+    }
+    // 5. 토큰 탈취 방지를 위한 기존 Refresh Token 삭제
+    await this.prisma.refreshToken.delete({
+      where: { id: validTokenSession.id },
+    });
+
+    return this.generateAndSaveTokens(user, ipAddress, userAgent);
+  }
+
+  /**
    * AUTH - Generate And Save Token
    * @description
    * - Local or Social 로그인을 시도하는 사용자에 대한 JWT Access Token & Refresh Token 발급 및 저장

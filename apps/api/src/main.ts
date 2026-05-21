@@ -41,8 +41,25 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('B2B SaaS API')
     .setDescription('B2B SaaS 프로젝트의 내부 API 명세서 ')
-    .setVersion('1.0')
-    .addBearerAuth()
+    .setVersion('1.0.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        in: 'header',
+      },
+      'accessToken',
+    )
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        in: 'header',
+      },
+      'refreshToken',
+    )
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);

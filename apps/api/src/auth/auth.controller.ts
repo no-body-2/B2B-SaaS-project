@@ -18,12 +18,22 @@ import {
   Headers,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { GoogleLoginDto } from './dto/google-login.dto';
-import { ApiOperation, ApiResponse, ApiTags, ApiHeader } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiHeader,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
+import { JwtRefreshGuard } from './guards/jwt-refresh-guard';
+import { Public } from './decorators/public.decorator';
+import { CurrentUser } from './decorators/current-user.decorator';
 
 // 기본 주소 '/auth'
 @ApiTags('인증 (Auth)')
@@ -40,6 +50,7 @@ export class AuthController {
    * @returns DB에 생성된 사용자 정보 (password는 hash 처리 후 저장)
    */
   @Post('register')
+  @Public()
   @ApiOperation({
     summary: 'AUTH-LOCAL-001 회원가입',
     description: '신규 사용자 등록, 비밀번호는 단방향 암호화되어 저장됨',
@@ -69,6 +80,7 @@ export class AuthController {
    * @returns 사용자 정보, Access Token (1h), Refresh Token (7d)
    */
   @Post('login')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'AUTH-LOCAL-002 Email 로그인',
@@ -113,6 +125,7 @@ export class AuthController {
    * @returns 사용자 정보, Access Token (1h), Refresh Token (7d)
    */
   @Post('google')
+  @Public()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'AUTH-SOCIAL-001 Google OAuth 로그인',
@@ -139,5 +152,51 @@ export class AuthController {
     @Headers('user-agent') userAgent?: string,
   ) {
     return this.authService.googleLogin(googleLoginDto, ip, userAgent);
+  }
+
+  /**
+   * AUTH-TOKEN-001
+   * @description
+   * - 만료된 Access Token을 Refresh Token을 사용하여 재발급
+   * @url /auth/refresh
+   * @param reqUser - JwtRefreshStrategy에서 검증 완료 후 'req.user'에 임시 저장한 세션 정보
+   * @param ip - (서버 자동 추출) 접속 Client IP
+   * @param userAgent - (Header 추출) 접속 Client 브라우저 및 기기 정보
+   * @returns 새롭게 발급된 AT/RT 및 사용자 정보
+   */
+  @Post('refresh')
+  @Public()
+  @UseGuards(JwtRefreshGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'AUTH-TOKEN-001 Token 재발급',
+    description: 'Refresh Token을 사용하여 Access Token 재발급',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Access Token 재발급 성공',
+  })
+  @ApiResponse({
+    status: 401,
+    description:
+      'Refresh Token이 만료 혹은 위조되어 DB Session 대조에 실패한 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '현재 탈퇴 대기 중인 상태로 인증 불가',
+  })
+  @ApiBearerAuth('refreshToken')
+  async refreshTokens(
+    @CurrentUser()
+    reqUser: { userId: string; email: string; refreshToken: string },
+    @Ip() ip?: string,
+    @Headers('user-agent') userAgent?: string,
+  ) {
+    return this.authService.refreshTokens(
+      reqUser.userId,
+      reqUser.refreshToken,
+      ip,
+      userAgent,
+    );
   }
 }
