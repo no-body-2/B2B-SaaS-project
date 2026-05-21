@@ -10,19 +10,19 @@
  * @date 2026-05-19
  */
 
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-  constructor(private readonly prisma: PrismaService) {
-    // 1. 환경 변수 검증
+  constructor() {
     const secret = process.env.JWT_ACCESS_SECRET;
 
     if (!secret) {
-      throw new Error('JWT_ACCESS_SECRET 환경 변수가 설정되지 않았습니다.');
+      throw new Error(
+        '보안 에러: JWT_ACCESS_SECRET 환경 변수가 설정되지 않았습니다.',
+      );
     }
 
     super({
@@ -36,23 +36,15 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
    * JWT 검증
    *
    * @description
-   * JWT (JSON Web Token) 검증 및 사용자 정보 반환
-   * @param payload
-   * @returns 사용자 정보 (password 제외)
+   * - 복호화된 토큰의 payload에서 식별자 정보를 추출 및 NestJS로 전달
+   *
+   * @param payload - JWT 디코딩을 통해 추출된 원본 데이터 객체
+   * @returns 'req.user'에 할당되어 컨트롤러 계층으로 전달될 객체
    */
-  async validate(payload: { sub: string; email: string }) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: payload.sub },
-    });
-
-    if (!user || user.deletedAt !== null) {
-      throw new UnauthorizedException(
-        '접근 권한이 없거나 유효하지 않은 계정입니다.',
-      );
-    }
-
-    const { password: _, ...result } = user;
-
-    return result;
+  validate(payload: { sub: string; email: string }) {
+    return {
+      id: payload.sub,
+      email: payload.email,
+    };
   }
 }
