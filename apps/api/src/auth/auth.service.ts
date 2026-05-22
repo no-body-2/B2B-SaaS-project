@@ -266,6 +266,51 @@ export class AuthService {
   }
 
   /**
+   * AUTH-TOKEN-002
+   * @description
+   * - 로그아웃: 현재 사용자의 활성화된 세션 종료 및 토큰 파기
+   * @param userId - Guard를 통과 후 추출된 사용자 고유 식별자 (CUID)
+   * @param refreshToken - 사용자가 보유한 Refresh Token
+   * @returns Logout 성공 메시지
+   * @throws UnauthorizedException - 유효하지 않은 Refresh Token일 경우
+   */
+  async logout(userId: string, refreshToken: string) {
+    // 1. 사용자가 보유한 만료되지 않은 모든 세션 조회
+    const activeSessions = await this.prisma.refreshToken.findMany({
+      where: {
+        userId,
+        expiresAt: { gt: new Date() },
+      },
+    });
+
+    // 2. 현재 기기의 Token과 DB의 해시값 비교
+    let targetSessionId: string | null = null;
+    for (const session of activeSessions) {
+      const isMatched = await argon2.verify(session.hashedToken, refreshToken);
+      if (isMatched) {
+        targetSessionId = session.id;
+        break;
+      }
+    }
+
+    // 3. 일치하는 세션이 없는 경우 이미 로그아웃 상태이거나 위조된 세션이므로 오류 반환
+    if (!targetSessionId) {
+      throw new UnauthorizedException(
+        '이미 로그아웃되었거나 유효하지 않은 세션입니다.',
+      );
+    }
+
+    // 4. 해당 기기의 세션을 DB에서 영구 삭제
+    await this.prisma.refreshToken.delete({
+      where: { id: targetSessionId },
+    });
+
+    return {
+      message: '로그아웃 성공',
+    };
+  }
+
+  /**
    * AUTH - Generate And Save Token
    * @description
    * - Local or Social 로그인을 시도하는 사용자에 대한 JWT Access Token & Refresh Token 발급 및 저장

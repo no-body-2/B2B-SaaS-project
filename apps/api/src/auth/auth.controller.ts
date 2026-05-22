@@ -199,4 +199,41 @@ export class AuthController {
       userAgent,
     );
   }
+
+  /**
+   * AUTH-TOKEN-002
+   * @description
+   * - 현재 사용 중인 세션 종료 및 DB에 저장된 Token 파기
+   * @url /auth/logout
+   * @param reqUser - JwtRefreshStrategy에서 검증 완료 후 'req.user'에 임시 저장한 세션 정보
+   * @returns 로그아웃 성공 메시지
+   */
+  @Post('logout')
+  @Public()
+  @UseGuards(JwtRefreshGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('refreshToken')
+  @ApiOperation({
+    summary: '로그아웃',
+    description:
+      '현재 요청에 사용된 Refresh Token을 검증 후 현재 세션 정보를 DB에서 파기',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '로그아웃 성공',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '이미 로그아웃되었거나 유효하지 않은 세션으로 인증 불가',
+  })
+  async logout(
+    @CurrentUser()
+    reqUser: {
+      userId: string;
+      email: string;
+      refreshToken: string;
+    },
+  ) {
+    return this.authService.logout(reqUser.userId, reqUser.refreshToken);
+  }
 }
