@@ -33,7 +33,7 @@ import {
 } from '@nestjs/swagger';
 import { JwtRefreshGuard } from './guards/jwt-refresh-guard';
 import { Public } from './decorators/public.decorator';
-import { CurrentUser } from './decorators/current-user.decorator';
+import { CurrentUser } from '../decorators/current-user.decorator';
 
 // 기본 주소 '/auth'
 @ApiTags('인증 (Auth)')
@@ -45,7 +45,7 @@ export class AuthController {
    * AUTH-LOCAL-001
    * @description
    * - 신규 사용자의 회원가입 요청 처리
-   * @url /auth/register
+   * @url POST /auth/register
    * @param registerDto - Client 측에서 전송한 회원가입 Form 데이터
    * @returns DB에 생성된 사용자 정보 (password는 hash 처리 후 저장)
    */
@@ -73,7 +73,7 @@ export class AuthController {
    * AUTH-LOCAL-002
    * @description
    * - 사용자 인증 및 토큰 (Access Token & Refresh Token) 발급
-   * @url /auth/login
+   * @url POST /auth/login
    * @param loginDto - 이메일 및 비밀번호
    * @param ip - (서버 자동 추출) 접속 Client IP
    * @param userAgent - (Header 추출) 접속 Client 브라우저 및 기기 정보
@@ -118,7 +118,7 @@ export class AuthController {
    * AUTH-SOCIAL-001
    * @description
    * - Google OAuth 소셜 로그인 처리
-   * @url /auth/google
+   * @url POST /auth/google
    * @param googleLoginDto - Client가 Google을 통해 발급받은 인가 코드 (Authorization Code)
    * @param ip - (서버 자동 추출) 접속 Client IP
    * @param userAgent - (Header 추출) 접속 Client 브라우저 및 기기 정보
@@ -158,7 +158,7 @@ export class AuthController {
    * AUTH-TOKEN-001
    * @description
    * - 만료된 Access Token을 Refresh Token을 사용하여 재발급
-   * @url /auth/refresh
+   * @url POST /auth/refresh
    * @param reqUser - JwtRefreshStrategy에서 검증 완료 후 'req.user'에 임시 저장한 세션 정보
    * @param ip - (서버 자동 추출) 접속 Client IP
    * @param userAgent - (Header 추출) 접속 Client 브라우저 및 기기 정보
@@ -204,7 +204,7 @@ export class AuthController {
    * AUTH-TOKEN-002
    * @description
    * - 현재 사용 중인 세션 종료 및 DB에 저장된 Token 파기
-   * @url /auth/logout
+   * @url POST /auth/logout
    * @param reqUser - JwtRefreshStrategy에서 검증 완료 후 'req.user'에 임시 저장한 세션 정보
    * @returns 로그아웃 성공 메시지
    */
