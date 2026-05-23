@@ -32,7 +32,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { JwtRefreshGuard } from './guards/jwt-refresh-guard';
-import { Public } from './decorators/public.decorator';
+import { Public } from '../decorators/public.decorator';
 import { CurrentUser } from '../decorators/current-user.decorator';
 
 // 기본 주소 '/auth'
