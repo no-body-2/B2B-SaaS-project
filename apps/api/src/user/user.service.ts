@@ -12,10 +12,13 @@
 
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import { createId } from '@paralleldrive/cuid2';
@@ -23,10 +26,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { RequestEmailChangeDto } from './dto/request-email-change.dto';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redisService: RedisService,
+  ) {}
 
   /**
    * USER-PROFILE-001
@@ -200,6 +207,94 @@ export class UserService {
       message:
         '비밀번호 변경이 완료되었습니다. 보안을 위해 기존 기기의 로그아웃이 진행됩니다. 다시 로그인 해주세요.',
       updatedAt: new Date(),
+    };
+  }
+
+  /**
+   * USER-ACCOUNT-002
+   * 사용자 이메일 변경 요청
+   * @description
+   * - 현재 로그인한 Local 가입 사용자가 본인의 계정 이메일 변경 요청
+   * @param userId - 사용자 ID (CUID)
+   * @param dto - 이메일 변경 요청 dto
+   * @returns 이메일 변경 요청 성공 메시지
+   * @throws
+   * - {BadRequestException} - 변경할 이메일이 현재 이메일과 같거나 양식에 어긋난 경우
+   * - {UnauthorizedException} - 인증되지 않은 사용자인 경우
+   * - {ForbiddenException} - 사용자가 Local 이외의 경로로 가입하였거나, 탈퇴 대기 중인 상태로 인증 불가한 경우
+   * - {NotFoundException} - 사용자를 찾을 수 없을 경우
+   */
+  async requestEmailChange(userId: string, dto: RequestEmailChangeDto) {
+    // 1. 사용자 조회 및 상태 검증
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    // 1-1. 사용자를 찾을 수 없는 경우
+    if (!user) {
+      throw new NotFoundException('해당하는 사용자를 찾을 수 없습니다.');
+    }
+
+    // 1-2. 사용자의 계정이 탈퇴 진행 중인 경우
+    if (user.deletedAt !== null) {
+      throw new ForbiddenException(
+        '탈퇴 대기 중인 계정은 이메일 변경이 불가합니다.',
+      );
+    }
+
+    // 1-3. 사용자가 Local 가입이 아닌 경우
+    if (user.provider !== 'local') {
+      throw new ForbiddenException(
+        'Local 이외의 경로로 가입한 계정은 이메일 변경이 불가합니다.',
+      );
+    }
+
+    // 1-4. 변경하려는 이메일이 현재 사용하는 이메일과 동일한 경우
+    if (dto.newEmail === user.email) {
+      throw new BadRequestException(
+        '변경하려는 이메일은 기존 사용 중인 이메일과 동일할 수 없습니다.',
+      );
+    }
+
+    // 2. 신규 이메일 중복 검사 (타 사용자가 사용하는 지 여부)
+    const exists = await this.prisma.user.findUnique({
+      where: { email: dto.newEmail },
+    });
+    if (exists) {
+      throw new ConflictException('이미 사용 중인 이메일 주소입니다.');
+    }
+
+    // 3. 429 (Too Many Requests) 에러 방어
+    const cooldownKey = `email-change:cooldown:${userId}`;
+    const isCooldown = await this.redisService.get(cooldownKey);
+    if (isCooldown) {
+      throw new HttpException(
+        '이메일 변경 요청은 1분에 한 번만 가능합니다. 잠시 후 다시 시도해주세요.',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    // 4. CUID 기반의 일회성 인증용 Token 생성 및 Redis에 저장
+    const token = createId(); // cuid2의 기능 사용
+    const tokenKey = `email-change:token:${token}`;
+
+    await Promise.all([
+      this.redisService.set(
+        tokenKey,
+        JSON.stringify({ userId, newEmail: dto.newEmail }),
+        1800,
+      ),
+      this.redisService.set(cooldownKey, 'active', 60), // 1분 쿨다운 설정
+    ]);
+
+    // 5. 인증 링크 생성
+    // TODO: MailerService 생성 및 연동 후 메일 발송 처리 및 테스트
+    const verifiedUrl = `https://example.com/user/email-change/verify?token=${token}`;
+    console.log(`[인증 메일 발송 완료] URL: ${verifiedUrl}`);
+
+    return {
+      message: '인증 메일이 발송되었습니다. 30분 이내에 인증을 완료해 주세요.',
+      expiresAt: new Date(Date.now() + 30 * 60 * 1000),
     };
   }
 }

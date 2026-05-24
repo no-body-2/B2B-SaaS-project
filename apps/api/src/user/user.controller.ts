@@ -13,6 +13,7 @@
 import {
   Controller,
   Get,
+  Post,
   Patch,
   HttpCode,
   HttpStatus,
@@ -28,6 +29,7 @@ import {
 } from '@nestjs/swagger';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { RequestEmailChangeDto } from './dto/request-email-change.dto';
 
 @ApiTags('사용자 (User)')
 @Controller('user')
@@ -152,5 +154,52 @@ export class UserController {
     @Body() changePasswordDto: ChangePasswordDto,
   ) {
     return this.userService.changePassword(reqUser.userId, changePasswordDto);
+  }
+
+  /**
+   * USER-ACCOUNT-002
+   * @description
+   * - 로그인한 사용자가 이메일 주소를 변경
+   * @url PATCH /email/request
+   */
+  @Post('email/request')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '이메일 변경 요청',
+    description: '신규 이메일 변경 요청 메일 발송 및 1분 이내 재요청 차단',
+  })
+  @ApiResponse({ status: 200, description: '이메일 변경 요청 메일 발송 완료' })
+  @ApiResponse({
+    status: 400,
+    description: '기존 사용 중이던 이메일로 변경 요청을 하는 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Access Token이 유효하지 않은 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Local 이외의 경로로 가입한 사용자가 이메일 변경 요청을 한 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당하는 사용자를 찾을 수 없는 경우',
+  })
+  @ApiResponse({
+    status: 409,
+    description: '변경하려는 이메일을 이미 다른 사용자가 사용 중인 경우',
+  })
+  @ApiResponse({
+    status: 429,
+    description:
+      '요청 한도 초과: 1분 이내에 이메일 변경 요청을 2번 이상 한 경우',
+  })
+  async requestEmailChange(
+    @CurrentUser() reqUser: { userId: string; email: string },
+    @Body() dto: RequestEmailChangeDto,
+  ) {
+    return this.userService.requestEmailChange(reqUser.userId, dto);
   }
 }
