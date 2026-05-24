@@ -11,6 +11,7 @@
  */
 
 import { Global, Module } from '@nestjs/common';
+import { RedisService } from './redis.service';
 import Redis from 'ioredis';
 
 // 자주 사용될 예정이므로 전역 모듈로 선언
@@ -27,7 +28,8 @@ import Redis from 'ioredis';
         return new Redis(redisUrl);
       },
     },
+    RedisService,
   ],
-  exports: ['REDIS_CLIENT'],
+  exports: ['REDIS_CLIENT', RedisService],
 })
 export class RedisModule {}
