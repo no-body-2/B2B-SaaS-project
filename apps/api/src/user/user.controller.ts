@@ -27,6 +27,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @ApiTags('사용자 (User)')
 @Controller('user')
@@ -107,5 +108,49 @@ export class UserController {
     @Body() updateProfileDto: UpdateProfileDto,
   ) {
     return this.userService.updateProfile(reqUser.userId, updateProfileDto);
+  }
+
+  /**
+   * USER-ACCOUNT-001
+   * @description
+   * - 로그인한 사용자가 자신의 비밀번호를 변경
+   * @url PATCH /user/me/password
+   */
+  @Patch('password')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '비밀번호 변경',
+    description:
+      '로그인한 Local 가입자의 비밀번호를 변경하고, 모든 세션의 로그아웃을 강제 진행',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '비밀번호 변경 성공 및 세션 파기 완료',
+  })
+  @ApiResponse({
+    status: 400,
+    description:
+      '입력 데이터 형식 오류 or 기존 비밀번호와 현재 비밀번호가 일치하는 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description:
+      'Access Token이 유효하지 않거나, 현재 비밀번호가 일치하지 않는 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      'Local 이외의 경로로 가입한 사용자거나, 현재 탈퇴 대기 중인 사용자인 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당하는 사용자의 정보를 찾을 수 없는 경우',
+  })
+  async changePassword(
+    @CurrentUser() reqUser: { userId: string; email: string },
+    @Body() changePasswordDto: ChangePasswordDto,
+  ) {
+    return this.userService.changePassword(reqUser.userId, changePasswordDto);
   }
 }
