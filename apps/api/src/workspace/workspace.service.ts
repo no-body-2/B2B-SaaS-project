@@ -76,4 +76,41 @@ export class WorkspaceService {
       };
     });
   }
+
+  /**
+   * WORKSPACE-CORE-002
+   * 워크스페이스 조회
+   * @description
+   * - 현재 사용자가 소속되어있는 (본인 소유 포함) 워크스페이스의 목록과 기본 정보를 조회
+   * @param userId - 사용자 ID
+   */
+  async getUsersWorkspaces(userId: string) {
+    // 1. 교차 테이블 WorkspaceMember 기준으로 쿼리
+    const memberRecords = await this.prisma.workspaceMember.findMany({
+      where: { userId },
+      include: { workspace: true },
+      orderBy: { workspace: { createdAt: 'desc' } },
+    });
+
+    // 2. 비어있는 경우 빈 배열 조기 반환
+    if (memberRecords.length === 0) {
+      return {
+        workspaces: [],
+      };
+    }
+
+    // 3. 반환 데이터 규격에 맞춰 포맷
+    const formattedWorkspaces = memberRecords.map((record) => ({
+      id: record.workspace.id,
+      name: record.workspace.name,
+      description: record.workspace.description,
+      logoUrl: record.workspace.logoUrl,
+      role: record.role,
+      createdAt: record.workspace.createdAt,
+    }));
+
+    return {
+      workspaces: formattedWorkspaces,
+    };
+  }
 }

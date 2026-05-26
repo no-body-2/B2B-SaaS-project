@@ -10,7 +10,14 @@
  * @date 2026-05-26
  */
 
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { WorkspaceService } from './workspace.service';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { CurrentUser } from '../decorators/current-user.decorator';
@@ -61,5 +68,31 @@ export class WorkspaceController {
       reqUser.userId,
       createWorkspaceDto,
     );
+  }
+
+  /**
+   * WORKSPACE-CORE-002
+   * 워크스페이스 목록 조회
+   * @description
+   * - 사용자가 본인이 소속된 워크스페이스 목록 조회
+   * @url GET /workspace/list
+   */
+  @Get('list')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '워크스페이스 목록 조회',
+    description: '현재 로그인한 사용자가 소속되어 있는 워크스페이스 목록 조회',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '워크스페이스 목록 반환 성공 (빈 배열 반환 포함)',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '유효하지 않거나 만료된 Access Token',
+  })
+  async getUsersWorkspaces(@CurrentUser() reqUser: { userId: string }) {
+    return this.workspaceService.getUsersWorkspaces(reqUser.userId);
   }
 }
