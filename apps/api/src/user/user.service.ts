@@ -259,10 +259,10 @@ export class UserService {
     }
 
     // 2. 신규 이메일 중복 검사 (타 사용자가 사용하는 지 여부)
-    const exists = await this.prisma.user.findUnique({
+    const emailCount = await this.prisma.user.count({
       where: { email: dto.newEmail },
     });
-    if (exists) {
+    if (emailCount > 0) {
       throw new ConflictException('이미 사용 중인 이메일 주소입니다.');
     }
 
@@ -327,11 +327,11 @@ export class UserService {
     };
 
     // 2. 2차 중복 검증 방어 (30분 이내에 다른 사용자가 해당 이메일로 가입하였을 경우 대비)
-    const isEmailOccupied = await this.prisma.user.findUnique({
+    const isEmailOccupied = await this.prisma.user.count({
       where: { email: newEmail },
     });
 
-    if (isEmailOccupied) {
+    if (isEmailOccupied > 0) {
       throw new ConflictException(
         '인증 과정 중 다른 사용자가 해당 이메일로 가입하였습니다.',
       );
@@ -375,10 +375,10 @@ export class UserService {
    */
   async getUserPreference(userId: string) {
     // 1. 사용자 존재 여부 재검증
-    const userExists = await this.prisma.user.findUnique({
+    const userCount = await this.prisma.user.count({
       where: { id: userId },
     });
-    if (!userExists) {
+    if (userCount === 0) {
       throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
     }
 
@@ -407,10 +407,10 @@ export class UserService {
    */
   async updateUserPreference(userId: string, dto: UpdateUserPreferenceDto) {
     // 1. 사용자 존재 여부 재검증
-    const userExists = await this.prisma.user.findUnique({
+    const userCount = await this.prisma.user.count({
       where: { id: userId },
     });
-    if (!userExists) {
+    if (userCount === 0) {
       throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
     }
 

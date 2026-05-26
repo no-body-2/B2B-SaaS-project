@@ -1,3 +1,5 @@
+// apps/api/src/workspace/workspace.controller.ts
+
 /**
  * Workspace Controller
  *
@@ -7,3 +9,57 @@
  * @author  <Nobody>
  * @date 2026-05-26
  */
+
+import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { WorkspaceService } from './workspace.service';
+import { CreateWorkspaceDto } from './dto/create-workspace.dto';
+import { CurrentUser } from '../decorators/current-user.decorator';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
+
+@ApiTags('워크스페이스 (Workspace)')
+@Controller('workspace')
+export class WorkspaceController {
+  constructor(private readonly workspaceService: WorkspaceService) {}
+
+  /**
+   * WORKSPACE-CORE-001
+   * 워크스페이스 생성
+   * @description
+   * - 로그인한 사용자가 워크스페이스를 생성
+   * @url POST /workspace/create
+   */
+  @Post('create')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '워크스페이스 생성',
+    description:
+      '로그인한 사용자가 워크스페이스를 생성, 생성한 사용자는 자동으로 워크스페이스의 OWNER 역할 지정',
+  })
+  @ApiResponse({
+    status: 201,
+    description: '워크스페이스 생성 성공 및 식별자 반환',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '요청 데이터 유효성 검사 실패',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '워크스페이스 소유 제한 한도 초과',
+  })
+  async createWorkspace(
+    @CurrentUser() reqUser: { userId: string },
+    @Body() createWorkspaceDto: CreateWorkspaceDto,
+  ) {
+    return this.workspaceService.createWorkspace(
+      reqUser.userId,
+      createWorkspaceDto,
+    );
+  }
+}
