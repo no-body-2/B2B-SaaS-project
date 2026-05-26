@@ -27,6 +27,7 @@ import { RedisService } from '../redis/redis.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { RequestEmailChangeDto } from './dto/request-email-change.dto';
+import { VerifyEmailChangeDto } from './dto/verify-email-change.dto';
 
 @Injectable()
 export class UserService {
@@ -295,6 +296,62 @@ export class UserService {
     return {
       message: '인증 메일이 발송되었습니다. 30분 이내에 인증을 완료해 주세요.',
       expiresAt: new Date(Date.now() + 30 * 60 * 1000),
+    };
+  }
+
+  /**
+   * USER-ACCOUNT-003
+   * 사용자 이메일 변경 요청 승인
+   * @description
+   * - Local 가입 사용자의 이메일 변경 요청 승인
+   * @param dto - URL Query Parameter로 전달된 토큰 객체
+   * @returns 이메일 변경 요청 승인 성공 메시지 및 상태
+   * @throws
+   * - {BadRequestException} - 만료되었거나 유효하지 않은 인증 토큰을 사용한 경우
+   */
+  async verifyEmailChange(dto: VerifyEmailChangeDto) {
+    const tokenKey = `email-change:token:${dto.token}`;
+
+    // 1. Redis에서 Token Session 정보 추출
+    const tokenSession = await this.redisService.get(tokenKey);
+    if (!tokenSession) {
+      throw new BadRequestException(
+        '인증 토큰이 유효하지 않거나 만료되었습니다.',
+      );
+    }
+
+    const { userId, newEmail } = JSON.parse(tokenSession) as {
+      userId: string;
+      newEmail: string;
+    };
+
+    // 2. 2차 중복 검증 방어 (30분 이내에 다른 사용자가 해당 이메일로 가입하였을 경우 대비)
+    const isEmailOccupied = await this.prisma.user.findUnique({
+      where: { email: newEmail },
+    });
+
+    if (isEmailOccupied) {
+      throw new ConflictException(
+        '인증 과정 중 다른 사용자가 해당 이메일로 가입하였습니다.',
+      );
+    }
+
+    // 3. DB 갱신
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { email: newEmail },
+    });
+
+    // 4. 보안을 위해 Redis에서 Token 즉시 삭제 및 모든 세션 로그아웃
+    await this.redisService.del(tokenKey);
+
+    await this.prisma.refreshToken.deleteMany({
+      where: { userId },
+    });
+
+    return {
+      message: '이메일 주소가 성공적으로 변경되었습니다. 다시 로그인 해주세요.',
+      updatedAt: new Date(),
     };
   }
 }

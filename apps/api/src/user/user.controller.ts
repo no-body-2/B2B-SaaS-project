@@ -15,6 +15,7 @@ import {
   Get,
   Post,
   Patch,
+  Query,
   HttpCode,
   HttpStatus,
   Body,
@@ -27,9 +28,11 @@ import {
   ApiTags,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { Public } from '../decorators/public.decorator';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { RequestEmailChangeDto } from './dto/request-email-change.dto';
+import { VerifyEmailChangeDto } from './dto/verify-email-change.dto';
 
 @ApiTags('사용자 (User)')
 @Controller('user')
@@ -201,5 +204,36 @@ export class UserController {
     @Body() dto: RequestEmailChangeDto,
   ) {
     return this.userService.requestEmailChange(reqUser.userId, dto);
+  }
+
+  /**
+   * USER-PROFILE-003
+   * @description
+   * - 사용자의 이메일 변경 요청 최종 승인
+   * @url GET /user/email/verify?token=adaf13541...
+   */
+  @Get('email/verify')
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: '이메일 변경 요청 승인',
+    description:
+      '이메일로 발급된 1회용 CUID Token을 Redis와 대조하여 이메일 변경 요청 승인',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '이메일 변경 요청 승인 완료',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '유효하지 않거나 만료된 Token을 사용한 경우',
+  })
+  @ApiResponse({
+    status: 409,
+    description:
+      '인증 완료 직전, 변경하려는 이메일을 다른 사용자가 사용하여 가입한 경우',
+  })
+  async verifyEmailChange(@Query() verifyEmailChangeDto: VerifyEmailChangeDto) {
+    return this.userService.verifyEmailChange(verifyEmailChangeDto);
   }
 }
