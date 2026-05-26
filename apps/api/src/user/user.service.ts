@@ -28,6 +28,7 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { RequestEmailChangeDto } from './dto/request-email-change.dto';
 import { VerifyEmailChangeDto } from './dto/verify-email-change.dto';
+import { UpdateUserPreferenceDto } from './dto/update-preference.dto';
 
 @Injectable()
 export class UserService {
@@ -352,6 +353,108 @@ export class UserService {
     return {
       message: '이메일 주소가 성공적으로 변경되었습니다. 다시 로그인 해주세요.',
       updatedAt: new Date(),
+    };
+  }
+
+  // 기본 설정
+  private readonly DEFAULT_PREFERENCE = {
+    theme: 'dark',
+    language: 'ko',
+    timezone: 'Asia/Seoul',
+  };
+
+  /**
+   * USER-PREF-001
+   * 사용자 환경 설정 조회
+   * @description
+   * - 사용자의 설정을 조회하여 값이 없는 필드는 기본값으로 설정
+   * @param userId - 사용자 ID
+   * @returns 사용자 환경 설정 정보
+   * @throws
+   * - {NotFoundException} - 해당하는 사용자 정보를 찾을 수 없는 경우
+   */
+  async getUserPreference(userId: string) {
+    // 1. 사용자 존재 여부 재검증
+    const userExists = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!userExists) {
+      throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
+    }
+
+    const preference = await this.prisma.userPreference.findUnique({
+      where: { userId },
+    });
+
+    return {
+      message: '사용자 환경 설정 조회 성공',
+      data: {
+        userId,
+        theme: preference?.theme ?? this.DEFAULT_PREFERENCE.theme,
+        language: preference?.language ?? this.DEFAULT_PREFERENCE.language,
+        timezone: preference?.timezone ?? this.DEFAULT_PREFERENCE.timezone,
+      },
+    };
+  }
+
+  /**
+   * USER-PREF-002
+   * 사용자 환경 설정 수정
+   * @description
+   * - 사용자의 설정을 수정, 값이 존재하지 않는 경우 생성 (Upsert 방식 사용)
+   * @param userId - 사용자 ID
+   * @param dto - 변경할 preference Parameter 값
+   */
+  async updateUserPreference(userId: string, dto: UpdateUserPreferenceDto) {
+    // 1. 사용자 존재 여부 재검증
+    const userExists = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!userExists) {
+      throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
+    }
+
+    // 2. IANA Timezone 형식 유효성 검사
+    if (dto.timezone) {
+      try {
+        Intl.DateTimeFormat(undefined, { timeZone: dto.timezone });
+      } catch {
+        throw new BadRequestException(
+          `올바르지 않은 IANA Timezone 형식입니다. 입력값: ${dto.timezone}`,
+        );
+      }
+    }
+
+    // 3. 변경하려는 값이 없는 경우 조기 반환
+    if (Object.keys(dto).length === 0) {
+      return this.getUserPreference(userId);
+    }
+
+    // 4. Prisma의 upsert를 사용하여 수정 or 생성 동시 시행
+    const updated = await this.prisma.userPreference.upsert({
+      where: { userId },
+      update: {
+        theme: dto.theme,
+        language: dto.language,
+        timezone: dto.timezone,
+      },
+      create: {
+        userId,
+        theme: dto.theme ?? this.DEFAULT_PREFERENCE.theme,
+        language: dto.language ?? this.DEFAULT_PREFERENCE.language,
+        timezone: dto.timezone ?? this.DEFAULT_PREFERENCE.timezone,
+      },
+    });
+
+    // 5. 결과 반환
+    return {
+      message: '사용자 환경 설정이 저장되었습니다.',
+      preference: {
+        userId: updated.userId,
+        theme: updated.theme ?? this.DEFAULT_PREFERENCE.theme,
+        language: updated.language ?? this.DEFAULT_PREFERENCE.language,
+        timezone: updated.timezone ?? this.DEFAULT_PREFERENCE.timezone,
+      },
     };
   }
 }

@@ -33,6 +33,7 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { RequestEmailChangeDto } from './dto/request-email-change.dto';
 import { VerifyEmailChangeDto } from './dto/verify-email-change.dto';
+import { UpdateUserPreferenceDto } from './dto/update-preference.dto';
 
 @ApiTags('사용자 (User)')
 @Controller('user')
@@ -235,5 +236,66 @@ export class UserController {
   })
   async verifyEmailChange(@Query() verifyEmailChangeDto: VerifyEmailChangeDto) {
     return this.userService.verifyEmailChange(verifyEmailChangeDto);
+  }
+
+  /**
+   * USER-PREF-001
+   * @description
+   * - 로그인한 사용자의 개인 환경 설정 상태 조회
+   * @remarks
+   * - 설정이 존재하지 않는 경우 기본 값으로 제공
+   * @url GET /user/preference
+   */
+  @Get('preference')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '사용자 개인 환경 설정 조회',
+    description: '로그인한 사용자의 개인 환경 설정 상태 조회',
+  })
+  @ApiResponse({ status: 200, description: '사용자 개인 환경 설정 조회 성공' })
+  @ApiResponse({
+    status: 404,
+    description: '해당하는 사용자 조회 실패',
+  })
+  async getUserPreference(@CurrentUser() reqUser: { userId: string }) {
+    return this.userService.getUserPreference(reqUser.userId);
+  }
+
+  /**
+   * USER-PREF-002
+   * @description
+   * - 로그인한 사용자의 개인 환경 설정 상태 수정
+   * @remarks
+   * - 설정이 존재하지 않는 경우 기본 값으로 생성
+   * @url PATCH /user/preference
+   */
+  @Patch('preference')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '사용자 환경 설정 수정',
+    description: '테마, 언어, 타임존 중 사용자가 변경 요청한 필드의 값만 수정',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '수정된 환경 설정 반영 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '지원하지 않는 형식 or 데이터 유효성 검증 실패',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당하는 사용자 조회 실패',
+  })
+  async updateUserPreference(
+    @CurrentUser() reqUser: { userId: string },
+    @Body() updateUserPreferenceDto: UpdateUserPreferenceDto,
+  ) {
+    return this.userService.updateUserPreference(
+      reqUser.userId,
+      updateUserPreferenceDto,
+    );
   }
 }
