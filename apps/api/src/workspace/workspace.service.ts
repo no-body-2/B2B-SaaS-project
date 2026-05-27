@@ -12,6 +12,7 @@
 
 import {
   Injectable,
+  BadRequestException,
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
@@ -19,6 +20,7 @@ import { createId } from '@paralleldrive/cuid2';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { WorkspaceParamDto } from './dto/workspace-param.dto';
+import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 
 @Injectable()
 export class WorkspaceService {
@@ -179,6 +181,72 @@ export class WorkspaceService {
       role: membership.role,
       totalMemberCount,
       createdAt: workspaceDetail.createdAt,
+    };
+  }
+
+  /**
+   * WORKSPACE-CORE-004
+   * 워크스페이스 정보 수정
+   * @description
+   * - 특정 워크스페이스의 OWNER 권한을 가진 사용자가 해당 워크스페이스의 정보를 수정
+   * @param userId - 사용자 ID
+   * @param param - URL 경로로 전달된 워크스페이스 식별자 모음
+   * @param dto - 수정할 워크스페이스 정보 모음
+   * @returns - 수정 성공 메시지 및 수정된 워크스페이스 정보
+   * @throws
+   * - {BadRequestException} - 수정할 정보가 없는 경우
+   * - {UnAuthorizedException} - 유효하지 않은 Access Token
+   * - {ForbiddenException} - 워크스페이스에 소속되어 있지 않거나 권한이 없는 경우
+   * - {NotFoundException} - 해당하는 워크스페이스를 찾을 수 없는 경우
+   */
+  async updateWorkspace(
+    userId: string,
+    param: WorkspaceParamDto,
+    dto: UpdateWorkspaceDto,
+  ) {
+    const { workspaceId } = param;
+
+    // 1. 요청 사용자가 해당 워크스페이스의 소속 멤버인지 검증
+    const memberShip = await this.prisma.workspaceMember.findUnique({
+      where: { workspaceId_userId: { workspaceId, userId } },
+    });
+
+    if (!memberShip) {
+      throw new ForbiddenException(
+        '해당 워크스페이스에 소속되어 있지 않습니다.',
+      );
+    }
+
+    // 2. 요청 사용자가 워크스페이스 소유자인지 검증
+    if (memberShip.role !== 'OWNER') {
+      throw new ForbiddenException('해당 워크스페이스의 수정 권한이 없습니다.');
+    }
+
+    // 3. 요청으로 넘어온 dto에 수정할 정보가 있는지 검증
+    if (Object.keys(dto).length === 0) {
+      throw new BadRequestException('수정할 정보가 없습니다.');
+    }
+
+    // 4. 전달받은 정보를 바탕으로 워크스페이스 정보 업데이트
+    const updatedWorkspace = await this.prisma.workspace.update({
+      where: { id: workspaceId },
+      data: {
+        name: dto.name,
+        description: dto.description,
+        logoUrl: dto.logoUrl,
+      },
+    });
+
+    // 5. 결과 및 메시지 반환
+    return {
+      message: '워크스페이스 정보 수정 성공',
+      workspace: {
+        id: updatedWorkspace.id,
+        name: updatedWorkspace.name,
+        description: updatedWorkspace.description,
+        logoUrl: updatedWorkspace.logoUrl,
+        updatedAt: updatedWorkspace.updatedAt,
+      },
     };
   }
 }

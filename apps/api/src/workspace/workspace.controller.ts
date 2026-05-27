@@ -14,6 +14,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Body,
   Param,
   HttpCode,
@@ -22,6 +23,7 @@ import {
 import { WorkspaceService } from './workspace.service';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { WorkspaceParamDto } from './dto/workspace-param.dto';
+import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import {
   ApiTags,
@@ -133,5 +135,53 @@ export class WorkspaceController {
     @Param() param: WorkspaceParamDto,
   ) {
     return this.workspaceService.getWorkspaceDetail(reqUser.userId, param);
+  }
+
+  /**
+   * WORKSPACE-CORE-004
+   * 워크스페이스 정보 수정
+   * @description
+   * - 사용자가 본인이 소유한 워크스페이스의 기본 정보를 수정
+   * @url PATCH /workspace/:workspaceId
+   */
+  @Patch(':workspaceId')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '워크스페이스 정보 수정',
+    description:
+      '워크스페이스의 최고 관리자 (ONWER) 권한을 가진 사용자가 워크스페이스의 정보를 수정',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '워크스페이스 정보 수정 및 반영 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '요청 데이터가 유효하지 않음',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '유효하지 않거나 만료된 Access Token',
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      '워크스페이스에 소속되지 않았거나 최고 관리자 (ONWER) 권한이 없음',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 워크스페이스를 찾을 수 없음',
+  })
+  async updateWorkspace(
+    @CurrentUser() reqUser: { userId: string },
+    @Param() param: WorkspaceParamDto,
+    @Body() updateWorkspaceDto: UpdateWorkspaceDto,
+  ) {
+    return this.workspaceService.updateWorkspace(
+      reqUser.userId,
+      param,
+      updateWorkspaceDto,
+    );
   }
 }
