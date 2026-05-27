@@ -167,7 +167,7 @@ export class WorkspaceController {
   @ApiResponse({
     status: 403,
     description:
-      '워크스페이스에 소속되지 않았거나 최고 관리자 (ONWER) 권한이 없음',
+      '워크스페이스에 소속되지 않았거나 최고 관리자 (OWNER) 권한이 없음',
   })
   @ApiResponse({
     status: 404,
