@@ -7,9 +7,10 @@ import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
 import { UserModule } from './user/user.module';
+import { WorkspaceModule } from './workspace/workspace.module';
 
 @Module({
-  imports: [AuthModule, UserModule, PrismaModule, RedisModule],
+  imports: [AuthModule, UserModule, WorkspaceModule, RedisModule, PrismaModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -15,6 +15,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Body,
   Param,
   HttpCode,
@@ -31,6 +32,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
 } from '@nestjs/swagger';
+import { DeleteWorkspaceDto } from './dto/delete-workspace.dto';
 
 @ApiTags('워크스페이스 (Workspace)')
 @Controller('workspace')
@@ -150,7 +152,7 @@ export class WorkspaceController {
   @ApiOperation({
     summary: '워크스페이스 정보 수정',
     description:
-      '워크스페이스의 최고 관리자 (ONWER) 권한을 가진 사용자가 워크스페이스의 정보를 수정',
+      '워크스페이스의 최고 관리자 (OWNER) 권한을 가진 사용자가 워크스페이스의 정보를 수정',
   })
   @ApiResponse({
     status: 200,
@@ -182,6 +184,55 @@ export class WorkspaceController {
       reqUser.userId,
       param,
       updateWorkspaceDto,
+    );
+  }
+
+  /**
+   * WORKSPACE-CORE-005
+   * 워크스페이스 삭제
+   * @description
+   * - 워크스페이스의 최고 관리자 (OWNER) 가 워크스페이스의 삭제를 요청
+   * @url DELETE /workspace/:workspaceId
+   */
+  @Delete(':workspaceId')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '워크스페이스 삭제',
+    description:
+      '워크스페이스의 최고 관리자 (OWNER) 가 워크스페이스의 삭제를 요청하여 30일 이후 최종 삭제',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Soft Delete 성공, 30일 후 완전 삭제',
+  })
+  @ApiResponse({
+    status: 400,
+    description:
+      '입력한 Confirm Name이 실제 워크스페이스 이름과 일치하지 않는 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '유효하지 않은 Access Token',
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      '해당 워크스페이스에 소속되지 않았거나, 최고 관리자 (OWNER) 권한이 없는 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 워크스페이스를 찾을 수 없는 경우',
+  })
+  async deleteWorkspace(
+    @CurrentUser() reqUser: { userId: string },
+    @Param() param: WorkspaceParamDto,
+    @Body() deleteWorkspaceDto: DeleteWorkspaceDto,
+  ) {
+    return this.workspaceService.softDeleteWorkspace(
+      reqUser.userId,
+      param,
+      deleteWorkspaceDto,
     );
   }
 }

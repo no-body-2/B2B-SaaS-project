@@ -21,6 +21,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { WorkspaceParamDto } from './dto/workspace-param.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
+import { DeleteWorkspaceDto } from './dto/delete-workspace.dto';
 
 @Injectable()
 export class WorkspaceService {
@@ -247,6 +248,69 @@ export class WorkspaceService {
         logoUrl: updatedWorkspace.logoUrl,
         updatedAt: updatedWorkspace.updatedAt,
       },
+    };
+  }
+
+  /**
+   * WORKSPACE-CORE-005
+   * 워크스페이스 삭제
+   * @description
+   * - 워크스페이스의 소유자 OWNER 권한을 가진 사용자가 워크스페이스를 삭제
+   * - Soft Delete 방식을 사용하여 삭제 요청 후 30일이 지나면 완전 삭제
+   * @remarks
+   * - 삭제 시, 해당 워크스페이스의 이름을 입력하여 삭제 의사 재확인
+   * @param userId - 사용자 ID
+   * @param param - URL 경로로 전달된 워크스페이스 식별자 모음
+   * @param dto - 삭제 시 재확인을 위한 워크스페이스 이름이 담긴 객체
+   * @returns - 삭제 성공 메시지
+   * @throws
+   * - {BadRequestException} - 입력한 Confirm Name이 워크스페이스의 이름과 일치하지 않는 경우
+   * - {NotFoundException} - 해당하는 워크스페이스를 찾을 수 없는 경우
+   */
+  async softDeleteWorkspace(
+    userId: string,
+    param: WorkspaceParamDto,
+    dto: DeleteWorkspaceDto,
+  ) {
+    const { workspaceId } = param;
+
+    // 1. 해당 워크스페이스 원본 데이터 추출
+    const workspace = await this.prisma.workspace.findUnique({
+      where: { id: workspaceId },
+    });
+    if (!workspace) {
+      throw new NotFoundException('해당하는 워크스페이스를 찾을 수 없습니다.');
+    }
+
+    // 2. 입력한 Confirm Name이 워크스페이스의 이름과 일치하는지 확인
+    if (workspace.name !== dto.confirmName) {
+      throw new BadRequestException(
+        '삭제 요청 시 입력한 워크스페이스 이름이 일치하지 않습니다.',
+      );
+    }
+
+    // TODO: membership으로 권한을 확인하는 부분이 중복되므로 별도의 메서드로 분리할 것
+    // 3. 워크스페이스 삭제 권한 검증
+    const membership = await this.prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: { workspaceId, userId },
+      },
+    });
+
+    if (!membership || membership.role !== 'OWNER') {
+      throw new ForbiddenException('워크스페이스의 삭제 권한이 없습니다.');
+    }
+
+    // 4. 워크스페이스 Soft Delete을 위한 DeletedAt 설정
+    await this.prisma.workspace.update({
+      where: { id: workspaceId },
+      data: { deletedAt: new Date() },
+    });
+
+    return {
+      message:
+        '워크스페이스 삭제 요청이 완료되었습니다. 30일 이내에 복구가 가능합니다.',
+      deletedAt: new Date(),
     };
   }
 }
