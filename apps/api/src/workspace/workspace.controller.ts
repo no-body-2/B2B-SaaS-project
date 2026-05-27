@@ -15,11 +15,13 @@ import {
   Get,
   Post,
   Body,
+  Param,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
 import { WorkspaceService } from './workspace.service';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
+import { WorkspaceParamDto } from './dto/workspace-param.dto';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import {
   ApiTags,
@@ -94,5 +96,42 @@ export class WorkspaceController {
   })
   async getUsersWorkspaces(@CurrentUser() reqUser: { userId: string }) {
     return this.workspaceService.getUsersWorkspaces(reqUser.userId);
+  }
+
+  /**
+   * WORKSPACE-CORE-003
+   * 워크스페이스 상세 조회
+   * @description
+   * - 사용자가 본인이 소속된 워크스페이스 상세 조회
+   * @url GET /workspace/:workspaceId
+   */
+  @Get(':workspaceId')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '워크스페이스 상세 조회',
+    description: '특정 워크스페이스의 정보와 현재 요청 사용자의 Role 조회',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '워크스페이스 상세 정보 반환 성공',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '유효하지 않거나 만료된 Access Token',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '워크스페이스에 소속되어 있지 않음',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 워크스페이스를 찾을 수 없음',
+  })
+  async getWorkspaceDetail(
+    @CurrentUser() reqUser: { userId: string },
+    @Param() param: WorkspaceParamDto,
+  ) {
+    return this.workspaceService.getWorkspaceDetail(reqUser.userId, param);
   }
 }

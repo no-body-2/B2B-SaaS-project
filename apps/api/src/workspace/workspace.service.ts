@@ -10,10 +10,15 @@
  * @date 2026-05-26
  */
 
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
+import { createId } from '@paralleldrive/cuid2';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
-import { createId } from '@paralleldrive/cuid2';
+import { WorkspaceParamDto } from './dto/workspace-param.dto';
 
 @Injectable()
 export class WorkspaceService {
@@ -111,6 +116,69 @@ export class WorkspaceService {
 
     return {
       workspaces: formattedWorkspaces,
+    };
+  }
+
+  /**
+   * WORKSPACE-CORE-003
+   * 워크스페이스 상세 조회
+   * @description
+   * - 특정 워크스페이스에 소속된 사용자가 해당 워크스페이스의 상세 정보를 조회
+   * @param userId - 사용자 ID
+   * @param param - URL 경로로 전달된 워크스페이스 식별자 모음
+   * @returns - 반환될 워크스페이스 정보
+   * @throws
+   * - {ForbiddenException} - 워크스페이스에 소속되어 있지 않은 경우
+   * - {NotFoundException} - 해당하는 워크스페이스를 찾을 수 없는 경우
+   */
+  async getWorkspaceDetail(userId: string, param: WorkspaceParamDto) {
+    // 1. 워크스페이스 ID 추출
+    const { workspaceId } = param;
+
+    // 2. 워크스페이스 존재 여부 확인
+    const workspaceExists = await this.prisma.workspace.count({
+      where: { id: workspaceId },
+    });
+    if (workspaceExists === 0) {
+      throw new NotFoundException('해당하는 워크스페이스를 찾을 수 없습니다.');
+    }
+
+    // 3. 사용자가 해당 워크스페이스에 소속되어 있는 상태인지 확인
+    const membership = await this.prisma.workspaceMember.findUnique({
+      where: { workspaceId_userId: { workspaceId, userId } },
+    });
+
+    if (!membership) {
+      throw new ForbiddenException(
+        '해당 워크스페이스의 정보를 조회할 권한이 없습니다.',
+      );
+    }
+
+    // 4. 반환할 데이터 추출 Promise.all 사용
+    const [workspaceDetail, totalMemberCount] = await Promise.all([
+      this.prisma.workspace.findUnique({
+        where: { id: workspaceId },
+      }),
+      this.prisma.workspaceMember.count({
+        where: { workspaceId },
+      }),
+    ]);
+
+    if (!workspaceDetail) {
+      throw new NotFoundException(
+        '해당하는 워크스페이스의 정보를 불러오는 중 오류가 발생했습니다.',
+      );
+    }
+
+    // 5. 총 멤버 수와 조회를 요청한 사용자의 Role을 포함하여 결과 반환
+    return {
+      id: workspaceDetail.id,
+      name: workspaceDetail.name,
+      description: workspaceDetail.description,
+      logoUrl: workspaceDetail.logoUrl,
+      role: membership.role,
+      totalMemberCount,
+      createdAt: workspaceDetail.createdAt,
     };
   }
 }
