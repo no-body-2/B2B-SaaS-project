@@ -235,4 +235,47 @@ export class WorkspaceController {
       deleteWorkspaceDto,
     );
   }
+
+  /**
+   * WORKSPACE-CORE-006
+   * 워크스페이스 복구
+   * @description
+   * - 워크스페이스의 최고 관리자 (OWNER) 가 삭제 대기 중인 상태의 워크스페이스의 복구를 요청
+   * @url PATCH /workspace/:workspaceId
+   */
+  @Patch(':workspaceId')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '워크스페이스 복구',
+    description:
+      '워크스페이스의 최고 관리자 (OWNER) 가 삭제 대기 중인 상태의 워크스페이스의 복구를 요청하여 워크스페이스를 복구',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '워크스페이스 복구 완료',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '이미 정상 활성 상태의 워크스페이스를 복구 시도한 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '유효하지 않은 Access Token',
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      '해당 워크스페이스에 소속되지 않았거나, 최고 관리자 (OWNER) 권한이 없는 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 워크스페이스를 찾을 수 없는 경우',
+  })
+  async restoreWorkspace(
+    @CurrentUser() reqUser: { userId: string },
+    @Param() param: WorkspaceParamDto,
+  ) {
+    return this.workspaceService.restoreWorkspace(reqUser.userId, param);
+  }
 }

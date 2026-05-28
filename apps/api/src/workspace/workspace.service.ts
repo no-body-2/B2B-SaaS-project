@@ -313,4 +313,66 @@ export class WorkspaceService {
       deletedAt: new Date(),
     };
   }
+
+  /**
+   * WORKSPACE-CORE-006
+   * 워크스페이스 복구
+   * @description
+   * - 삭제 대기 중인 상태의 워크스페이스를 복구
+   * @remarks
+   * - deletedAt 설정 시간으로부터 30일 이내에 시도해야 함
+   * @param userId - 사용자 ID
+   * @param param - URL 경로로 전달된 워크스페이스 식별자 모음
+   * @returns - 복구 성공 메시지
+   * @throws
+   * - {BadRequestException} - 입력한 Confirm Name이 워크스페이스의 이름과 일치하지 않는 경우
+   * - {NotFoundException} - 해당하는 워크스페이스를 찾을 수 없는 경우
+   */
+  async restoreWorkspace(userId: string, param: WorkspaceParamDto) {
+    const { workspaceId } = param;
+
+    // 1. 워크스페이스의 원본 데이터 불러오기
+    const workspace = await this.prisma.workspace.findUnique({
+      where: { id: workspaceId },
+    });
+
+    // 1-1. 워크스페이스 존재 여부 확인
+    if (!workspace) {
+      throw new NotFoundException('해당하는 워크스페이스를 찾을 수 없습니다.');
+    }
+
+    // 2. 워크스페이스 deletedAt 확인
+    if (workspace.deletedAt === null) {
+      throw new BadRequestException('이미 활성 상태의 워크스페이스 입니다.');
+    }
+
+    // 3. 워크스페이스 소유자 권한 확인
+    const membership = await this.prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: { workspaceId, userId },
+      },
+    });
+
+    if (!membership || membership.role !== 'OWNER') {
+      throw new ForbiddenException('워크스페이스의 복구 권한이 없습니다.');
+    }
+
+    // 4. 복구 작업 수행
+    const restored = await this.prisma.workspace.update({
+      where: { id: workspaceId },
+      data: { deletedAt: null },
+    });
+
+    // 5. 결과 데이터 반환
+    return {
+      message: '워크스페이스 복구가 완료되었습니다.',
+      workspace: {
+        id: restored.id,
+        name: restored.name,
+        description: restored.description,
+        logoUrl: restored.logoUrl,
+        updatedAt: restored.updatedAt,
+      },
+    };
+  }
 }
