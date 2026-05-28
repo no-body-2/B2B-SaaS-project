@@ -147,15 +147,7 @@ export class WorkspaceService {
     }
 
     // 3. 사용자가 해당 워크스페이스에 소속되어 있는 상태인지 확인
-    const membership = await this.prisma.workspaceMember.findUnique({
-      where: { workspaceId_userId: { workspaceId, userId } },
-    });
-
-    if (!membership) {
-      throw new ForbiddenException(
-        '해당 워크스페이스의 정보를 조회할 권한이 없습니다.',
-      );
-    }
+    const membership = await this.validateMembership(userId, workspaceId);
 
     // 4. 반환할 데이터 추출 Promise.all 사용
     const [workspaceDetail, totalMemberCount] = await Promise.all([
@@ -208,18 +200,10 @@ export class WorkspaceService {
     const { workspaceId } = param;
 
     // 1. 요청 사용자가 해당 워크스페이스의 소속 멤버인지 검증
-    const memberShip = await this.prisma.workspaceMember.findUnique({
-      where: { workspaceId_userId: { workspaceId, userId } },
-    });
-
-    if (!memberShip) {
-      throw new ForbiddenException(
-        '해당 워크스페이스에 소속되어 있지 않습니다.',
-      );
-    }
+    const membership = await this.validateMembership(userId, workspaceId);
 
     // 2. 요청 사용자가 워크스페이스 소유자인지 검증
-    if (memberShip.role !== 'OWNER') {
+    if (membership.role !== 'OWNER') {
       throw new ForbiddenException('해당 워크스페이스의 수정 권한이 없습니다.');
     }
 
@@ -291,13 +275,9 @@ export class WorkspaceService {
 
     // TODO: membership으로 권한을 확인하는 부분이 중복되므로 별도의 메서드로 분리할 것
     // 3. 워크스페이스 삭제 권한 검증
-    const membership = await this.prisma.workspaceMember.findUnique({
-      where: {
-        workspaceId_userId: { workspaceId, userId },
-      },
-    });
+    const membership = await this.validateMembership(userId, workspaceId);
 
-    if (!membership || membership.role !== 'OWNER') {
+    if (membership.role !== 'OWNER') {
       throw new ForbiddenException('워크스페이스의 삭제 권한이 없습니다.');
     }
 
@@ -347,11 +327,7 @@ export class WorkspaceService {
     }
 
     // 3. 워크스페이스 소유자 권한 확인
-    const membership = await this.prisma.workspaceMember.findUnique({
-      where: {
-        workspaceId_userId: { workspaceId, userId },
-      },
-    });
+    const membership = await this.validateMembership(userId, workspaceId);
 
     if (!membership || membership.role !== 'OWNER') {
       throw new ForbiddenException('워크스페이스의 복구 권한이 없습니다.');
@@ -374,5 +350,29 @@ export class WorkspaceService {
         updatedAt: restored.updatedAt,
       },
     };
+  }
+
+  /**
+   * 워크스페이스 멤버십 유효성 검사
+   * @description
+   * - 요청 사용자가 해당 워크스페이스에 소속된 상태인 지 검증
+   * @param userId
+   * @param workspaceId
+   * @private
+   */
+  private async validateMembership(userId: string, workspaceId: string) {
+    const membership = await this.prisma.workspaceMember.findUnique({
+      where: {
+        workspaceId_userId: { workspaceId, userId },
+      },
+    });
+
+    if (!membership) {
+      throw new NotFoundException(
+        '해당 워크스페이스에 소속되지 않은 사용자입니다.',
+      );
+    }
+
+    return membership;
   }
 }
