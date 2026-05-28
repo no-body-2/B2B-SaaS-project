@@ -243,7 +243,7 @@ export class WorkspaceController {
    * - 워크스페이스의 최고 관리자 (OWNER) 가 삭제 대기 중인 상태의 워크스페이스의 복구를 요청
    * @url PATCH /workspace/:workspaceId
    */
-  @Patch(':workspaceId')
+  @Patch('restore/:workspaceId')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth('accessToken')
   @ApiOperation({
