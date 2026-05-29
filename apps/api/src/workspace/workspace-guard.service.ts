@@ -35,6 +35,9 @@ export class WorkspaceGuardService {
       where: {
         workspaceId_userId: { workspaceId, userId },
       },
+      include: {
+        user: true,
+      },
     });
 
     if (!membership) {
