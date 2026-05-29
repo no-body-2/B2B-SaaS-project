@@ -12,9 +12,11 @@
 
 import {
   Controller,
+  Get,
   Post,
   Param,
   Body,
+  Query,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -22,6 +24,7 @@ import { WorkspaceMemberService } from './workspace-member.service';
 import { WorkspaceParamDto } from './dto/workspace-param.dto';
 import { InviteMemberDto } from './dto/member/invite-member.dto';
 import { AcceptInvitationDto } from './dto/member/accept-invitation.dto';
+import { WorkspaceMemberQueryDto } from './dto/member/workspace-member-query.dto';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import {
   ApiTags,
@@ -115,6 +118,48 @@ export class WorkspaceMemberController {
     return this.workspaceMemberService.acceptWorkspaceInvitation(
       reqUser.userId,
       acceptInviteDto,
+    );
+  }
+
+  /**
+   * WORKSPACE-MEMBER-003
+   * @description
+   * - 워크스페이스 멤버 조회
+   * @url GET workspace/:workspaceId/members
+   */
+  @Get(':workspaceId/members')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '워크스페이스 소속 멤버 조회)',
+    description:
+      '파라미터로 넘어온 조건에 맞는 워크스페이스 멤버 조회, 페이징 기능 지원',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '워크스페이스 소속 멤버 조회 성공',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '유효하지 않은 Access Token',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '조회 권한이 없는 사용자가 조회를 시도하는 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '존재하지 않는 워크스페이스',
+  })
+  async getWorkspaceMembers(
+    @CurrentUser() reqUser: { userId: string },
+    @Param() param: WorkspaceParamDto,
+    @Query() query: WorkspaceMemberQueryDto,
+  ) {
+    return this.workspaceMemberService.getWorkspaceMembers(
+      reqUser.userId,
+      param,
+      query,
     );
   }
 }

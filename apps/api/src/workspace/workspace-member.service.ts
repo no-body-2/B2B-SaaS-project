@@ -24,6 +24,8 @@ import { WorkspaceParamDto } from './dto/workspace-param.dto';
 import { WorkspaceGuardService } from './workspace-guard.service';
 import { createId } from '@paralleldrive/cuid2';
 import { AcceptInvitationDto } from './dto/member/accept-invitation.dto';
+import { WorkspaceMemberQueryDto } from './dto/member/workspace-member-query.dto';
+import { Prisma } from '@b2b/database';
 
 @Injectable()
 export class WorkspaceMemberService {
@@ -209,6 +211,90 @@ export class WorkspaceMemberService {
     return {
       message: `${workspace.name}에 팀원이 되신 것을 축하합니다.`,
       workspace,
+    };
+  }
+
+  /**
+   * WORKSPACE-MEMBER-003
+   * 워크스페이스 멤버 목록 조회
+   * @description
+   * - 워크스페이스에 소속된 사용자의 목록을 조회
+   * @param userId - 초대 요청을 보낸 사용자의 ID
+   * @param param - 워크스페이스 식별자
+   * @param query - 페이지네이션 및 필터링 옵션 DTO
+   * @returns - 조회 성공 메시지 및 워크스페이스 멤버 목록
+   * @throws
+   * - {ForbiddenException}: 사용자 권한이 없을 경우
+   * - {NotFoundException}: 사용자가 워크스페이스에 존재하지 않을 경우
+   * - {ConflictException}: 이미 초대된 사용자거나 이미 해당 워크스페이스에 소속된 사용자일 경우
+   */
+  async getWorkspaceMembers(
+    userId: string,
+    param: WorkspaceParamDto,
+    query: WorkspaceMemberQueryDto,
+  ) {
+    const { workspaceId } = param;
+    const { page, size, keyword, role } = query;
+
+    // 1. 권한 검증
+    await this.workspaceGuard.validateMembership(userId, workspaceId);
+
+    // 2. 동적 Where 조건절 정의
+    const whereClause: Prisma.WorkspaceMemberWhereInput = {
+      workspaceId,
+      ...(role && { role }),
+      ...(keyword && {
+        user: {
+          OR: [
+            { firstName: { contains: keyword, mode: 'insensitive' } },
+            { lastName: { contains: keyword, mode: 'insensitive' } },
+            { email: { contains: keyword, mode: 'insensitive' } },
+          ],
+        },
+      }),
+    };
+
+    // 3. DB 페이징 조회 쿼리 실행
+    const [totalCount, members] = await Promise.all([
+      this.prisma.workspaceMember.count({ where: whereClause }),
+      this.prisma.workspaceMember.findMany({
+        where: whereClause,
+        skip: (page - 1) * size,
+        take: size,
+        orderBy: { joinedAt: 'asc' },
+        select: {
+          role: true,
+          joinedAt: true,
+          userId: true,
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    // 4. Total Pages 계산
+    const totalPages = Math.ceil(totalCount / size);
+
+    // 5. 응답 반환
+    return {
+      message: '워크스페이스 멤버 조회 성공',
+      totalCount,
+      currentPage: page,
+      totalPages: totalPages === 0 ? 1 : totalPages,
+      members: members.map((m) => ({
+        userId: m.userId,
+        firstname: m.user?.firstName ?? '',
+        lastname: m.user?.lastName ?? '',
+        email: m.user?.email ?? '',
+        role: m.role ?? 'MEMBER',
+        joinedAt: m.joinedAt,
+      })),
     };
   }
 }
