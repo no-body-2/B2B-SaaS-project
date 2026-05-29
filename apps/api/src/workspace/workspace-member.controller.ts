@@ -14,6 +14,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Param,
   Body,
   Query,
@@ -25,6 +26,8 @@ import { WorkspaceParamDto } from './dto/workspace-param.dto';
 import { InviteMemberDto } from './dto/member/invite-member.dto';
 import { AcceptInvitationDto } from './dto/member/accept-invitation.dto';
 import { WorkspaceMemberQueryDto } from './dto/member/workspace-member-query.dto';
+import { TargetMemberDto } from './dto/member/target-member.dto';
+import { UpdateMemberRoleDto } from './dto/member/update-role.dto';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import {
   ApiTags,
@@ -160,6 +163,53 @@ export class WorkspaceMemberController {
       reqUser.userId,
       param,
       query,
+    );
+  }
+
+  // TODO: 이메일 전송 기능 추가 후 테스트 할 것
+  /**
+   * WORKSPACE-MEMBER-004
+   * @description
+   * - 워크스페이스 멤버 권한 수정
+   * @url PATCH workspace/:workspaceId/members/:targetUserId/role
+   */
+  @Patch(':workspaceId/members/:targetUserId/role')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '워크스페이스 멤버 권한 변경',
+    description:
+      '워크스페이스의 OWNER 권한을 가진 사용자가 타 사용자의 권한을 변경',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '워크스페이스 멤버 권한 변경 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '본인의 권한 변경을 요청한 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '유효하지 않은 Access Token',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'OWNER 권한이 없는 사용자가 권한 변경을 요청한 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '대상 사용자가 해당 워크스페이스에 소속되지 않은 경우',
+  })
+  async updateMemberRole(
+    @CurrentUser() reqUser: { userId: string },
+    @Param() param: TargetMemberDto,
+    @Body() updateMemberRoleDto: UpdateMemberRoleDto,
+  ) {
+    return this.workspaceMemberService.updateMemberRole(
+      reqUser.userId,
+      param,
+      updateMemberRoleDto,
     );
   }
 }

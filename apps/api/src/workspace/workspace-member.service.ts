@@ -26,6 +26,8 @@ import { createId } from '@paralleldrive/cuid2';
 import { AcceptInvitationDto } from './dto/member/accept-invitation.dto';
 import { WorkspaceMemberQueryDto } from './dto/member/workspace-member-query.dto';
 import { Prisma } from '@b2b/database';
+import { TargetMemberDto } from './dto/member/target-member.dto';
+import { UpdateMemberRoleDto } from './dto/member/update-role.dto';
 
 @Injectable()
 export class WorkspaceMemberService {
@@ -219,14 +221,13 @@ export class WorkspaceMemberService {
    * 워크스페이스 멤버 목록 조회
    * @description
    * - 워크스페이스에 소속된 사용자의 목록을 조회
-   * @param userId - 초대 요청을 보낸 사용자의 ID
+   * @param userId - 요청을 보낸 사용자의 ID
    * @param param - 워크스페이스 식별자
    * @param query - 페이지네이션 및 필터링 옵션 DTO
    * @returns - 조회 성공 메시지 및 워크스페이스 멤버 목록
    * @throws
    * - {ForbiddenException}: 사용자 권한이 없을 경우
-   * - {NotFoundException}: 사용자가 워크스페이스에 존재하지 않을 경우
-   * - {ConflictException}: 이미 초대된 사용자거나 이미 해당 워크스페이스에 소속된 사용자일 경우
+   * - {NotFoundException}: 해당 워크스페이스가 존재하지 않을 경우
    */
   async getWorkspaceMembers(
     userId: string,
@@ -295,6 +296,52 @@ export class WorkspaceMemberService {
         role: m.role ?? 'MEMBER',
         joinedAt: m.joinedAt,
       })),
+    };
+  }
+
+  /**
+   * WORKSPACE-MEMBER-004
+   * 워크스페이스 멤버 권한 변경
+   * @description
+   * - 워크스페이스의 OWNER 권한을 가진 사용자가 타 사용자의 권한을 변경
+   * @param userId - 요청 사용자의 ID
+   * @param param - 워크스페이스 식별자
+   * @param dto - 변경할 사용자의 권한 정보
+   * @returns - 변경 성공 메시지 및 변경된 사용자 정보
+   * @throws
+   * - {BadRequestException}: 본인의 권한을 변경하려 시도하는 경우
+   * - {ForbiddenException}: 사용자 권한이 없을 경우
+   * - {NotFoundException}: 사용자가 워크스페이스에 존재하지 않을 경우
+   */
+  async updateMemberRole(
+    userId: string,
+    param: TargetMemberDto,
+    dto: UpdateMemberRoleDto,
+  ) {
+    const { workspaceId, targetUserId } = param;
+    const { newRole } = dto;
+
+    // 1. 요청 사용자와 대상 사용자의 적합성 검사
+    await this.workspaceGuard.verifyWorkspaceOwner(userId, workspaceId);
+    await this.workspaceGuard.validateMembership(targetUserId, workspaceId);
+
+    // 2. 본인의 권한 변경 방지
+    if (userId === targetUserId) {
+      throw new BadRequestException('본인의 권한을 변경할 수 없습니다.');
+    }
+
+    // 3. 권한 변경 시도
+    const updatedMember = await this.prisma.workspaceMember.update({
+      where: { workspaceId_userId: { workspaceId, userId: targetUserId } },
+      data: { role: newRole },
+    });
+
+    // 4. 결과 반환
+    return {
+      message: '워크스페이스 멤버 권한 변경 성공',
+      workspaceId: updatedMember.workspaceId,
+      targetUserId: updatedMember.userId,
+      updatedRole: updatedMember.role,
     };
   }
 }
