@@ -10,12 +10,20 @@
  * @date 2026-05-28
  */
 
-import { Injectable, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+  ConflictException,
+  GoneException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { InviteMemberDto } from './dto/member/invite-member.dto';
 import { WorkspaceParamDto } from './dto/workspace-param.dto';
 import { WorkspaceGuardService } from './workspace-guard.service';
 import { createId } from '@paralleldrive/cuid2';
+import { AcceptInvitationDto } from './dto/member/accept-invitation.dto';
 
 @Injectable()
 export class WorkspaceMemberService {
@@ -72,7 +80,6 @@ export class WorkspaceMemberService {
         workspaceId,
         targetEmail: dto.email,
         status: 'PENDING',
-        expiresAt: { gt: new Date() },
       },
     });
 
@@ -101,6 +108,7 @@ export class WorkspaceMemberService {
       },
     });
 
+    // TODO: 이메일 전송 부 추가
     // 7. 결과 반환
     return {
       message: '초대 요청이 성공적으로 전송되었습니다. 6시간 후 만료됩니다.',
@@ -110,6 +118,97 @@ export class WorkspaceMemberService {
       invitation: newInvitation.invitation,
       invitationToken,
       expiresAt: newInvitation.expiresAt,
+    };
+  }
+
+  // TODO: Scheduler 를 통한 만료 기간 시 자동 삭제 or 자동 상태 변경 설정할 것
+  // TODO: createId를 통해 생성한 ID 또한 중복의 우려가 있으므로 createId 메서드 실행 후 검증하는 부분을 추가할 것
+  /**
+   * WORKSPACE-MEMBER-002
+   * 워크스페이스 초대 요청 수락
+   * @description
+   * - WORKSPACE-MEMBER-001 에서 발급된 1회용 인증 토큰을 검증 및 만료 시간 대조 후 DB 작업
+   * @param userId - 초대 요청을 보낸 사용자의 ID
+   * @param dto - 초대 요청 수락 확인 DTO
+   * @returns - 가입 성공 메시지 및 신규 워크스페이스 멤버 정보
+   * @throws
+   * - {ForbiddenException}: 사용자 권한이 없을 경우
+   * - {NotFoundException}: 사용자가 워크스페이스에 존재하지 않을 경우
+   * - {ConflictException}: 이미 초대된 사용자거나 이미 해당 워크스페이스에 소속된 사용자일 경우
+   */
+  async acceptWorkspaceInvitation(userId: string, dto: AcceptInvitationDto) {
+    const { invitationToken } = dto;
+
+    const invitation = await this.prisma.workspaceInvitation.findUnique({
+      where: { token: invitationToken },
+    });
+
+    if (!invitation) {
+      throw new NotFoundException('유효하지 않은 초대 토큰입니다.');
+    }
+
+    if (invitation.status !== 'PENDING') {
+      throw new BadRequestException(
+        '이미 처리되었거나 유효하지 않은 요청입니다.',
+      );
+    }
+
+    const now = new Date();
+    if (invitation.expiresAt < now) {
+      await this.prisma.workspaceInvitation.update({
+        where: { id: invitation.id },
+        data: { status: 'EXPIRED' },
+      });
+      throw new GoneException('초대 요청이 만료되었습니다.');
+    }
+
+    const currentUser = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!currentUser || currentUser.email !== invitation.targetEmail) {
+      throw new ForbiddenException('유효하지 않은 초대 요청입니다.');
+    }
+
+    const isAlreadyMember = await this.prisma.workspaceMember.count({
+      where: {
+        workspaceId: invitation.workspaceId,
+        userId: currentUser.id,
+      },
+    });
+
+    if (isAlreadyMember > 0) {
+      throw new ConflictException(
+        '이미 해당 워크스페이스에 소속된 사용자입니다.',
+      );
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.workspaceInvitation.update({
+        where: { id: invitation.id },
+        data: { status: 'ACCEPTED' },
+      });
+
+      await tx.workspaceMember.create({
+        data: {
+          workspaceId: invitation.workspaceId,
+          userId: currentUser.id,
+          role: 'MEMBER',
+        },
+      });
+    });
+
+    const workspace = await this.prisma.workspace.findUnique({
+      where: { id: invitation.workspaceId },
+      select: { id: true, name: true, description: true, logoUrl: true },
+    });
+
+    if (!workspace) {
+      throw new NotFoundException('워크스페이스를 찾을 수 없습니다.');
+    }
+
+    return {
+      message: `${workspace.name}에 팀원이 되신 것을 축하합니다.`,
+      workspace,
     };
   }
 }

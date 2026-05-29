@@ -21,6 +21,7 @@ import {
 import { WorkspaceMemberService } from './workspace-member.service';
 import { WorkspaceParamDto } from './dto/workspace-param.dto';
 import { InviteMemberDto } from './dto/member/invite-member.dto';
+import { AcceptInvitationDto } from './dto/member/accept-invitation.dto';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import {
   ApiTags,
@@ -38,6 +39,8 @@ export class WorkspaceMemberController {
 
   /**
    * WORKSPACE-MEMBER-001
+   * @description
+   * - 워크스페이스 사용자 초대
    * @url POST /workspace/:workspaceId/invite
    */
   @Post(':workspaceId/invite')
@@ -73,6 +76,45 @@ export class WorkspaceMemberController {
       reqUser.userId,
       param,
       inviteMemberDto,
+    );
+  }
+
+  /**
+   * WORKSPACE-MEMBER-002
+   * @description
+   * - 워크스페이스 초대 수락
+   * @url POST /workspace/invite/accept
+   */
+  @Post('invite/accept')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '발송된 초대 수락 및 워크스페이스 합류',
+    description: '사용자가 워크스페이스 초대 링크를 통해 워크스페이스에 합류',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '워크스페이스에 초대 수락 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '유효하지 않은 초대 토큰을 사용한 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '유효하지 않은 Access Token',
+  })
+  @ApiResponse({
+    status: 410,
+    description: '초대 토큰이 만료된 경우',
+  })
+  async acceptInvite(
+    @CurrentUser() reqUser: { userId: string },
+    @Body() acceptInviteDto: AcceptInvitationDto,
+  ) {
+    return this.workspaceMemberService.acceptWorkspaceInvitation(
+      reqUser.userId,
+      acceptInviteDto,
     );
   }
 }
