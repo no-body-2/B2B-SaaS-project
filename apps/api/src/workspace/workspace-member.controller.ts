@@ -15,12 +15,12 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Param,
   Body,
   Query,
   HttpCode,
   HttpStatus,
-  Delete,
 } from '@nestjs/common';
 import { WorkspaceMemberService } from './workspace-member.service';
 import { WorkspaceParamDto } from './dto/workspace-param.dto';
@@ -253,5 +253,43 @@ export class WorkspaceMemberController {
     @Param() param: TargetMemberDto,
   ) {
     return this.workspaceMemberService.kickMember(reqUser.userId, param);
+  }
+
+  // TODO: 추후 이메일 전송 기능 추가 후 다시 테스트할 것
+  /**
+   * WORKSPACE-MEMBER-006
+   * @description
+   * - 워크스페이스 나가기
+   * @url DELETE workspace/:workspaceId/leave
+   */
+  @Delete(':workspaceId/leave')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '워크스페이스 나가기',
+    description: '워크스페이스의 OWNER가 아닌 사용자가 워크스페이스에서 탈퇴',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '워크스페이스 나가기 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '워크스페이스의 OWNER가 나가기 요청을 한 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '유효하지 않은 Access Token',
+  })
+  @ApiResponse({
+    status: 404,
+    description:
+      '워크스페이스를 찾을 수 없거나 워크스페이스에 해당 멤버가 존재하지 않는 경우',
+  })
+  async leaveWorkspace(
+    @CurrentUser() reqUser: { userId: string },
+    @Param('workspaceId') param: WorkspaceParamDto,
+  ) {
+    return this.workspaceMemberService.leaveWorkspace(reqUser.userId, param);
   }
 }

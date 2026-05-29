@@ -356,7 +356,7 @@ export class WorkspaceMemberService {
    * @throws
    * - {BadRequestException}: 본인을 추방하려 시도하는 경우
    * - {ForbiddenException}: 사용자 권한이 없을 경우
-   * - {NotFoundException}: 사용자가 워크스페이스에 존재하지 않을 경우
+   * - {NotFoundException}: 사용자가 워크스페이스에 존재하지 않거나 해당하는 워크스페이스를 찾을 수 없는 경우
    */
   async kickMember(userId: string, param: TargetMemberDto) {
     const { workspaceId, targetUserId } = param;
@@ -377,6 +377,48 @@ export class WorkspaceMemberService {
       workspaceId,
       targetUserId,
       kickedAt: new Date(),
+    };
+  }
+
+  /**
+   * WORKSPACE-MEMBER-006
+   * 워크스페이스 나가기
+   * @description
+   * - 워크스페이스에 소속된 사용자가 스스로 워크스페이스 나가기 요청
+   * @param userId - 요청 사용자의 ID
+   * @param param - 워크스페이스 식별자
+   * @returns - 나가기 성공 메시지
+   * @throws
+   * - {BadRequestException}: OWNER 권한을 가진 사용자가 권한 위임 없이 나가려는 경우
+   * - {ForbiddenException}: 사용자가 워크스페이스에 소속되지 않은 경우
+   * - {NotFoundException}: 사용자가 워크스페이스에 존재하지 않거나 해당하는 워크스페이스를 찾을 수 없는 경우
+   */
+  async leaveWorkspace(userId: string, param: WorkspaceParamDto) {
+    const { workspaceId } = param;
+
+    // 1. 사용자 워크스페이스 소속 여부 검증 및 정보 반환
+    const membership = await this.workspaceGuard.validateMembership(
+      userId,
+      workspaceId,
+    );
+
+    // 2. OWNER 권한을 가진 사용자는 나가기 불가
+    if (membership.role === 'OWNER') {
+      throw new BadRequestException(
+        '워크스페이스의 관리자는 워크스페이스를 나갈 수 없습니다.',
+      );
+    }
+
+    // 3. 워크스페이스 멤버 삭제 처리 (Hard Delete)
+    await this.prisma.workspaceMember.delete({
+      where: { workspaceId_userId: { workspaceId, userId } },
+    });
+
+    // 4. 결과 반환
+    return {
+      message: '워크스페이스 나가기 성공',
+      workspaceId,
+      leftAt: new Date(),
     };
   }
 }
