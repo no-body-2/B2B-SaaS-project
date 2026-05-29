@@ -20,6 +20,7 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  Delete,
 } from '@nestjs/common';
 import { WorkspaceMemberService } from './workspace-member.service';
 import { WorkspaceParamDto } from './dto/workspace-param.dto';
@@ -211,5 +212,46 @@ export class WorkspaceMemberController {
       param,
       updateMemberRoleDto,
     );
+  }
+
+  // TODO: 추후 이메일 전송 기능 추가 후 다시 테스트할 것
+  /**
+   * WORKSPACE-MEMBER-005
+   * @description
+   * - 워크스페이스 멤버 추방
+   * @url DELETE workspace/:workspaceId/members/:targetUserId
+   */
+  @Delete(':workspaceId/members/:targetUserId')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '워크스페이스 멤버 추방',
+    description: '워크스페이스의 OWNER 권한을 가진 사용자가 타 사용자를 추방',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '워크스페이스 멤버 추방 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '추방 대상이 워크스페이스의 OWNER 자신인 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '유효하지 않은 Access Token',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'OWNER 권한이 아닌 사용자가 추방을 요청한 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '워크스페이스에 해당 멤버가 존재하지 않는 경우',
+  })
+  async kickMember(
+    @CurrentUser() reqUser: { userId: string },
+    @Param() param: TargetMemberDto,
+  ) {
+    return this.workspaceMemberService.kickMember(reqUser.userId, param);
   }
 }

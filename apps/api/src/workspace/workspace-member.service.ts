@@ -344,4 +344,39 @@ export class WorkspaceMemberService {
       updatedRole: updatedMember.role,
     };
   }
+
+  /**
+   * WORKSPACE-MEMBER-005
+   * 워크스페이스 멤버 추방
+   * @description
+   * - 워크스페이스의 OWNER 권한을 가진 사용자가 타 사용자를 추방
+   * @param userId - 요청 사용자의 ID
+   * @param param - 워크스페이스 식별자
+   * @returns - 추방 성공 메시지
+   * @throws
+   * - {BadRequestException}: 본인을 추방하려 시도하는 경우
+   * - {ForbiddenException}: 사용자 권한이 없을 경우
+   * - {NotFoundException}: 사용자가 워크스페이스에 존재하지 않을 경우
+   */
+  async kickMember(userId: string, param: TargetMemberDto) {
+    const { workspaceId, targetUserId } = param;
+
+    await this.workspaceGuard.verifyWorkspaceOwner(userId, workspaceId);
+    await this.workspaceGuard.validateMembership(targetUserId, workspaceId);
+
+    if (userId === targetUserId) {
+      throw new BadRequestException('본인을 추방할 수 없습니다.');
+    }
+
+    await this.prisma.workspaceMember.delete({
+      where: { workspaceId_userId: { workspaceId, userId: targetUserId } },
+    });
+
+    return {
+      message: '워크스페이스 멤버 추방 성공',
+      workspaceId,
+      targetUserId,
+      kickedAt: new Date(),
+    };
+  }
 }
