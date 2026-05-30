@@ -1,5 +1,15 @@
 // apps/api/src/auth/auth.module.ts
 
+/**
+ * Auth Module
+ *
+ * @description
+ * Auth Service를 제공하는 모듈
+ *
+ * @author  <Nobody>
+ * @date 2026-05-15
+ */
+
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
