@@ -31,6 +31,7 @@ import { WorkspaceParamDto } from '../workspace/dto/workspace-param.dto';
 import { CreateNanoDto } from './dto/create-nano.dto';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { NanoQueryDto } from './dto/nano-query.dto';
+import { NanoChildParamDto } from './dto/child-nano-param.dto';
 
 @ApiTags('Nano')
 @Controller('workspace')
@@ -81,7 +82,7 @@ export class NanoController {
   /**
    * NANO-CORE-002
    * @description
-   * - Nano 목록 조회
+   * - 최상위 Nano 목록 조회
    * @url GET /workspace/:workspaceId/nanos/root
    */
   @Get(':workspaceId/nanos/root')
@@ -109,5 +110,46 @@ export class NanoController {
     @Query() query: NanoQueryDto,
   ) {
     return this.nanoService.getRootNanos(reqUser.userId, param, query);
+  }
+
+  /**
+   * NANO-CORE-002
+   * @description
+   * - 하위 Nano 목록 조회
+   * @url GET /workspace/:workspaceId/nanos/:parentNanoId/child
+   */
+  @Get(':workspaceId/nanos/:parentNanoId/child')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '특정 Parent Nano에 속한 하위 Nano 목록 조회',
+    description: 'Sidebar or Toggle 등 UI에서 사용되는 하위 Nano 목록 조회',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '하위 Nano 페이징 목록 조회 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '해당 Parent Nano가 현재 워크스페이스 소속이 아닌 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '유효하지 않은 Access Token',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '현재 Workspace에 소속되지 않은 사용자의 요청',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 Parent Nano가 존재하지 않거나, 찾을 수 없는 경우',
+  })
+  async getChildNanos(
+    @CurrentUser() reqUser: { userId: string },
+    @Param() param: NanoChildParamDto,
+    @Query() query: NanoQueryDto,
+  ) {
+    return this.nanoService.getChildNanos(reqUser.userId, param, query);
   }
 }

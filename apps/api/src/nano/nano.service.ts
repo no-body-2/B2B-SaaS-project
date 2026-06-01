@@ -22,6 +22,7 @@ import { WorkspaceParamDto } from '../workspace/dto/workspace-param.dto';
 import { CreateNanoDto } from './dto/create-nano.dto';
 import { createId } from '@paralleldrive/cuid2';
 import { NanoQueryDto } from './dto/nano-query.dto';
+import { NanoChildParamDto } from './dto/child-nano-param.dto';
 
 @Injectable()
 export class NanoService {
@@ -70,6 +71,7 @@ export class NanoService {
       }
     }
 
+    // 2. ID 및 객체 생성
     const nanoId = `n-${createId()}`;
     const newNano = await this.prisma.nano.create({
       data: {
@@ -83,6 +85,7 @@ export class NanoService {
       },
     });
 
+    // 3. 결과 반환
     return {
       message: 'Nano 생성에 성공했습니다.',
       nanoId: newNano.id,
@@ -99,7 +102,7 @@ export class NanoService {
    * NANO-CORE-002
    * 최상위 Nano 목록 조회
    * @description
-   * - 워크스페이스 인가를 거친 사용자가 해당 워크스페이스에 속한 Nano 목록 조회
+   * - 워크스페이스 인가를 거친 사용자가 해당 워크스페이스에 속한 최상위 Nano 목록 조회
    * @param userId - 사용자 ID (CUID)
    * @param param - Workspace 정보가 담긴 객체
    * @param query - Nano 목록 조회에 사용되는 DTO
@@ -115,6 +118,7 @@ export class NanoService {
     const { workspaceId } = param;
     const { page, size } = query;
 
+    // 1. 권한 검증 및 검색 조건 설정
     await this.workspaceGuard.validateMembership(userId, workspaceId);
 
     const whereClause = {
@@ -123,6 +127,7 @@ export class NanoService {
       deletedAt: null,
     };
 
+    // 2. 페이지네이션 및 조회
     const [totalCount, nanos] = await Promise.all([
       this.prisma.nano.count({ where: whereClause }),
       this.prisma.nano.findMany({
@@ -140,14 +145,96 @@ export class NanoService {
       }),
     ]);
 
+    // 3. 총 페이지 수 계산
     const totalPages = Math.ceil(totalCount / size);
 
+    // 4. 결과 반환
     return {
       message: 'Nano 목록 조회에 성공',
       totalCount,
       currentPage: page,
       totalPages: totalPages === 0 ? 1 : totalPages,
       nanoList: nanos.map((nano) => ({
+        nanoId: nano.id,
+        type: nano.type ?? 'PAGE',
+        title: nano.title ?? '',
+        createdAt: nano.createdAt,
+      })),
+    };
+  }
+
+  /**
+   * NANO-CORE-003
+   * 하위 Nano 목록 조회
+   * @description
+   * - 워크스페이스 인가를 거친 사용자가 해당 워크스페이스에 속한 Nano 목록 조회
+   * @param userId - 사용자 ID (CUID)
+   * @param param - Workspace 정보가 담긴 객체
+   * @param query - Nano 목록 조회에 사용되는 DTO
+   * @returns 조회 성공 메시지 및 Nano 목록 반환
+   * @throws
+   * - {BadRequestException} - 유효하지 않은 요청 파라미터 (해당 Nano가 현재 워크스페이스 소속이 아님)
+   * - {ForbiddenException} - 워크스페이스에 소속되지 않은 사용자의 요청
+   * - {NotFoundException} - 해당하는 Parent Nano가 존재하지 않음
+   */
+  async getChildNanos(
+    userId: string,
+    param: NanoChildParamDto,
+    query: NanoQueryDto,
+  ) {
+    const { workspaceId, parentNanoId } = param;
+    const { page, size } = query;
+
+    // 1. 권한 검증
+    await this.workspaceGuard.validateMembership(userId, workspaceId);
+
+    // 2. Parent Nano 존재 여부 및 유효성 검증
+    const parentNano = await this.prisma.nano.findUnique({
+      where: { id: parentNanoId },
+    });
+
+    if (!parentNano || parentNano.deletedAt !== null) {
+      throw new NotFoundException('지정한 부모 Nano를 찾을 수 없습니다.');
+    }
+
+    if (parentNano.workspaceId !== workspaceId) {
+      throw new BadRequestException('해당하는 Nano가 유효하지 않습니다.');
+    }
+
+    // 3. Where 조건 설정
+    const whereClause = {
+      workspaceId,
+      parentNanoId,
+      deletedAt: null,
+    };
+
+    // 4. 페이지네이션 및 조회
+    const [totalCount, nanos] = await Promise.all([
+      this.prisma.nano.count({ where: whereClause }),
+      this.prisma.nano.findMany({
+        where: whereClause,
+        skip: (page - 1) * size,
+        take: size,
+        orderBy: { createdAt: 'asc' },
+        select: {
+          id: true,
+          type: true,
+          title: true,
+          createdAt: true,
+        },
+      }),
+    ]);
+
+    // 5. 총 페이지 수 계산
+    const totalPages = Math.ceil(totalCount / size);
+
+    // 6. 결과 반환
+    return {
+      message: '하위 Nano 목록 조회 성공',
+      totalCount,
+      currentPage: page,
+      totalPages: totalPages === 0 ? 1 : totalPages,
+      nanos: nanos.map((nano) => ({
         nanoId: nano.id,
         type: nano.type ?? 'PAGE',
         title: nano.title ?? '',
