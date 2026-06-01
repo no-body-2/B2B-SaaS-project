@@ -14,6 +14,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Body,
   Param,
   Query,
@@ -33,6 +34,7 @@ import { CurrentUser } from '../decorators/current-user.decorator';
 import { NanoQueryDto } from './dto/nano-query.dto';
 import { NanoChildParamDto } from './dto/child-nano-param.dto';
 import { TargetNanoParamDto } from './dto/target-nano-param.dto';
+import { UpdateNanoDto } from './dto/update-nano.dto';
 
 @ApiTags('Nano')
 @Controller('workspace')
@@ -192,5 +194,48 @@ export class NanoController {
     @Param() param: TargetNanoParamDto,
   ) {
     return this.nanoService.getNanoDetail(reqUser.userId, param);
+  }
+
+  /**
+   * NANO-CORE-005
+   * @description
+   * - Nano 수정
+   * @url PATCH /workspace/:workspaceId/nanos/:nanoId
+   */
+  @Patch(':workspaceId/nanos/:nanoId')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: 'Nano Title 및 Content 수정',
+    description:
+      'Nano의 Title 및 Content를 수정 : OWNER or ADMIN 권한의 사용자가 요청 시 즉시 수정, 일반 사용자 요청 시 결재 요청으로 넘어감',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Nano 수정 (요청) 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description:
+      '입력 데이터가 잘못 되었거나, 현재 진행 중인 결재 요청이 있는 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '유효하지 않은 Access Token',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '해당 워크스페이스에 소속되어 있지 않은 사용자의 요청',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 Nano가 존재하지 않거나, 찾을 수 없는 경우',
+  })
+  async updateNano(
+    @CurrentUser() reqUser: { userId: string },
+    @Param() param: TargetNanoParamDto,
+    @Body() updatedNanoDto: UpdateNanoDto,
+  ) {
+    return this.nanoService.updateNano(reqUser.userId, param, updatedNanoDto);
   }
 }

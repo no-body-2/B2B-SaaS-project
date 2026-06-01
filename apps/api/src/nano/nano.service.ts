@@ -24,6 +24,7 @@ import { createId } from '@paralleldrive/cuid2';
 import { NanoQueryDto } from './dto/nano-query.dto';
 import { NanoChildParamDto } from './dto/child-nano-param.dto';
 import { TargetNanoParamDto } from './dto/target-nano-param.dto';
+import { UpdateNanoDto } from './dto/update-nano.dto';
 
 @Injectable()
 export class NanoService {
@@ -288,5 +289,127 @@ export class NanoService {
       createdAt: nano.createdAt,
       updatedAt: nano.updatedAt,
     };
+  }
+
+  /**
+   * NANO-CORE-005
+   * Nano 수정 요청
+   * @description
+   * - 워크스페이스 인가를 거친 사용자가 해당 워크스페이스에 속한 Nano 수정
+   * @remarks
+   * - 즉시 수정 권한은 해당 Nano의 작성자나 관리자만이 가짐
+   * - 타 사용자 (MEMBER) 권한의 사용자가 수정 시 Approval Request로 넘어감
+   * @param userId - 사용자 ID (CUID)
+   * @param param - 해당 Nano 정보가 담긴 객체
+   * @param dto - Nano 수정 정보가 담긴 객체
+   * @returns 수정 성공 메시지 및 Nano 상세 정보 반환
+   * @throws
+   * - {BadRequestException} - 유효하지 않은 요청 파라미터 (해당 Nano가 현재 워크스페이스 소속이 아님)
+   * - {ForbiddenException} - 워크스페이스에 소속되지 않은 사용자의 요청
+   * - {NotFoundException} - 해당하는 Parent Nano가 존재하지 않음
+   */
+  async updateNano(
+    userId: string,
+    param: TargetNanoParamDto,
+    dto: UpdateNanoDto,
+  ) {
+    const { workspaceId, nanoId } = param;
+    const { title, content } = dto;
+
+    // 1. 사용자 워크스페이스 소속 여부 검사
+    const membership = await this.workspaceGuard.validateMembership(
+      userId,
+      workspaceId,
+    );
+
+    // 1-1. 사용자 권한 확인
+    const userRole = membership.role ?? 'MEMBER';
+
+    // 2. 수정 대상 Nano 조회
+    const targetNano = await this.prisma.nano.findUnique({
+      where: { id: nanoId },
+    });
+
+    if (!targetNano || targetNano.deletedAt !== null) {
+      throw new NotFoundException('해당 Nano가 존재하지 않습니다.');
+    }
+
+    if (targetNano.workspaceId !== workspaceId) {
+      throw new BadRequestException('해당 Nano에 접근할 수 없습니다.');
+    }
+
+    // 왜 FindUnique는 안되는건가
+    // 3. 결재 상태 여부 확인
+    const isPending = await this.prisma.pendingNano.findFirst({
+      where: { nanoId },
+    });
+
+    if (isPending) {
+      throw new BadRequestException('이미 결재 요청이 진행 중입니다.');
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const historyId = `h-${createId()}`;
+      const newHistory = await tx.nanoHistory.create({
+        data: {
+          id: historyId,
+          nanoId,
+          title: title ?? targetNano.title,
+          content: content ? content : (targetNano.content ?? undefined),
+          writerId: userId,
+          workspaceId,
+          // TODO: Version의 기준을 명확히 정립할 것, 현재는 타임스탬프 기반으로 사용
+          version: `v-${Date.now()}`,
+        },
+      });
+
+      // 4-A. 요청 사용자가 OWNER or ADMIN인 경우 즉시 수정
+      if (userRole === 'OWNER' || userRole === 'ADMIN') {
+        const updatedNano = await tx.nano.update({
+          where: { id: nanoId },
+          data: {
+            title: title ?? undefined,
+            content: content ?? undefined,
+          },
+        });
+
+        return {
+          message: '관리자 권한으로 Nano 즉시 수정이 완료되었습니다.',
+          status: 'APPROVED',
+          nanoId: updatedNano.id,
+          title: updatedNano.title,
+          content: updatedNano.content,
+          historyId: newHistory.id,
+        };
+      }
+
+      // 4-B. 요청 사용자가 일반 사용자인 경우 결재 요청 생성
+      const approvalId = `a-${createId()}`;
+
+      await tx.approvalRequest.create({
+        data: {
+          id: approvalId,
+          nanoId,
+          historyId,
+          status: 'PENDING',
+        },
+      });
+
+      await tx.pendingNano.create({
+        data: {
+          approvalId,
+          nanoId,
+        },
+      });
+
+      return {
+        message:
+          'Nano 수정 요청이 전달되었습니다. 관리자의 승인을 기다려주세요.',
+        status: 'PENDING',
+        nanoId,
+        historyId: newHistory.id,
+        approvalId,
+      };
+    });
   }
 }
