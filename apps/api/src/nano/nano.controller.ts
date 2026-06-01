@@ -32,6 +32,7 @@ import { CreateNanoDto } from './dto/create-nano.dto';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { NanoQueryDto } from './dto/nano-query.dto';
 import { NanoChildParamDto } from './dto/child-nano-param.dto';
+import { TargetNanoParamDto } from './dto/target-nano-param.dto';
 
 @ApiTags('Nano')
 @Controller('workspace')
@@ -151,5 +152,45 @@ export class NanoController {
     @Query() query: NanoQueryDto,
   ) {
     return this.nanoService.getChildNanos(reqUser.userId, param, query);
+  }
+
+  /**
+   * NANO-CORE-004
+   * @description
+   * - Nano 상세 조회
+   * @url GET /workspace/:workspaceId/nanos/:nanoId
+   */
+  @Get(':workspaceId/nanos/:nanoId')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: 'Nano 상세 조회',
+    description: '해당 워크스페이스 내부에 속한 Nano의 상세 정보를 조회',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Nano 상세 조회 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '해당하는 Nano가 현재 워크스페이스에 소속된 상태가 아님',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '유효하지 않은 Access Token',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '현재 Workspace에 소속되지 않은 사용자의 요청',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 Nano가 존재하지 않거나, 찾을 수 없는 경우',
+  })
+  async getNanoDetail(
+    @CurrentUser() reqUser: { userId: string },
+    @Param() param: TargetNanoParamDto,
+  ) {
+    return this.nanoService.getNanoDetail(reqUser.userId, param);
   }
 }

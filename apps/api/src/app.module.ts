@@ -8,9 +8,17 @@ import { PrismaModule } from './prisma/prisma.module';
 import { RedisModule } from './redis/redis.module';
 import { UserModule } from './user/user.module';
 import { WorkspaceModule } from './workspace/workspace.module';
+import { NanoModule } from './nano/nano.module';
 
 @Module({
-  imports: [AuthModule, UserModule, WorkspaceModule, RedisModule, PrismaModule],
+  imports: [
+    AuthModule,
+    UserModule,
+    WorkspaceModule,
+    RedisModule,
+    PrismaModule,
+    NanoModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -23,6 +23,7 @@ import { CreateNanoDto } from './dto/create-nano.dto';
 import { createId } from '@paralleldrive/cuid2';
 import { NanoQueryDto } from './dto/nano-query.dto';
 import { NanoChildParamDto } from './dto/child-nano-param.dto';
+import { TargetNanoParamDto } from './dto/target-nano-param.dto';
 
 @Injectable()
 export class NanoService {
@@ -65,9 +66,7 @@ export class NanoService {
       }
 
       if (parentNano.workspaceId !== workspaceId) {
-        throw new BadRequestException(
-          '해당 Nano는 현재 워크스페이스에 존재하지 않습니다.',
-        );
+        throw new BadRequestException('해당 Nano에 접근할 수 없습니다.');
       }
     }
 
@@ -198,7 +197,7 @@ export class NanoService {
     }
 
     if (parentNano.workspaceId !== workspaceId) {
-      throw new BadRequestException('해당하는 Nano가 유효하지 않습니다.');
+      throw new BadRequestException('해당 Nano에 접근할 수 없습니다.');
     }
 
     // 3. Where 조건 설정
@@ -240,6 +239,54 @@ export class NanoService {
         title: nano.title ?? '',
         createdAt: nano.createdAt,
       })),
+    };
+  }
+
+  /**
+   * NANO-CORE-004
+   * Nano 상세 조회
+   * @description
+   * - 워크스페이스 인가를 거친 사용자가 해당 워크스페이스에 속한 Nano 상세 조회
+   * @param userId - 사용자 ID (CUID)
+   * @param param - Workspace 정보가 담긴 객체
+   * @returns 조회 성공 메시지 및 Nano 상세 정보 반환
+   * @throws
+   * - {BadRequestException} - 유효하지 않은 요청 파라미터 (해당 Nano가 현재 워크스페이스 소속이 아님)
+   * - {ForbiddenException} - 워크스페이스에 소속되지 않은 사용자의 요청
+   * - {NotFoundException} - 해당하는 Parent Nano가 존재하지 않음
+   */
+  async getNanoDetail(userId: string, param: TargetNanoParamDto) {
+    const { workspaceId, nanoId } = param;
+
+    await this.workspaceGuard.validateMembership(userId, workspaceId);
+
+    // 1. Nano 추출
+    const nano = await this.prisma.nano.findUnique({
+      where: { id: nanoId },
+    });
+
+    // 2. Nano 존재 여부 확인
+    if (!nano || nano.deletedAt !== null) {
+      throw new NotFoundException('해당하는 Nano가 존재하지 않습니다.');
+    }
+
+    // 3. Nano 소속 워크스페이스 확인
+    if (nano.workspaceId !== workspaceId) {
+      throw new BadRequestException('해당 Nano에 접근할 수 없습니다.');
+    }
+
+    // 4. 결과 반환
+    return {
+      message: 'Nano 상세 조회 성공',
+      nanoId: nano.id,
+      workspaceId: nano.workspaceId,
+      parentNanoId: nano.parentNanoId,
+      type: nano.type ?? 'PAGE',
+      title: nano.title ?? '',
+      content: nano.content,
+      writerId: nano.writerId,
+      createdAt: nano.createdAt,
+      updatedAt: nano.updatedAt,
     };
   }
 }
