@@ -35,6 +35,7 @@ import { NanoQueryDto } from './dto/nano-query.dto';
 import { NanoChildParamDto } from './dto/child-nano-param.dto';
 import { TargetNanoParamDto } from './dto/target-nano-param.dto';
 import { UpdateNanoDto } from './dto/update-nano.dto';
+import { MoveNanoDto } from './dto/move-nano.dto';
 
 @ApiTags('Nano')
 @Controller('workspace')
@@ -237,5 +238,42 @@ export class NanoController {
     @Body() updatedNanoDto: UpdateNanoDto,
   ) {
     return this.nanoService.updateNano(reqUser.userId, param, updatedNanoDto);
+  }
+
+  /**
+   * NANO-CORE-006
+   * @description
+   * - Nano 위치 수정
+   * @url PATCH /workspace/:workspaceId/nanos/:nanoId/position
+   */
+  @Patch(':workspaceId/nanos/:nanoId/position')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: 'Nano 위치 수정 및 순서 변경 (Frontend에서 Drag & Drop으로 이동)',
+    description: 'Nano 트리 구조 재배치',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Nano 위치 수정 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '자신 또는 자신의 하위 Nano로 이동하려 하는 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '해당 워크스페이스 내의 OWNER 권한이 없는 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 Nano가 존재하지 않거나, 찾을 수 없는 경우',
+  })
+  async moveNano(
+    @CurrentUser() reqUser: { userId: string },
+    @Param() param: TargetNanoParamDto,
+    @Body() moveNanoDto: MoveNanoDto,
+  ) {
+    return this.nanoService.moveNano(reqUser.userId, param, moveNanoDto);
   }
 }

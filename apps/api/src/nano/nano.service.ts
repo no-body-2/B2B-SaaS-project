@@ -25,6 +25,7 @@ import { NanoQueryDto } from './dto/nano-query.dto';
 import { NanoChildParamDto } from './dto/child-nano-param.dto';
 import { TargetNanoParamDto } from './dto/target-nano-param.dto';
 import { UpdateNanoDto } from './dto/update-nano.dto';
+import { MoveNanoDto } from './dto/move-nano.dto';
 
 @Injectable()
 export class NanoService {
@@ -411,5 +412,136 @@ export class NanoService {
         approvalId,
       };
     });
+  }
+
+  /**
+   * NANO-CORE-006
+   * Nano 위치 수정
+   * @description
+   * - 워크스페이스의 최고 관리자가 Nano의 위치를 수정
+   * @remarks
+   * - 위치 수정 권한은 해당 워크스페이스의 OWNER 권한을 가진 사용자만이 가짐
+   * @param userId - 사용자 ID (CUID)
+   * @param param - 해당 Nano 정보가 담긴 객체
+   * @param dto - Nano 수정 정보가 담긴 객체
+   * @returns 수정 성공 메시지 및 Nano 상세 정보 반환
+   * @throws
+   * - {BadRequestException} - 유효하지 않은 요청 파라미터 (해당 Nano가 현재 워크스페이스 소속이 아님)
+   * - {ForbiddenException} - 워크스페이스에 소속되지 않은 사용자의 요청
+   * - {NotFoundException} - 해당하는 Parent Nano가 존재하지 않음
+   */
+  async moveNano(userId: string, param: TargetNanoParamDto, dto: MoveNanoDto) {
+    const { workspaceId, nanoId } = param;
+    const { targetParentNanoId, prevNanoId } = dto;
+
+    // 1. api/v1에서는 OWNER 권한의 사용자만 위치 수정 권한이 부여됨
+    await this.workspaceGuard.verifyWorkspaceOwner(userId, workspaceId);
+
+    const currentNano = await this.prisma.nano.findUnique({
+      where: { id: nanoId },
+    });
+
+    if (!currentNano || currentNano.deletedAt !== null) {
+      throw new NotFoundException('해당하는 Nano가 존재하지 않습니다.');
+    }
+
+    if (currentNano.workspaceId !== workspaceId) {
+      throw new BadRequestException('해당 Nano에 접근할 수 없습니다.');
+    }
+
+    if (targetParentNanoId) {
+      if (nanoId === targetParentNanoId) {
+        throw new BadRequestException('자신을 상위 Nano로 설정할 수 없습니다.');
+      }
+
+      const isSubNano = await this.isChildNano(nanoId, targetParentNanoId);
+      if (isSubNano) {
+        throw new BadRequestException('자신의 하위 Nano로 이동할 수 없습니다.');
+      }
+
+      const targetParent = await this.prisma.nano.findUnique({
+        where: { id: targetParentNanoId },
+      });
+
+      if (!targetParent) {
+        throw new NotFoundException('상위 Nano가 존재하지 않습니다.');
+      }
+
+      if (targetParent.workspaceId !== workspaceId) {
+        throw new BadRequestException(
+          '상위 Nano가 현재 워크스페이스에 속하지 않습니다.',
+        );
+      }
+    }
+
+    let targetOrderTime = new Date();
+
+    if (prevNanoId) {
+      const prevSibling = await this.prisma.nano.findUnique({
+        where: { id: prevNanoId },
+        select: { createdAt: true, workspaceId: true },
+      });
+
+      if (prevSibling && prevSibling.workspaceId === workspaceId) {
+        targetOrderTime = new Date(prevSibling.createdAt.getTime() + 1);
+      }
+    } else {
+      const firstSibling = await this.prisma.nano.findFirst({
+        where: {
+          workspaceId,
+          parentNanoId: targetParentNanoId ?? null,
+          deletedAt: null,
+        },
+        orderBy: { createdAt: 'asc' },
+        select: { createdAt: true },
+      });
+
+      if (firstSibling) {
+        targetOrderTime = new Date(firstSibling.createdAt.getTime() - 1000);
+      }
+    }
+
+    const movedNano = await this.prisma.nano.update({
+      where: { id: nanoId },
+      data: {
+        parentNanoId: targetParentNanoId ?? null,
+        createdAt: targetOrderTime,
+      },
+    });
+
+    return {
+      message: 'Nano 트리 위치 및 정렬 순서 변경 성공',
+      nanoId: movedNano.id,
+      parentNanoId: movedNano.parentNanoId,
+      workspaceId: movedNano.workspaceId,
+      orderedCreatedAt: movedNano.createdAt,
+      movedAt: new Date(),
+    };
+  }
+
+  /**
+   * isChildNano
+   * @description
+   * - 트리 구조를 탐색하여 해당 Nano가 하위 Nano인지 확인
+   */
+  private async isChildNano(
+    origin: string,
+    targetParentNanoId: string,
+  ): Promise<boolean> {
+    let current = await this.prisma.nano.findUnique({
+      where: { id: targetParentNanoId },
+      select: { parentNanoId: true },
+    });
+
+    while (current && current.parentNanoId !== null) {
+      if (current.parentNanoId === origin) {
+        return true;
+      }
+      current = await this.prisma.nano.findUnique({
+        where: { id: current.parentNanoId },
+        select: { parentNanoId: true },
+      });
+    }
+    return false;
   }
 }

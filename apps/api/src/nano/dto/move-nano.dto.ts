@@ -27,5 +27,5 @@ export class MoveNanoDto {
   })
   @IsOptional()
   @IsString()
-  previousNanoId?: string;
+  prevNanoId?: string;
 }
