@@ -17,8 +17,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { WorkspaceGuardService } from '../workspace/workspace-guard.service';
-import { WorkspaceParamDto } from '../workspace/dto/workspace-param.dto';
+import { WorkspaceGuardService } from '../common/guard/workspace-guard.service';
+import { NanoTreeHelper } from './utils/nano-tree.helper';
+import { WorkspaceParamDto } from '../common/dto/workspace-param.dto';
 import { CreateNanoDto } from './dto/create-nano.dto';
 import { createId } from '@paralleldrive/cuid2';
 import { NanoQueryDto } from './dto/nano-query.dto';
@@ -32,6 +33,7 @@ export class NanoService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly workspaceGuard: WorkspaceGuardService,
+    private readonly nanoTreeHelper: NanoTreeHelper,
   ) {}
 
   /**
@@ -414,6 +416,7 @@ export class NanoService {
     });
   }
 
+  // TODO: 선 낙관적 업데이트 후 백엔드 및 WebSocket 반영 및 전체 트랜젝션 화 메서드로 api/v2 에서 전체를 갈아 엎을 것
   /**
    * NANO-CORE-006
    * Nano 위치 수정
@@ -454,7 +457,10 @@ export class NanoService {
         throw new BadRequestException('자신을 상위 Nano로 설정할 수 없습니다.');
       }
 
-      const isSubNano = await this.isChildNano(nanoId, targetParentNanoId);
+      const isSubNano = await this.nanoTreeHelper.isChildNano(
+        nanoId,
+        targetParentNanoId,
+      );
       if (isSubNano) {
         throw new BadRequestException('자신의 하위 Nano로 이동할 수 없습니다.');
       }
@@ -517,31 +523,5 @@ export class NanoService {
       orderedCreatedAt: movedNano.createdAt,
       movedAt: new Date(),
     };
-  }
-
-  /**
-   * isChildNano
-   * @description
-   * - 트리 구조를 탐색하여 해당 Nano가 하위 Nano인지 확인
-   */
-  private async isChildNano(
-    origin: string,
-    targetParentNanoId: string,
-  ): Promise<boolean> {
-    let current = await this.prisma.nano.findUnique({
-      where: { id: targetParentNanoId },
-      select: { parentNanoId: true },
-    });
-
-    while (current && current.parentNanoId !== null) {
-      if (current.parentNanoId === origin) {
-        return true;
-      }
-      current = await this.prisma.nano.findUnique({
-        where: { id: current.parentNanoId },
-        select: { parentNanoId: true },
-      });
-    }
-    return false;
   }
 }

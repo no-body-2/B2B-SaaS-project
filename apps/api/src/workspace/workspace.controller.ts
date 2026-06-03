@@ -23,9 +23,9 @@ import {
 } from '@nestjs/common';
 import { WorkspaceService } from './workspace.service';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
-import { WorkspaceParamDto } from './dto/workspace-param.dto';
+import { WorkspaceParamDto } from '../common/dto/workspace-param.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
-import { CurrentUser } from '../decorators/current-user.decorator';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import {
   ApiTags,
   ApiOperation,

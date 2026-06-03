@@ -20,8 +20,8 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { InviteMemberDto } from './dto/member/invite-member.dto';
-import { WorkspaceParamDto } from './dto/workspace-param.dto';
-import { WorkspaceGuardService } from './workspace-guard.service';
+import { WorkspaceParamDto } from '../common/dto/workspace-param.dto';
+import { WorkspaceGuardService } from '../common/guard/workspace-guard.service';
 import { createId } from '@paralleldrive/cuid2';
 import { AcceptInvitationDto } from './dto/member/accept-invitation.dto';
 import { WorkspaceMemberQueryDto } from './dto/member/workspace-member-query.dto';

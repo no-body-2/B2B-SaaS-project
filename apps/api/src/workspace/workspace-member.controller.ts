@@ -23,13 +23,13 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { WorkspaceMemberService } from './workspace-member.service';
-import { WorkspaceParamDto } from './dto/workspace-param.dto';
+import { WorkspaceParamDto } from '../common/dto/workspace-param.dto';
 import { InviteMemberDto } from './dto/member/invite-member.dto';
 import { AcceptInvitationDto } from './dto/member/accept-invitation.dto';
 import { WorkspaceMemberQueryDto } from './dto/member/workspace-member-query.dto';
 import { TargetMemberDto } from './dto/member/target-member.dto';
 import { UpdateMemberRoleDto } from './dto/member/update-role.dto';
-import { CurrentUser } from '../decorators/current-user.decorator';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import {
   ApiTags,
   ApiOperation,

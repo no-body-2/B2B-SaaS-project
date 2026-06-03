@@ -28,9 +28,9 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { NanoService } from './nano.service';
-import { WorkspaceParamDto } from '../workspace/dto/workspace-param.dto';
+import { WorkspaceParamDto } from '../common/dto/workspace-param.dto';
 import { CreateNanoDto } from './dto/create-nano.dto';
-import { CurrentUser } from '../decorators/current-user.decorator';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { NanoQueryDto } from './dto/nano-query.dto';
 import { NanoChildParamDto } from './dto/child-nano-param.dto';
 import { TargetNanoParamDto } from './dto/target-nano-param.dto';

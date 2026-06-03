@@ -15,11 +15,10 @@ import { WorkspaceService } from './workspace.service';
 import { WorkspaceController } from './workspace.controller';
 import { WorkspaceMemberService } from './workspace-member.service';
 import { WorkspaceMemberController } from './workspace-member.controller';
-import { WorkspaceGuardService } from './workspace-guard.service';
 
 @Module({
   controllers: [WorkspaceController, WorkspaceMemberController],
-  providers: [WorkspaceService, WorkspaceMemberService, WorkspaceGuardService],
-  exports: [WorkspaceService, WorkspaceMemberService, WorkspaceGuardService],
+  providers: [WorkspaceService, WorkspaceMemberService],
+  exports: [WorkspaceService, WorkspaceMemberService],
 })
 export class WorkspaceModule {}

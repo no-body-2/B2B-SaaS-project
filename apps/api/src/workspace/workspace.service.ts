@@ -19,10 +19,10 @@ import {
 import { createId } from '@paralleldrive/cuid2';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
-import { WorkspaceParamDto } from './dto/workspace-param.dto';
+import { WorkspaceParamDto } from '../common/dto/workspace-param.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { DeleteWorkspaceDto } from './dto/delete-workspace.dto';
-import { WorkspaceGuardService } from './workspace-guard.service';
+import { WorkspaceGuardService } from '../common/guard/workspace-guard.service';
 
 @Injectable()
 export class WorkspaceService {

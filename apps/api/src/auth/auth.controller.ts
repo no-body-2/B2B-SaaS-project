@@ -32,8 +32,8 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { JwtRefreshGuard } from './guards/jwt-refresh-guard';
-import { Public } from '../decorators/public.decorator';
-import { CurrentUser } from '../decorators/current-user.decorator';
+import { Public } from '../common/decorators/public.decorator';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 // 기본 주소 '/auth'
 @ApiTags('인증 (Auth)')

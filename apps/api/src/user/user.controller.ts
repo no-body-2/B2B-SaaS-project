@@ -21,14 +21,14 @@ import {
   Body,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CurrentUser } from '../decorators/current-user.decorator';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import {
   ApiOperation,
   ApiResponse,
   ApiTags,
   ApiBearerAuth,
 } from '@nestjs/swagger';
-import { Public } from '../decorators/public.decorator';
+import { Public } from '../common/decorators/public.decorator';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { RequestEmailChangeDto } from './dto/request-email-change.dto';
