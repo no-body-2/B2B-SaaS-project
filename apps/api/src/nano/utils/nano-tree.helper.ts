@@ -41,4 +41,25 @@ export class NanoTreeHelper {
     }
     return false;
   }
+
+  /**
+   * getAllDescendants
+   * @description
+   * - 트리 구조에서 특정 Nano의 모든 하위 Nano ID를 재귀적으로 수집
+   * @param parentNanoId
+   * @param idList
+   */
+  async getAllDescendants(parentNanoId: string, idList: string[]) {
+    const children = await this.prisma.nano.findMany({
+      where: { parentNanoId: parentNanoId, deletedAt: null },
+      select: { id: true },
+    });
+
+    idList.push(parentNanoId);
+
+    for (const child of children) {
+      idList.push(child.id);
+      await this.getAllDescendants(child.id, idList);
+    }
+  }
 }

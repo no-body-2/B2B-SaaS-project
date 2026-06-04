@@ -15,6 +15,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Body,
   Param,
   Query,
@@ -275,5 +276,48 @@ export class NanoController {
     @Body() moveNanoDto: MoveNanoDto,
   ) {
     return this.nanoService.moveNano(reqUser.userId, param, moveNanoDto);
+  }
+
+  // TODO: Test 필요
+  /**
+   * NANO-CORE-007
+   * @description
+   * - Nano 삭제
+   * @url DELETE /workspace/:workspaceId/nanos/:nanoId
+   */
+  @Delete(':workspaceId/nanos/:nanoId')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: 'Nano 삭제',
+    description:
+      '해당 Nano와 하위 Nano들을 삭제, Soft Delete 방식으로 30일 이내 복구 가능',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Nano Soft Delete 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '해당 Nano가 타 워크스페이스 소속인 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '유효하지 않은 Access Token',
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      '삭제 요청자가 해당 Nano의 작성자가 아니거나, OWNER 권한이 없는 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 Nano가 존재하지 않거나, 찾을 수 없는 경우',
+  })
+  async deleteNano(
+    @CurrentUser() reqUser: { userId: string },
+    @Param() param: TargetNanoParamDto,
+  ) {
+    return this.nanoService.deleteNano(reqUser.userId, param);
   }
 }

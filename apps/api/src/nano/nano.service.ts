@@ -14,6 +14,7 @@
 import {
   Injectable,
   BadRequestException,
+  ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
@@ -523,5 +524,76 @@ export class NanoService {
       orderedCreatedAt: movedNano.createdAt,
       movedAt: new Date(),
     };
+  }
+
+  // TODO: 6/4 Swagger Test 필요
+  /**
+   * NANO-CORE-007
+   * Nano 삭제 (Soft Delete)
+   * @description
+   * - 워크스페이스의 OWNER 혹은 Nano의 작성자가 해당 Nano를 삭제
+   * @remarks
+   * - 삭제는 Soft Delete 방식으로 30일의 복구 가능 기간을 부여
+   * @param userId - 사용자 ID (CUID)
+   * @param param - 해당 Nano 정보가 담긴 객체
+   * @returns 삭제 성공 메시지
+   * @throws
+   * - {BadRequestException} - 유효하지 않은 요청 파라미터 (해당 Nano가 현재 워크스페이스 소속이 아님)
+   * - {ForbiddenException} - 워크스페이스에 소속되지 않은 사용자의 요청
+   * - {NotFoundException} - 해당하는 Parent Nano가 존재하지 않음
+   */
+  async deleteNano(userId: string, param: TargetNanoParamDto) {
+    const { workspaceId, nanoId } = param;
+
+    const membership = await this.workspaceGuard.validateMembership(
+      userId,
+      workspaceId,
+    );
+
+    const targetNano = await this.prisma.nano.findUnique({
+      where: { id: nanoId },
+    });
+
+    if (!targetNano || targetNano.deletedAt !== null) {
+      throw new NotFoundException(
+        '이미 삭제되었거나 존재하지 않는 Nano입니다.',
+      );
+    }
+
+    if (targetNano.workspaceId !== workspaceId) {
+      throw new BadRequestException('해당 Nano에 접근할 수 없습니다.');
+    }
+
+    if (membership.role !== 'OWNER' && targetNano.writerId !== userId) {
+      throw new ForbiddenException('해당 Nano를 삭제할 권한이 없습니다.');
+    }
+
+    if (membership.role === 'OWNER' || targetNano.writerId === userId) {
+      const allDescendants: string[] = [];
+      await this.nanoTreeHelper.getAllDescendants(nanoId, allDescendants);
+
+      const targetsToDelete = [nanoId, ...allDescendants];
+
+      await this.prisma.$transaction(async (tx) => {
+        await tx.nano.updateMany({
+          where: {
+            id: {
+              in: targetsToDelete,
+            },
+            workspaceId,
+          },
+          data: {
+            deletedAt: new Date(),
+          },
+        });
+      });
+
+      return {
+        message: 'Nano 삭제 성공 (30일 후 영구 삭제)',
+        deletedRootNanoId: nanoId,
+        totalDeleted: targetsToDelete.length,
+        deletedAt: new Date(),
+      };
+    }
   }
 }
