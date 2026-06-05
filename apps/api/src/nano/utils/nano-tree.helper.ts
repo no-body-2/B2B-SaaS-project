@@ -14,7 +14,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class NanoTreeHelper {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * isChildNano
