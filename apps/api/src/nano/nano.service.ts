@@ -10,7 +10,7 @@
  * @date 2026-05-30
  */
 
-// TODO: workspaceGuard, workspaceParamDto 등 중복되는 부분을 별도의 유틸리티로 추출
+// TODO: workspaceGuard, workspaceParamDto 등 중복되는 부분을 별도의 유틸리티로 추출 - Finished
 import {
   Injectable,
   BadRequestException,
