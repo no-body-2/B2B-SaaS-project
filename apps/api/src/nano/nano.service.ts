@@ -25,7 +25,7 @@ import { CreateNanoDto } from './dto/create-nano.dto';
 import { createId } from '@paralleldrive/cuid2';
 import { NanoQueryDto } from './dto/nano-query.dto';
 import { NanoChildParamDto } from './dto/child-nano-param.dto';
-import { TargetNanoParamDto } from './dto/target-nano-param.dto';
+import { TargetNanoParamDto } from '../common/dto/target-nano-param.dto';
 import { UpdateNanoDto } from './dto/update-nano.dto';
 import { MoveNanoDto } from './dto/move-nano.dto';
 
