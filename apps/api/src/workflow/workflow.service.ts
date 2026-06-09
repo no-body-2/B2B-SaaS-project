@@ -197,7 +197,7 @@ export class WorkflowService {
           comment: comment ?? '',
           approvalRequestId,
           status: 'PUBLISHED',
-          action: 'APPROVED',
+          action: 'APPROVE',
         };
       }
       await tx.approvalRequest.update({
@@ -216,7 +216,7 @@ export class WorkflowService {
         comment: comment ?? '',
         approvalRequestId,
         status: 'REJECTED',
-        action: 'REJECTED',
+        action: 'REJECT',
       };
     });
   }
