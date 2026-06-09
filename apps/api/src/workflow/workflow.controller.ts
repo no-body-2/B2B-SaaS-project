@@ -13,6 +13,7 @@
 import {
   Controller,
   Post,
+  Patch,
   Body,
   Param,
   HttpCode,
@@ -27,6 +28,7 @@ import {
 import { WorkflowService } from './workflow.service';
 import { TargetNanoParamDto } from '../common/dto/target-nano-param.dto';
 import { CreateApprovalRequestDto } from './dto/create-approval-request.dto';
+import { DecideApprovalRequestDto } from './dto/decide-approval-request.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @ApiTags('Nano-Workflow')
@@ -76,6 +78,50 @@ export class WorkflowController {
       reqUser.userId,
       param,
       createApprovalRequestDto,
+    );
+  }
+
+  /**
+   * NANO-WORKFLOW-002
+   * @description
+   * - Nano 결재 처리
+   * @url POST /workspace/approvals/:approvalRequestId/decide
+   */
+  @Patch('approvals/:approvalRequestId/decide')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: 'Nano 결재 승인 혹은 반려 처리',
+    description:
+      'Workspace의 최고 관리자 (OWNER)가 타 사용자가 전송한 결재 요청을 승인 또는 반려',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '결재 처리 (승인 or 반려) 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '잘못된 파라미터로 요청한 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Workspace의 OWNER가 아닌 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '요청한 결재 요청이 존재하지 않는 경우',
+  })
+  async decideApprovalRequest(
+    @CurrentUser() reqUser: { userId: string },
+    @Param('workspaceId') workspaceId: string,
+    @Param('approvalRequestId') approvalRequestId: string,
+    @Body() dto: DecideApprovalRequestDto,
+  ) {
+    return this.workflowService.decideApprovalRequest(
+      reqUser.userId,
+      workspaceId,
+      approvalRequestId,
+      dto,
     );
   }
 }
