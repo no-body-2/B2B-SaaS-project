@@ -215,4 +215,45 @@ export class WorkflowController {
       query,
     );
   }
+
+  /**
+   * NANO-WORKFLOW-005
+   * @description
+   * - 사용자 본인의 결재 요청 취소
+   * @url GET :/workspaceId/approvals/:approvalRequestId/cancel
+   */
+  @Patch(':workspaceId/approvals/:approvalRequestId/cancel')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '사용자 본인의 결재 요청 취소',
+    description: '사용자 본인의 요청 여부 검사 및 취소 처리',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '결재 요청 취소 완료',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '결재 요청 처리되었거나 취소할 수 없는 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '요청자가 결재 요청 작성자가 아닌 경우',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '해당하는 결재 요청이 존재하지 않는 경우',
+  })
+  async cancelApprovalRequest(
+    @CurrentUser() reqUser: { userId: string },
+    @Param('workspaceId') workspaceId: string,
+    @Param('approvalRequestId') approvalRequestId: string,
+  ) {
+    return this.workflowService.cancelApprovalRequest(
+      reqUser.userId,
+      workspaceId,
+      approvalRequestId,
+    );
+  }
 }

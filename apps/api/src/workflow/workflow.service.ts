@@ -12,6 +12,7 @@
 
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -415,5 +416,68 @@ export class WorkflowService {
       hasNext,
       items: formattedApprovalRequestList,
     };
+  }
+
+  /**
+   * NANO-WORKFLOW-005
+   * @description
+   * - 사용자 본인이 전송한 결재 요청 취소
+   * @param userId - 요청 사용자 ID
+   * @param workspaceId - 요청 워크스페이스 ID
+   * @param approvalRequestId - 취소할 결재 요청 ID
+   * @returns 취소된 결재 요청 및 성공 메시지
+   * @throws
+   * - {BadRequestException} - 잘못된 요청 데이터
+   * - {NotFoundException} - 해당 결제 요청을 찾을 수 없음
+   */
+  async cancelApprovalRequest(
+    userId: string,
+    workspaceId: string,
+    approvalRequestId: string,
+  ) {
+    // 1. 사용자 권한 검증
+    await this.workspaceGuard.validateMembership(userId, workspaceId);
+
+    // 2. DB에서 해당 결재 요청 조회 및 PENDING 상태 확인
+    const approvalRequest = await this.prisma.approvalRequest.findUnique({
+      where: { id: approvalRequestId },
+      include: { history: true },
+    });
+
+    if (!approvalRequest) {
+      throw new NotFoundException('해당 결제 요청을 찾을 수 없습니다.');
+    }
+
+    if (approvalRequest.status !== 'PENDING') {
+      throw new BadRequestException('결재 요청이 진행 중이 아닙니다.');
+    }
+
+    // 3. 본인이 작성한 결재 요청인지 확인
+    const historyData = approvalRequest.history;
+
+    if (!historyData || historyData.writerId !== userId) {
+      throw new ForbiddenException(
+        '본인이 작성한 결재 요청에 한하여 취소할 수 있습니다.',
+      );
+    }
+
+    // 4. 트랜잭션으로 approvalRequest 업데이트 및 pendingNano 삭제 후 결과 반환
+    return this.prisma.$transaction(async (tx) => {
+      const canceledApprovalRequest = await tx.approvalRequest.update({
+        where: { id: approvalRequestId },
+        data: { status: 'CANCELED' },
+      });
+
+      await tx.pendingNano.deleteMany({
+        where: { nanoId: approvalRequest.nanoId },
+      });
+
+      return {
+        message: '결재 요청이 취소되었습니다.',
+        approvalRequestId: canceledApprovalRequest,
+        status: 'CANCELED',
+        updatedAt: new Date(),
+      };
+    });
   }
 }
