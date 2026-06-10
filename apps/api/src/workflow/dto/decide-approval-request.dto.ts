@@ -12,7 +12,7 @@
 import { IsNotEmpty, IsString, IsEnum } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export enum ApprovalStatus {
+export enum ApprovalDecideStatus {
   APPROVE = 'APPROVE',
   REJECT = 'REJECT',
 }
@@ -20,12 +20,14 @@ export enum ApprovalStatus {
 export class DecideApprovalRequestDto {
   @ApiProperty({
     description: '결재 승인 상태 (APPROVE: 승인 / REJECT: 반려)',
-    enum: ApprovalStatus,
-    example: ApprovalStatus.APPROVE,
+    enum: ApprovalDecideStatus,
+    example: ApprovalDecideStatus.APPROVE,
   })
   @IsNotEmpty({ message: '결재 승인 상태는 필수 입력 항목입니다.' })
-  @IsEnum(ApprovalStatus, { message: '유효하지 않은 결재 승인 상태입니다.' })
-  status!: ApprovalStatus;
+  @IsEnum(ApprovalDecideStatus, {
+    message: '유효하지 않은 결재 승인 상태입니다.',
+  })
+  status!: ApprovalDecideStatus;
 
   @ApiProperty({
     description: '결재 이후 처리 결과 메시지',

@@ -12,12 +12,14 @@
 
 import {
   Controller,
+  Get,
   Post,
   Patch,
   Body,
   Param,
   HttpCode,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -29,6 +31,7 @@ import { WorkflowService } from './workflow.service';
 import { TargetNanoParamDto } from '../common/dto/target-nano-param.dto';
 import { CreateApprovalRequestDto } from './dto/create-approval-request.dto';
 import { DecideApprovalRequestDto } from './dto/decide-approval-request.dto';
+import { GetApprovalRequestListDto } from './dto/get-approval-request-list.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @ApiTags('Nano-Workflow')
@@ -122,6 +125,44 @@ export class WorkflowController {
       workspaceId,
       approvalRequestId,
       dto,
+    );
+  }
+
+  /**
+   * NANO-WORKFLOW-003
+   * @description
+   * - OWNER의 결재 요청 목록 조회
+   * @url GET :/workspaceId/approvals
+   */
+  @Get(':workspaceId/approvals')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: 'Nano 결재 요청 목록 조회 (OWNER 전용)',
+    description:
+      '최근 7일 이내의 결재 요청 목록을 FIFO 규칙에 맞게 정렬하여 조회',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '결재 대기 목록 조회 성공',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Workspace의 OWNER가 아닌 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 Workspace 또는 결재 요청이 존재하지 않는 경우',
+  })
+  async getApprovalRequestList(
+    @CurrentUser() reqUser: { userId: string },
+    @Param('workspaceId') workspaceId: string,
+    @Query() query: GetApprovalRequestListDto,
+  ) {
+    return this.workflowService.getApprovalRequestList(
+      reqUser.userId,
+      workspaceId,
+      query,
     );
   }
 }

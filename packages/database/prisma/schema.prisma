@@ -30,6 +30,7 @@ model User {
   workspaceMembers     WorkspaceMember[]
   WorkspaceInvitations WorkspaceInvitation[] @relation("InviterRelation")
   refreshTokens        RefreshToken[]
+  nanoHistorys         NanoHistory[]
 
   @@map("users")
 }
@@ -220,10 +221,12 @@ model NanoHistory {
   workspaceId String  @map("workspace_id")
 
   createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
   nano            Nano              @relation(fields: [nanoId], references: [id], onDelete: Cascade)
   approvalRequest ApprovalRequest[]
+  writer          User?             @relation(fields: [writerId], references: [id], onDelete: SetNull)
 
   @@map("nano_histories")
 }
@@ -237,6 +240,7 @@ model ApprovalRequest {
   status    String? @map("status")
 
   createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
   history     NanoHistory  @relation(fields: [historyId], references: [id])
