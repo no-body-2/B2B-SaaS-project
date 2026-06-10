@@ -331,4 +331,89 @@ export class WorkflowService {
       items: formattedApprovalRequestList,
     };
   }
+
+  /**
+   * NANO-WORKFLOW-004
+   * @description
+   * - 사용자 본인이 전송한 결재 요청 목록 조회
+   * @param userId - 요청 사용자 ID
+   * @param workspaceId - 요청 워크스페이스 ID
+   * @param query - 결재 요청 정보가 담긴 DTO 객체
+   * @returns 조회된 결재 요청 리스트 및 성공 메시지
+   * @throws
+   * - {BadRequestException} - 잘못된 요청 데이터
+   * - {NotFoundException} - Nano를 찾을 수 없음
+   */
+  async getMyApprovalRequestList(
+    userId: string,
+    workspaceId: string,
+    query: GetApprovalRequestListDto,
+  ) {
+    const { page = 1, limit = 20, status, keyword } = query;
+
+    // 1. 사용자의 워크스페이스 소속 여부 검증
+    await this.workspaceGuard.validateMembership(userId, workspaceId);
+
+    // 2. WHERE 조건절 설정
+    const whereClause: Prisma.ApprovalRequestWhereInput = {
+      history: {
+        workspaceId,
+        writerId: userId,
+        ...(keyword
+          ? {
+              title: {
+                contains: keyword,
+                mode: 'insensitive',
+              },
+            }
+          : {}),
+      },
+      ...(status && status !== ApprovalStatus.ALL
+        ? { status: status as string }
+        : {}),
+    };
+
+    // 3. OFFSET 설정
+    const offset = (page - 1) * limit;
+
+    // 4. DB의 Approval Request Table에서 사용자 ID와 일치하는 데이터 조회
+    const myApprovalRequestList = await this.prisma.approvalRequest.findMany({
+      where: whereClause,
+      skip: offset,
+      take: limit + 1,
+      orderBy: {
+        createdAt: 'asc',
+      },
+      include: {
+        history: true,
+      },
+    });
+
+    // 5. hasNext 확인 및 items 설정
+    const hasNext = myApprovalRequestList.length > limit;
+    const items = hasNext
+      ? myApprovalRequestList.slice(0, limit)
+      : myApprovalRequestList;
+
+    // 6. 반환 규격에 맞게 데이터 포맷팅
+    const formattedApprovalRequestList = items.map((ar) => {
+      const historyData = ar.history;
+      return {
+        approvalRequestId: ar.id,
+        nanoId: ar.nanoId,
+        title: historyData.title ?? 'No Title',
+        status: ar.status,
+        createdAt: ar.createdAt,
+        updatedAt: ar.updatedAt,
+      };
+    });
+
+    // 7. 결과 및 메시지 반환
+    return {
+      message: '본인 결재 요청 목록 조회 성공',
+      currentPage: page,
+      hasNext,
+      items: formattedApprovalRequestList,
+    };
+  }
 }

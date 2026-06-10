@@ -107,6 +107,10 @@ export class WorkflowController {
     description: '잘못된 파라미터로 요청한 경우',
   })
   @ApiResponse({
+    status: 401,
+    description: '유효하지 않은 Access Token',
+  })
+  @ApiResponse({
     status: 403,
     description: 'Workspace의 OWNER가 아닌 경우',
   })
@@ -147,6 +151,10 @@ export class WorkflowController {
     description: '결재 대기 목록 조회 성공',
   })
   @ApiResponse({
+    status: 401,
+    description: '유효하지 않은 Access Token',
+  })
+  @ApiResponse({
     status: 403,
     description: 'Workspace의 OWNER가 아닌 경우',
   })
@@ -160,6 +168,48 @@ export class WorkflowController {
     @Query() query: GetApprovalRequestListDto,
   ) {
     return this.workflowService.getApprovalRequestList(
+      reqUser.userId,
+      workspaceId,
+      query,
+    );
+  }
+
+  /**
+   * NANO-WORKFLOW-004
+   * @description
+   * - 사용자 본인의 결재 요청 목록 조회
+   * @url GET :/workspaceId/approvals/me
+   */
+  @Get(':workspaceId/approvals/me')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '사용자 본인의 결재 요청 내역 조회',
+    description:
+      '워크스페이스에 소속된 사용자가 본인이 요청한 결재 내역을 조회',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '결재 요청 내역 조회 성공',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '유효하지 않은 Access Token',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Workspace에 소속된 사용자가 아닌 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 Workspace 또는 결재 요청이 존재하지 않는 경우',
+  })
+  async getMyApprovalRequestList(
+    @CurrentUser() reqUser: { userId: string },
+    @Param('workspaceId') workspaceId: string,
+    @Query() query: GetApprovalRequestListDto,
+  ) {
+    return this.workflowService.getMyApprovalRequestList(
       reqUser.userId,
       workspaceId,
       query,
