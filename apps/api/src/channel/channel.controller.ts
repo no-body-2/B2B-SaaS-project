@@ -111,4 +111,46 @@ export class ChannelController {
   ) {
     return this.channelService.getChatRoomList(reqUser.userId, workspaceId);
   }
+
+  /**
+   * CHAT-ROOM-003
+   * @description
+   * - 채팅방 참여
+   * @url POST /:workspaceId/chatrooms/:chatRoomId/join
+   */
+  @Post(':workspaceId/chatrooms/:chatRoomId/join')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '채팅방 참여',
+    description:
+      '해당 워크스페이스 내부의 공개 (api v1에서는 비공개 채팅방 X) 채팅방에 참여',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '채팅방 참여 성공',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '유효하지 않은 Access Token',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '사용자가 해당 워크스페이스의 멤버가 아닌 경우',
+  })
+  @ApiResponse({
+    status: 409,
+    description: '요청 사용자가 이미 채팅방에 참여한 경우',
+  })
+  async joinChatRoom(
+    @CurrentUser() reqUser: { userId: string },
+    @Param('workspaceId') workspaceId: string,
+    @Param('chatRoomId') chatRoomId: string,
+  ) {
+    return this.channelService.joinChatRoom(
+      reqUser.userId,
+      workspaceId,
+      chatRoomId,
+    );
+  }
 }
