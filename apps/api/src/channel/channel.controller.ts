@@ -14,6 +14,7 @@ import {
   Controller,
   Get,
   Post,
+  Delete,
   Body,
   Param,
   HttpCode,
@@ -148,6 +149,47 @@ export class ChannelController {
     @Param('chatRoomId') chatRoomId: string,
   ) {
     return this.channelService.joinChatRoom(
+      reqUser.userId,
+      workspaceId,
+      chatRoomId,
+    );
+  }
+
+  /**
+   * CHAT-ROOM-004
+   * @url DELETE /:workspaceId/channels/:chatRoomId/leave
+   */
+  @Delete(':workspaceId/channels/:chatRoomId/leave')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '참여 중인 채팅방에서 퇴장',
+    description:
+      '현재 참여 중인 채팅방에서 나가기, 남은 사용자가 0명인 경우 채팅방 자동 삭제, OWNER 퇴장 시 자동으로 다음 OWNER 지정',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '채팅방 퇴장 성공',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '유효하지 않은 Access Token',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '해당 워크스페이스에 소속된 사용자가 아닌 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description:
+      '해당 채팅방에 소속되어 있지 않거나 해당 채팅방을 찾을 수 없는 경우',
+  })
+  async leaveRoom(
+    @CurrentUser() reqUser: { userId: string },
+    @Param('workspaceId') workspaceId: string,
+    @Param('chatRoomId') chatRoomId: string,
+  ) {
+    return this.channelService.leaveChatRoom(
       reqUser.userId,
       workspaceId,
       chatRoomId,

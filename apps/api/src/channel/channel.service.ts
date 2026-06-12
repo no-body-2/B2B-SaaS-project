@@ -70,12 +70,12 @@ export class ChannelService {
 
     // 3. 트랜잭션으로 DB 작업 처리
     return this.prisma.$transaction(async (tx) => {
-      const chatRoomId = `c-${createId()}`;
+      const chatroomId = `c-${createId()}`;
 
       // 3-1. 새 채팅방 생성
       const newRoom = await tx.chatroom.create({
         data: {
-          id: chatRoomId,
+          id: chatroomId,
           workspaceId,
           title,
           description: description || null,
@@ -96,7 +96,7 @@ export class ChannelService {
       // 3-3. 결과 및 메시지 반환
       return {
         message: '채팅방 생성 성공',
-        chatRoomId: newRoom.id,
+        chatroomId: newRoom.id,
         title: newRoom.title,
         description: newRoom.description,
         isPrivate: newRoom.isPrivate,
@@ -136,7 +136,7 @@ export class ChannelService {
         const isJoined = room.members.length > 0;
 
         return {
-          chatRoomId: room.id,
+          chatroomId: room.id,
           title: room.title,
           description: room.description,
           isPrivate: room.isPrivate,
@@ -171,20 +171,20 @@ export class ChannelService {
    * - 채팅방 참여
    * @param userId - 채팅방에 참여하려는 사용자 ID
    * @param workspaceId - 참여하려는 채팅방이 존재하는 워크스페이스 ID
-   * @param chatRoomId - 참여하려는 채팅방 ID
+   * @param chatroomId - 참여하려는 채팅방 ID
    * @returns 채팅방 기본 정보 및 참여 성공 메시지
    * @throws
    * - {ForbiddenException} - 사용자가 워크스페이스에 가입하지 않은 경우
    * - {NotFoundException} - 채팅방이 존재하지 않는 경우
    * - {ConflictException} - 사용자가 이미 채팅방에 참여한 경우
    */
-  async joinChatRoom(userId: string, workspaceId: string, chatRoomId: string) {
+  async joinChatRoom(userId: string, workspaceId: string, chatroomId: string) {
     // 1. 사용자가 워크스페이스에 가입한 사용자인지 확인
     await this.workspaceGuard.validateMembership(userId, workspaceId);
 
     // 2. 채팅방 유효성 검사
     const chatRoom = await this.prisma.chatroom.findUnique({
-      where: { id: chatRoomId },
+      where: { id: chatroomId },
     });
 
     if (!chatRoom || chatRoom.workspaceId !== workspaceId) {
@@ -193,7 +193,7 @@ export class ChannelService {
 
     // 3. 사용자가 이미 채팅방에 참여한 경우
     const isAlreadyMember = await this.prisma.chatroomMember.findFirst({
-      where: { userId, chatRoomId },
+      where: { userId, chatroomId },
     });
 
     if (isAlreadyMember) {
@@ -203,7 +203,7 @@ export class ChannelService {
     // 4. 채팅방 참여 처리
     const newChatRoomMember = await this.prisma.chatroomMember.create({
       data: {
-        chatroomId: chatRoomId,
+        chatroomId: chatroomId,
         userId: userId,
         workspaceId: workspaceId,
         role: 'MEMBER',
@@ -213,10 +213,108 @@ export class ChannelService {
     // 5. 결과 반환
     return {
       message: '채팅방 참여 성공',
-      chatRoomId,
+      chatroomId,
       title: chatRoom.title,
       role: newChatRoomMember.role,
       joinedAt: newChatRoomMember.joinedAt,
     };
+  }
+
+  /**
+   * CHAT-ROOM-004
+   * @description
+   * - 채팅방 나가기
+   * @param userId - 채팅방을 나가려는 사용자 ID
+   * @param workspaceId - 나가려는 채팅방이 존재하는 워크스페이스 ID
+   * @param chatroomId - 나가려는 채팅방 ID
+   * @returns 채팅방 나가기 성공 메시지
+   * @throws
+   * - {BadRequestException} - 참여하지 않은 채팅방을 나가려고 하는 경우
+   * - {NotFoundException} - 채팅방이 존재하지 않는 경우
+   */
+  async leaveChatRoom(userId: string, workspaceId: string, chatroomId: string) {
+    // 1. 사용자 워크스페이스 멤버 여부 검사
+    await this.workspaceGuard.validateMembership(userId, workspaceId);
+
+    // 2. 사용자가 채팅방에 참여하고 있는지 확인
+    const myMembership = await this.prisma.chatroomMember.findFirst({
+      where: { userId, chatroomId },
+    });
+
+    if (!myMembership) {
+      throw new BadRequestException('참여하지 않은 채팅방을 나가려고 합니다.');
+    }
+
+    // 3. 트랜잭션으로 분기에 따른 처리
+    return this.prisma.$transaction(async (tx) => {
+      // 3-1. ChatRoomMember Table에서 데이터 삭제
+      await tx.chatroomMember.delete({
+        where: {
+          chatroomId_userId: { chatroomId: chatroomId, userId: userId },
+        },
+      });
+
+      // 3-2. 해당 사용자가 나간 후 채팅방에 남은 사용자 수 계산
+      // 비고: 단순 수치 계산이 아닌 nextOwner 로직에도 사용할 수 있으므로 count() 대신 findMany() 사용
+      const remainingMembers = await tx.chatroomMember.findMany({
+        where: { chatroomId },
+        orderBy: { joinedAt: 'desc' },
+      });
+
+      // 3-A. 채팅방 이용자가 0명인 경우
+      if (remainingMembers.length === 0) {
+        await tx.chatroom.delete({
+          where: { id: chatroomId },
+        });
+
+        return {
+          message: '채팅방에 남은 사용자가 없어 자동 삭제 처리되었습니다.',
+          chatroomId,
+          leftAt: new Date(),
+        };
+      }
+
+      // 3-B. 채팅방을 나간 사용자가 OWNER인 경우
+      if (myMembership.role === 'OWNER') {
+        // 3-B-1. joinedAt을 기준으로 합류 시점이 가장 오래된 사용자를 다음 OWNER 지정
+        const nextOwner = remainingMembers[0];
+
+        await tx.chatroomMember.update({
+          where: {
+            chatroomId_userId: {
+              chatroomId: chatroomId,
+              userId: nextOwner.userId,
+            },
+          },
+          data: { role: 'OWNER' },
+        });
+
+        await tx.chatroom.update({
+          where: { id: chatroomId },
+          data: { updatedAt: new Date() },
+        });
+
+        return {
+          message: '채팅방 나가기 완료, 자동으로 다음 OWNER를 지정했습니다.',
+          chatroomId,
+          leftAt: new Date(),
+          nextOwnerId: nextOwner.userId,
+        };
+      }
+
+      // 3-C. 일반적인 사용자가 나가기를 한 경우
+      await tx.chatroom.update({
+        where: {
+          id: chatroomId,
+        },
+        data: { updatedAt: new Date() },
+      });
+
+      return {
+        message: '채팅방 나가기 완료',
+        chatroomId,
+        leftAt: new Date(),
+      };
+    });
   }
 }
