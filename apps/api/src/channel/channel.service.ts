@@ -13,6 +13,7 @@
 import {
   Injectable,
   BadRequestException,
+  ForbiddenException,
   NotFoundException,
   ConflictException,
 } from '@nestjs/common';
@@ -20,6 +21,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { WorkspaceGuardService } from '../common/guard/workspace-guard.service';
 import { CreateChatRoomDto } from './dto/create-chat-room.dto';
 // import { JoinChatRoomDto } from './dto/join-chat-room.dto'; api v1에서는 사용하지 않음
+import { DelegateOwnerDto } from './dto/delegate-owner.dto';
 import { createId } from '@paralleldrive/cuid2';
 
 @Injectable()
@@ -314,6 +316,115 @@ export class ChannelService {
         message: '채팅방 나가기 완료',
         chatroomId,
         leftAt: new Date(),
+      };
+    });
+  }
+
+  /**
+   * CHAT-ROOM-005
+   * @description
+   * - 채팅방 OWNER 권한 위임
+   * @param userId - 자신의 권한을 위임하려는 사용자 ID
+   * @param workspaceId - 권한을 위임하려는 채팅방이 존재하는 워크스페이스 ID
+   * @param chatroomId - 권한을 위임하려는 채팅방 ID
+   * @param dto - 권한을 위임하려는 대상 사용자 ID가 담긴 Dto
+   * @returns 채팅방 권한 위임 성공 메시지 및 데이터
+   * @throws
+   * - {BadRequestException} - 자기 자신에게 방장 권한을 위임하려는 경우
+   * - {ForbiddenException} - 권한이 없는 사용자가 권한 위임을 시도하는 경우
+   * - {NotFoundException} - 채팅방이 존재하지 않는 경우
+   */
+  async delegateChatRoomOwner(
+    userId: string,
+    workspaceId: string,
+    chatroomId: string,
+    dto: DelegateOwnerDto,
+  ) {
+    const { targetUserId } = dto;
+
+    // 1. 자신에게 권한을 위임하려는 시도 차단
+    if (userId === targetUserId) {
+      throw new BadRequestException(
+        '자기 자신에게 방장 권한을 위임할 수 없습니다.',
+      );
+    }
+
+    // 2. 워크스페이스에 소속된 사용자 여부 검사
+    await this.workspaceGuard.validateMembership(userId, workspaceId);
+
+    // 3. 권한 위임 요청 사용자가 해당 채팅방의 OWNER인지 확인
+    const myMembership = await this.prisma.chatroomMember.findUnique({
+      where: {
+        chatroomId_userId: {
+          chatroomId,
+          userId,
+        },
+      },
+    });
+
+    if (!myMembership || myMembership.role !== 'OWNER') {
+      throw new ForbiddenException(
+        '채팅방 OWNER 권한 위임을 위한 권한이 없습니다.',
+      );
+    }
+
+    // 4. 권한을 위임받을 대상 사용자가 해당 채팅방에 소속되어 있는지 확인
+    const targetMembership = await this.prisma.chatroomMember.findUnique({
+      where: {
+        chatroomId_userId: {
+          chatroomId,
+          userId: targetUserId,
+        },
+      },
+    });
+
+    if (!targetMembership) {
+      throw new NotFoundException(
+        '권한을 위임받을 대상자가 해당 채팅방에 소속되어 있지 않습니다.',
+      );
+    }
+
+    // 5. 트랜잭션을 통해 원자성 보장
+    return this.prisma.$transaction(async (tx) => {
+      // 5-1. 대상 사용자를 OWNER 등급으로 승격
+      await tx.chatroomMember.update({
+        where: {
+          chatroomId_userId: {
+            chatroomId,
+            userId: targetUserId,
+          },
+        },
+        data: {
+          role: 'OWNER',
+        },
+      });
+
+      // 5-2. 기존 방장 (요청 사용자)을 MEMBER 등급으로 강등
+      await tx.chatroomMember.update({
+        where: {
+          chatroomId_userId: {
+            chatroomId,
+            userId,
+          },
+        },
+        data: {
+          role: 'MEMBER',
+        },
+      });
+
+      // 5-3. 채팅방 정보 갱신
+      await tx.chatroom.update({
+        where: { id: chatroomId },
+        data: { updatedAt: new Date() },
+      });
+
+      // 5-4. 결과 반환
+      return {
+        message: '채팅방 방장 권한 위임 성공',
+        chatroomId,
+        previousOwnerId: userId,
+        newOwnerId: targetUserId,
+        updatedAt: new Date(),
       };
     });
   }
