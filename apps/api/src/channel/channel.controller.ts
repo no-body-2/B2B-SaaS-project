@@ -184,7 +184,7 @@ export class ChannelController {
     description:
       '해당 채팅방에 소속되어 있지 않거나 해당 채팅방을 찾을 수 없는 경우',
   })
-  async leaveRoom(
+  async leaveChatRoom(
     @CurrentUser() reqUser: { userId: string },
     @Param('workspaceId') workspaceId: string,
     @Param('chatRoomId') chatRoomId: string,
