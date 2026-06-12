@@ -31,7 +31,7 @@ export class CreateChatRoomDto {
   @Length(2, 32, {
     message: '채팅방 이름은 최소 2자, 최대 32자 이하로 설정해야합니다.',
   })
-  name!: string;
+  title!: string;
 
   @ApiPropertyOptional({
     description: '채팅방 상세 설명 (최대 64자)',
@@ -45,12 +45,12 @@ export class CreateChatRoomDto {
   description?: string;
 
   @ApiPropertyOptional({
-    description: '채팅방 공개 여부 (true: 공개, false: 비공개)',
+    description: '채팅방 비공개 여부 (true: 공개, false: 비공개)',
     example: false,
   })
   @IsOptional()
   @IsBoolean({
-    message: '채팅방 공개 여부의 값은 불리언(Boolean)이어야 합니다.',
+    message: '채팅방 비공개 여부의 값은 불리언(Boolean)이어야 합니다.',
   })
-  isPublic?: boolean = false;
+  isPrivate?: boolean = false;
 }
