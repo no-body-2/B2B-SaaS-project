@@ -12,6 +12,7 @@
 
 import {
   Controller,
+  Get,
   Post,
   Body,
   Param,
@@ -77,5 +78,37 @@ export class ChannelController {
       workspaceId,
       createChatRoomDto,
     );
+  }
+
+  /**
+   * CHAT-ROOM-002
+   * @description
+   * - 채팅방 목록 조회 생성
+   * @url GET /:workspaceId/chatrooms
+   */
+  @Get(':workspaceId/chatrooms')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '채팅방 목록 조회',
+    description: '워크스페이스 내부의 채팅방 목록 조회',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '채팅방 목록 조회 성공',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '유효하지 않은 Access Token',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '요청 사용자가 해당 워크스페이스에 소속되어 있지 않음',
+  })
+  async getChatRoomList(
+    @CurrentUser() reqUser: { userId: string },
+    @Param('workspaceId') workspaceId: string,
+  ) {
+    return this.channelService.getChatRoomList(reqUser.userId, workspaceId);
   }
 }

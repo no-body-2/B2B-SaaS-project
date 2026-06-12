@@ -9,6 +9,8 @@ import { RedisModule } from './redis/redis.module';
 import { UserModule } from './user/user.module';
 import { WorkspaceModule } from './workspace/workspace.module';
 import { NanoModule } from './nano/nano.module';
+import { WorkflowModule } from './workflow/workflow.module';
+import { ChannelModule } from './channel/channel.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { NanoModule } from './nano/nano.module';
     RedisModule,
     PrismaModule,
     NanoModule,
+    WorkflowModule,
+    ChannelModule,
   ],
   controllers: [AppController],
   providers: [AppService],
