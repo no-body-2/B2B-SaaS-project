@@ -22,7 +22,10 @@ import { WorkspaceGuardService } from '../common/guard/workspace-guard.service';
 import { CreateChatRoomDto } from './dto/create-chat-room.dto';
 // import { JoinChatRoomDto } from './dto/join-chat-room.dto'; api v1에서는 사용하지 않음
 import { DelegateOwnerDto } from './dto/delegate-owner.dto';
+import { SendMessageDto } from './dto/send-message.dto';
+import { GetChatMessageListDto } from './dto/get-chat-message-list.dto';
 import { createId } from '@paralleldrive/cuid2';
+import { Prisma } from '@b2b/database';
 
 @Injectable()
 export class ChannelService {
@@ -427,5 +430,175 @@ export class ChannelService {
         updatedAt: new Date(),
       };
     });
+  }
+
+  /**
+   * CHAT-CORE-001
+   * @description
+   * - 채팅 메시지 전송
+   * @param userId - 송신자 ID
+   * @param workspaceId - 송신자가 속한 워크스페이스 ID
+   * @param chatroomId - 메시지를 전송할 채팅방 ID
+   * @param dto - 메시지 전송에 필요한 DTO
+   * @returns 메시지 전송 결과
+   * @throws
+   * - {BadRequestException} - 잘못된 메시지 형식
+   * - {ForbiddenException} - 사용자가 해당 채팅방에 소속된 상태가 아닌 경우
+   */
+  async sendChatMessage(
+    userId: string,
+    workspaceId: string,
+    chatroomId: string,
+    dto: SendMessageDto,
+  ) {
+    const { type, content } = dto;
+
+    // 1. 요청 사용자 워크스페이스 소속 여부 검증
+    await this.workspaceGuard.validateMembership(userId, workspaceId);
+
+    // TODO: Api v2 제작 시 채팅 관련 업데이트가 구조를 건들 지 않는 경우 해당 메서드 별도로 분리
+    // 2. 요청 사용자 해당 채팅방 소속 여부 검증
+    const isRoomMember = await this.prisma.chatroomMember.findUnique({
+      where: {
+        chatroomId_userId: {
+          chatroomId,
+          userId,
+        },
+      },
+    });
+
+    if (!isRoomMember) {
+      throw new ForbiddenException(
+        '해당 채팅방에 참여하고 있지 않아 메시지를 전송할 수 없습니다.',
+      );
+    }
+
+    // 3. 트랜잭션으로 작업 처리
+    return this.prisma.$transaction(async (tx) => {
+      // 3-1. ChatMessage Table에 데이터 저장
+      const newMessage = await tx.chatMessage.create({
+        data: {
+          id: `msg-${createId()}`,
+          chatroomId,
+          senderId: userId,
+          type: type,
+          content,
+          isDeleted: false,
+        },
+      });
+
+      // 3-2. Chatroom의 updatedAt 갱신
+      await tx.chatroom.update({
+        where: { id: chatroomId },
+        data: {
+          updatedAt: new Date(),
+        },
+      });
+
+      // 3-3. 결과 반환
+      return {
+        message: '메시지 전송 성공',
+        messageId: newMessage.id,
+        chatroomId: newMessage.chatroomId,
+        senderId: newMessage.senderId,
+        type: newMessage.type,
+        content: newMessage.content,
+        createdAt: newMessage.createdAt,
+      };
+    });
+  }
+
+  /**
+   * CHAT-CORE-002
+   * @description
+   * - 이전 메시지 내역 조회
+   * @param userId - 요청 사용자 ID
+   * @param workspaceId - 요청 사용자가 속한 워크스페이스 ID
+   * @param chatroomId - 메시지 내역을 조회할 채팅방 ID
+   * @param query - 커서 기반 페이징 정보가 담긴 DTO 객체
+   * @returns 조회된 메시지 리스트 및 페이징 메타데이터
+   * @throws
+   * - {ForbiddenException} - 사용자가 해당 채팅방에 소속된 상태가 아닌 경우
+   * - {NotFoundException} - 존재하지 않는 워크스페이스나 채팅방
+   */
+  async getChatMessageList(
+    userId: string,
+    workspaceId: string,
+    chatroomId: string,
+    query: GetChatMessageListDto,
+  ) {
+    const { cursor, limit = 64 } = query;
+
+    // 1. 요청 사용자 워크스페이스 소속 여부 검증
+    await this.workspaceGuard.validateMembership(userId, workspaceId);
+
+    // 2. 요청 사용자 해당 채팅방 소속 여부 검증
+    const isRoomMember = await this.prisma.chatroomMember.findUnique({
+      where: {
+        chatroomId_userId: {
+          chatroomId,
+          userId,
+        },
+      },
+    });
+
+    if (!isRoomMember) {
+      throw new ForbiddenException(
+        '해당 채팅방의 멤버가 아니므로 대화 내역을 조회할 수 없습니다.',
+      );
+    }
+
+    // 3. 커서 기반 페이징용 WHERE 조건절 생성 (DeletedAt 제외)
+    const whereClause: Prisma.ChatMessageWhereInput = {
+      chatroomId,
+      isDeleted: false,
+    };
+
+    const prismaQuery: Prisma.ChatMessageFindManyArgs = {
+      where: whereClause,
+      take: limit + 1,
+      orderBy: {
+        createdAt: 'desc',
+      },
+    };
+
+    // 3-1. 클라이언트 측에서 cursor가 전달된 경우 cursor 이후 메시지 부터 조회
+    if (cursor) {
+      prismaQuery.cursor = { id: cursor };
+      prismaQuery.skip = 1;
+    }
+
+    // 4. DB에서 과거 메시지 리스트 조회
+    const messageList = await this.prisma.chatMessage.findMany(prismaQuery);
+
+    // 5. hasNext 확인 및 nextCursor 연산 처리
+    const hasNext = messageList.length > limit;
+    const items = hasNext ? messageList.slice(0, limit) : messageList;
+
+    // 5-1. 다음 스크롤 시 기준점이 될 nextCursor는 이번 조회 대상의 가장 마지막 메시지 ID
+    const nextCursor =
+      hasNext && items.length > 0 ? items[items.length - 1].id : null;
+
+    // 6. 반환할 데이터 정제 (역순 정렬을 위해 reverse 사용)
+    const formattedMessageList = items
+      .map((msg) => {
+        return {
+          messageId: msg.id,
+          chatroomId: msg.chatroomId,
+          senderId: msg.senderId,
+          type: msg.type,
+          content: msg.content,
+          createdAt: msg.createdAt,
+        };
+      })
+      .reverse();
+
+    // 7. 결과 반환
+    return {
+      message: '메시지 내역 조회 성공',
+      nextCursor,
+      hasNext,
+      items: formattedMessageList,
+    };
   }
 }
