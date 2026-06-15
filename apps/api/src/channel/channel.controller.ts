@@ -369,4 +369,47 @@ export class ChannelController {
       dto,
     );
   }
+
+  /**
+   * CHAT-CORE-004
+   * @description
+   * - 채팅 메시지 삭제 (Soft Delete - 작성자 본인 전용)
+   * @url DELETE /workspace/:workspaceId/messages/:messageId
+   */
+  @Delete(':workspaceId/messages/:messageId')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '본인이 작성한 채팅 메시지 삭제 (Soft Delete)',
+    description:
+      '채팅방 내 본인이 작성한 메시지를 실제 파괴하지 않고 isDeleted 플래그를 true로 변격하여 목록에서 은폐시킵니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '메시지 소프트 딜리트 상태 변격 반영 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '이미 삭제 처리 완료된 메시지 지점을 재타격했을 때',
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      '타인의 메시지를 삭제하려 하거나 워크스페이스 소속 외 유저일 때',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '삭제 타겟 메시지 자식이 실존하지 않을 때',
+  })
+  async removeMessage(
+    @CurrentUser() reqUser: { userId: string },
+    @Param('workspaceId') workspaceId: string,
+    @Param('messageId') messageId: string,
+  ) {
+    return this.channelService.deleteChatMessage(
+      reqUser.userId,
+      workspaceId,
+      messageId,
+    );
+  }
 }
