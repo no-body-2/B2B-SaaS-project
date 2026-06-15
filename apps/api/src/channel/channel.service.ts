@@ -27,6 +27,7 @@ import { GetChatMessageListDto } from './dto/get-chat-message-list.dto';
 import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 import { createId } from '@paralleldrive/cuid2';
 import { Prisma } from '@b2b/database';
+import { UpdateLastReadDto } from './dto/update-last-read.dto';
 
 @Injectable()
 export class ChannelService {
@@ -717,6 +718,70 @@ export class ChannelService {
       chatroomId: message.chatroomId,
       isDeleted: true,
       deletedAt: new Date(),
+    };
+  }
+
+  /**
+   * CHAT-CORE-005
+   * @description
+   * - 채팅방 읽음 위치 처리
+   * @url PUT /workspace/:workspaceId/channels/:chatroomId/read
+   * @param userId - 요청 사용자 ID
+   * @param workspaceId - 요청 사용자가 속한 워크스페이스 ID
+   * @param chatroomId - 읽음 위치를 갱신할 채팅방 ID
+   * @param dto - 마지막으로 확인한 메시지 ID가 담긴 DTO 객체
+   * @returns 읽음 위치 저장 결과 메시지 및 갱신 시각
+   * @throws
+   * - {ForbiddenException} - 사용자가 해당 채팅방에 소속된 상태가 아닌 경우
+   * - {NotFoundException} - 존재하지 않는 워크스페이스나 채팅방 멤버십
+   */
+  async updateLastReadMessage(
+    userId: string,
+    workspaceId: string,
+    chatroomId: string,
+    dto: UpdateLastReadDto,
+  ) {
+    const { lastReadMessageId } = dto;
+
+    // 1. 요청 사용자 워크스페이스 소속 여부 검증
+    await this.workspaceGuard.validateMembership(userId, workspaceId);
+
+    // 2. 요청 사용자 해당 채팅방 소속 여부 검증
+    const isRoomMember = await this.prisma.chatroomMember.findUnique({
+      where: {
+        chatroomId_userId: {
+          chatroomId,
+          userId,
+        },
+      },
+    });
+
+    if (!isRoomMember) {
+      throw new ForbiddenException(
+        '해당 채팅방의 멤버가 아니므로 읽음 위치를 마킹할 수 없습니다.',
+      );
+    }
+
+    // 3. lastReadMessageId 필드 UPDATE
+    await this.prisma.chatroomMember.update({
+      where: {
+        chatroomId_userId: {
+          chatroomId,
+          userId,
+        },
+      },
+      data: {
+        lastReadMessageId,
+      },
+    });
+
+    // 4. 결과 반환
+    return {
+      message: '위치 저장 성공 메시지',
+      chatroomId,
+      userId,
+      lastReadMessageId,
+      updatedAt: new Date(),
     };
   }
 }

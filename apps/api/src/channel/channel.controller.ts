@@ -35,6 +35,7 @@ import { SendMessageDto } from './dto/send-message.dto';
 import { GetChatMessageListDto } from './dto/get-chat-message-list.dto';
 import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { UpdateLastReadDto } from './dto/update-last-read.dto';
 
 @ApiTags('ChatRoom (워크스페이스 내부의 채팅방)')
 @Controller('workspace')
@@ -410,6 +411,46 @@ export class ChannelController {
       reqUser.userId,
       workspaceId,
       messageId,
+    );
+  }
+
+  /**
+   * CHAT-CORE-005
+   * @description
+   * - 채팅방 읽음 위치 처리 (채널 참여 멤버 전용)
+   * @url PATCH /workspace/:workspaceId/channels/:chatroomId/read
+   */
+  @Patch(':workspaceId/channels/:chatroomId/read')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '채팅방 내 마지막 확인 메시지 위치 동기화',
+    description:
+      '사용자가 채팅방 내부에서 가장 마지막으로 읽은 메시지 ID를 마킹하여 안 읽은 메시지 계산 기준선을 고정합니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '마지막 읽음 메시지 식별자 업데이트 성공',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '채팅방 멤버가 아니거나 워크스페이스 소속 외 유저일 때',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '위치 갱신 타겟 채팅방 자식을 식별할 수 없을 때',
+  })
+  async putLastRead(
+    @CurrentUser() reqUser: { userId: string },
+    @Param('workspaceId') workspaceId: string,
+    @Param('chatroomId') chatroomId: string,
+    @Body() dto: UpdateLastReadDto,
+  ) {
+    return this.channelService.updateLastReadMessage(
+      reqUser.userId,
+      workspaceId,
+      chatroomId,
+      dto,
     );
   }
 }
