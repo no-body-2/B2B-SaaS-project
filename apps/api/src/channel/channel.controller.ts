@@ -18,6 +18,7 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -31,6 +32,7 @@ import { ChannelService } from './channel.service';
 import { CreateChatRoomDto } from './dto/create-chat-room.dto';
 import { DelegateOwnerDto } from './dto/delegate-owner.dto';
 import { SendMessageDto } from './dto/send-message.dto';
+import { GetChatMessageListDto } from './dto/get-chat-message-list.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @ApiTags('ChatRoom (워크스페이스 내부의 채팅방)')
@@ -259,12 +261,11 @@ export class ChannelController {
   @ApiBearerAuth('accessToken')
   @ApiOperation({
     summary: '채팅방 내 메시지 전송 및 적재 (채널 참여 멤버 전용)',
-    description:
-      '채팅방 내부에 새로운 텍스트 혹은 파일 링크 메시지를 영속화하고 부모 방의 타임스탬프를 갱신합니다.',
+    description: '채팅방 내부에 전송된 새로운 메시지 저장',
   })
   @ApiResponse({
     status: 200,
-    description: '메시지 영속화 및 채널 업데이트 트랜잭션 완결',
+    description: '메시지 전송 완료',
   })
   @ApiResponse({
     status: 403,
@@ -272,7 +273,7 @@ export class ChannelController {
   })
   @ApiResponse({
     status: 404,
-    description: '전송 타겟 채팅방 식별선이 실존하지 않을 때',
+    description: '전송 타겟 채팅방을 찾을 수 없는 경우',
   })
   async postMessage(
     @CurrentUser() reqUser: { userId: string },
@@ -285,6 +286,43 @@ export class ChannelController {
       workspaceId,
       chatRoomId,
       dto,
+    );
+  }
+
+  /**
+   * CHAT-CORE-002
+   * @url GET /workspace/:workspaceId/channels/:chatroomId/messages
+   */
+  @Get(':workspaceId/channels/:chatroomId/messages')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '채팅방 내 이전 메시지 내역 조회 (채널 참여 멤버 전용 로비)',
+    description: '채팅방의 과거 대화 내역을 커서 기반 페이징으로 조회',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '이전 채팅 내역 조회 성공',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '채팅방 멤버가 아니거나 워크스페이스 소속 외 유저일 때',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '조회 타겟 채팅방 자식을 식별할 수 없는 경우',
+  })
+  async getMessageList(
+    @CurrentUser() reqUser: { userId: string },
+    @Param('workspaceId') workspaceId: string,
+    @Param('chatroomId') chatroomId: string,
+    @Query() query: GetChatMessageListDto,
+  ) {
+    return this.channelService.getChatMessageList(
+      reqUser.userId,
+      workspaceId,
+      chatroomId,
+      query,
     );
   }
 }

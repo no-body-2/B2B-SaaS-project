@@ -167,6 +167,7 @@ model ChatMessage {
   chatroomId String   @map("chatroom_id")
   senderId   String   @map("sender_id")
   content    String   @map("content")
+  type       String   @map("type")
   isDeleted  Boolean? @map("is_deleted")
 
   createdAt DateTime @default(now()) @map("created_at")
