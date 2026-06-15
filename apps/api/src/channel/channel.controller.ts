@@ -36,6 +36,7 @@ import { GetChatMessageListDto } from './dto/get-chat-message-list.dto';
 import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UpdateLastReadDto } from './dto/update-last-read.dto';
+import { SearchChatMessageDto } from './dto/search-chat-message.dto';
 
 @ApiTags('ChatRoom (워크스페이스 내부의 채팅방)')
 @Controller('workspace')
@@ -451,6 +452,46 @@ export class ChannelController {
       workspaceId,
       chatroomId,
       dto,
+    );
+  }
+
+  /**
+   * CHAT-CORE-006
+   * @description
+   * - 채팅 메시지 키워드 검색 (채널 참여 멤버 전용)
+   * @url GET /workspace/:workspaceId/channels/:chatroomId/search
+   */
+  @Get(':workspaceId/channels/:chatroomId/search')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '채팅방 내부 메시지 키워드 검색',
+    description:
+      '채팅방 내 축적된 대화 내용 중 지정한 텍스트 키워드가 섞인 메시지들을 커서 기반 페이징으로 낚아챕니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '키워드 매칭 및 슬라이싱이 완료된 메시지 목록 반환 성공',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '채팅방 멤버가 아니거나 워크스페이스 소속 외 유저일 때',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '검색 타겟 채팅방 자식을 식별할 수 없을 때',
+  })
+  async searchMessages(
+    @CurrentUser() reqUser: { userId: string },
+    @Param('workspaceId') workspaceId: string,
+    @Param('chatroomId') chatroomId: string,
+    @Query() query: SearchChatMessageDto,
+  ) {
+    return this.channelService.searchChatMessages(
+      reqUser.userId,
+      workspaceId,
+      chatroomId,
+      query,
     );
   }
 }

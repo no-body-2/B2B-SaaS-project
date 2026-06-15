@@ -28,6 +28,7 @@ import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 import { createId } from '@paralleldrive/cuid2';
 import { Prisma } from '@b2b/database';
 import { UpdateLastReadDto } from './dto/update-last-read.dto';
+import { SearchChatMessageDto } from './dto/search-chat-message.dto';
 
 @Injectable()
 export class ChannelService {
@@ -782,6 +783,97 @@ export class ChannelService {
       userId,
       lastReadMessageId,
       updatedAt: new Date(),
+    };
+  }
+
+  /**
+   * CHAT-CORE-006
+   * @description
+   * - 채팅 메시지 키워드 검색
+   * @url GET /workspace/:workspaceId/channels/:chatroomId/search
+   * @param userId - 요청 사용자 ID
+   * @param workspaceId - 요청 사용자가 속한 워크스페이스 ID
+   * @param chatroomId - 키워드를 검색할 채팅방 ID
+   * @param query - 검색 키워드 및 커서 페이징 정보가 담긴 DTO 객체
+   * @returns 키워 매칭이 완료된 메시지 리스트 및 페이징 메타데이터
+   * @throws
+   * - {ForbiddenException} - 사용자가 해당 채팅방에 소속된 상태가 아닌 경우
+   * - {NotFoundException} - 존재하지 않는 워크스페이스나 채팅방
+   */
+  async searchChatMessages(
+    userId: string,
+    workspaceId: string,
+    chatroomId: string,
+    query: SearchChatMessageDto,
+  ) {
+    const { keyword, cursor, limit = 32 } = query;
+
+    // 1. 요청 사용자 워크스페이스 소속 여부 검증
+    await this.workspaceGuard.validateMembership(userId, workspaceId);
+
+    // 2. 요청 사용자 해당 채팅방 소속 여부 검증
+    const isRoomMember = await this.prisma.chatroomMember.findUnique({
+      where: {
+        chatroomId_userId: {
+          chatroomId,
+          userId,
+        },
+      },
+    });
+
+    if (!isRoomMember) {
+      throw new ForbiddenException(
+        '해당 채팅방의 멤버가 아니므로 메시지를 검색할 수 없습니다.',
+      );
+    }
+
+    // 3. 해당 키워드를 포함한 검색용 WHERE 조건절
+    const whereClause: Prisma.ChatMessageWhereInput = {
+      chatroomId,
+      isDeleted: false,
+      content: {
+        contains: keyword,
+      },
+    };
+
+    // 3-1. WHERE 조건절을 바탕으로 Query 생성 (3-2가 있기 때문에 prisma 호출 전 Query 조정)
+    const prismaQuery: Prisma.ChatMessageFindManyArgs = {
+      where: whereClause,
+      take: limit + 1,
+      orderBy: {
+        createdAt: 'desc',
+      },
+    };
+
+    // 3-2. cursor가 전달 된 경우
+    if (cursor) {
+      prismaQuery.cursor = { id: cursor };
+      prismaQuery.skip = 1;
+    }
+
+    // 4. DB 조회
+    const matchedMessages = await this.prisma.chatMessage.findMany(prismaQuery);
+
+    // 5. hasNext 검사 및 nextCursor 연산
+    const hasNext = matchedMessages.length > limit;
+    const items = hasNext ? matchedMessages.slice(0, limit) : matchedMessages;
+    const nextCursor =
+      hasNext && items.length > 0 ? items[items.length - 1].id : null;
+
+    // 6. 결과 반환
+    return {
+      message: '메시지 검색 성공',
+      keyword,
+      nextCursor,
+      hasNext,
+      items: items.map((msg) => ({
+        messageId: msg.id,
+        chatroomId: msg.chatroomId,
+        senderId: msg.senderId,
+        type: msg.type,
+        content: msg.content,
+        createdAt: msg.createdAt,
+      })),
     };
   }
 }

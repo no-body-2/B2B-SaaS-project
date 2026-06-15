@@ -3,6 +3,7 @@
 /**
  * Update Chat Message DTO
  * @description 채팅방 내 본인이 작성한 메시지를 수정할 때 사용하는 DTO
+ *
  * @author <Nobody>
  * @date 2026-06-15
  */

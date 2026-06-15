@@ -3,6 +3,7 @@
 /**
  * Update Last Read DTO
  * @description 사용자가 채팅방 내에서 마지막으로 확인한 메시지 식별자를 마킹 및 갱신할 때 사용하는 바디 검증 객체
+ *
  * @author <Nobody>
  * @date 2026-06-15
  */
