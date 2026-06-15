@@ -24,6 +24,7 @@ import { CreateChatRoomDto } from './dto/create-chat-room.dto';
 import { DelegateOwnerDto } from './dto/delegate-owner.dto';
 import { SendMessageDto } from './dto/send-message.dto';
 import { GetChatMessageListDto } from './dto/get-chat-message-list.dto';
+import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 import { createId } from '@paralleldrive/cuid2';
 import { Prisma } from '@b2b/database';
 
@@ -599,6 +600,123 @@ export class ChannelService {
       nextCursor,
       hasNext,
       items: formattedMessageList,
+    };
+  }
+
+  /**
+   * CHAT-CORE-003
+   * @description
+   * - 채팅 메시지 수정
+   * @param userId - 수정 요청 사용자 ID
+   * @param workspaceId - 수정 요청 사용자가 속한 워크스페이스 ID
+   * @param messageId - 수정할 메시지 고유 ID
+   * @param dto - 메시지 수정에 필요한 DTO
+   * @returns 메시지 수정 결과
+   * @throws
+   * - {ForbiddenException} - 메시지 작성자(senderId) 본인이 아닌 경우
+   * - {NotFoundException} - 존재하지 않는 메시지이거나 이미 삭제된 경우
+   */
+  async updateChatMessage(
+    userId: string,
+    workspaceId: string,
+    messageId: string,
+    dto: UpdateChatMessageDto,
+  ) {
+    const { content } = dto;
+
+    // 1. 요청 사용자 워크스페이스 소속 여부 검증
+    await this.workspaceGuard.validateMembership(userId, workspaceId);
+
+    // 2. 수정 대상 메시지 유효성 검증
+    const message = await this.prisma.chatMessage.findUnique({
+      where: { id: messageId },
+    });
+
+    if (!message || message.isDeleted) {
+      throw new NotFoundException(
+        '수정하려는 메시지가 존재하지 않거나 이미 삭제되었습니다.',
+      );
+    }
+
+    // 3. 요청 사용자 본인 작성 메시지 여부 검사
+    if (message.senderId !== userId) {
+      throw new ForbiddenException(
+        '본인이 작성한 메시지만 수정할 수 있는 권한이 있습니다.',
+      );
+    }
+
+    // 4. 메시지 내용 교체 및 수정 여부 추가
+    const updatedMessage = await this.prisma.chatMessage.update({
+      where: { id: messageId },
+      data: {
+        content,
+        isEdited: true,
+      },
+    });
+
+    // 5. 결과 반환
+    return {
+      message: '메시지 수정 성공',
+      messageId: updatedMessage.id,
+      chatroomId: updatedMessage.chatroomId,
+      senderId: updatedMessage.senderId,
+      type: updatedMessage.type,
+      content: updatedMessage.content,
+      isEdited: updatedMessage.isEdited,
+      updatedAt: updatedMessage.updatedAt,
+    };
+  }
+
+  /**
+   * CHAT-CORE-004
+   * @description
+   * - 채팅 메시지 삭제 (Soft Delete)
+   * @url DELETE /workspace/:workspaceId/messages/:messageId
+   */
+  async deleteChatMessage(
+    userId: string,
+    workspaceId: string,
+    messageId: string,
+  ) {
+    // 1. 요청 사용자 워크스페이스 소속 여부 검증
+    await this.workspaceGuard.validateMembership(userId, workspaceId);
+
+    // 2. 대상 메시지의 실존 여부 검사
+    const message = await this.prisma.chatMessage.findUnique({
+      where: { id: messageId },
+    });
+
+    if (!message) {
+      throw new NotFoundException('삭제하려는 메시지가 존재하지 않습니다.');
+    }
+
+    // 2-1. 이미 Soft Delete 처리된 경우 400 오류 발생
+    if (message.isDeleted) {
+      throw new BadRequestException('이미 삭제 처리 완료된 메시지입니다.');
+    }
+
+    // 3. 요청자 본인이 작성한 메시지 여부 검사
+    if (message.senderId !== userId) {
+      throw new ForbiddenException(
+        '본인이 작성한 메시지만 삭제할 수 있는 권한이 있습니다.',
+      );
+    }
+
+    // 4. isDeleted 상태 값 변경으로 Soft Delete 처리
+    await this.prisma.chatMessage.update({
+      where: { id: messageId },
+      data: {
+        isDeleted: true,
+      },
+    });
+
+    // 5. 결과 반환
+    return {
+      message: '메시지 삭제 성공',
+      messageId: message.id,
+      chatroomId: message.chatroomId,
+      isDeleted: true,
+      deletedAt: new Date(),
     };
   }
 }

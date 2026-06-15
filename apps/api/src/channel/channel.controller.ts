@@ -33,6 +33,7 @@ import { CreateChatRoomDto } from './dto/create-chat-room.dto';
 import { DelegateOwnerDto } from './dto/delegate-owner.dto';
 import { SendMessageDto } from './dto/send-message.dto';
 import { GetChatMessageListDto } from './dto/get-chat-message-list.dto';
+import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @ApiTags('ChatRoom (워크스페이스 내부의 채팅방)')
@@ -291,6 +292,8 @@ export class ChannelController {
 
   /**
    * CHAT-CORE-002
+   * @description
+   * - 채팅방 내 이전 메시지 내역 조회 (채널 참여 멤버 전용 로비)
    * @url GET /workspace/:workspaceId/channels/:chatroomId/messages
    */
   @Get(':workspaceId/channels/:chatroomId/messages')
@@ -323,6 +326,47 @@ export class ChannelController {
       workspaceId,
       chatroomId,
       query,
+    );
+  }
+
+  /**
+   * CHAT-CORE-003
+   * @description
+   * - 채팅 메시지 수정 (작성자 본인 전용)
+   * @url PATCH /workspace/:workspaceId/messages/:messageId
+   */
+  @Patch(':workspaceId/messages/:messageId')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '본인이 작성한 채팅 메시지 수정',
+    description:
+      '채팅방 내 본인이 작성한 메시지의 오타를 수정하고 isEdited 플래그를 true로 마킹합니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '메시지 내용 수정 및 상태값 변격 반영 성공',
+  })
+  @ApiResponse({
+    status: 403,
+    description:
+      '타인의 메시지를 수정하려 하거나 워크스페이스 소속 외 유저일 때',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '수정 타겟 메시지가 실존하지 않거나 이미 삭제되었을 때',
+  })
+  async patchMessage(
+    @CurrentUser() reqUser: { userId: string },
+    @Param('workspaceId') workspaceId: string,
+    @Param('messageId') messageId: string,
+    @Body() dto: UpdateChatMessageDto,
+  ) {
+    return this.channelService.updateChatMessage(
+      reqUser.userId,
+      workspaceId,
+      messageId,
+      dto,
     );
   }
 }
