@@ -21,7 +21,7 @@ export class MailerListener {
   private readonly logger = new Logger(MailerListener.name);
   private transporter: nodemailer.Transporter;
 
-  // TODO: 임시 값으로 설정해 둔 상태 -> 실제 값으로 변경할 것
+  // TODO: 임시 값으로 설정해 둔 상태 -> 실제 값으로 변경할 것 -> Mail Service 에서 자체 도메인 Email 생성 및 연동 후 .env 파일로 값 안정성 보장
   constructor() {
     this.transporter = nodemailer.createTransport({
       host: 'smtp.ethereal.email',
