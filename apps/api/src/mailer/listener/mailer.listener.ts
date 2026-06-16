@@ -12,10 +12,27 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { SendMailEvent } from '../events/send-mail.event';
+import * as nodemailer from 'nodemailer';
+import { MailTemplateFactory } from '../template/mail-template.factory';
+import { SentMessageInfo } from 'nodemailer/lib/smtp-transport';
 
 @Injectable()
 export class MailerListener {
   private readonly logger = new Logger(MailerListener.name);
+  private transporter: nodemailer.Transporter;
+
+  // TODO: 임시 값으로 설정해 둔 상태 -> 실제 값으로 변경할 것
+  constructor() {
+    this.transporter = nodemailer.createTransport({
+      host: 'smtp.ethereal.email',
+      port: 587,
+      secure: false,
+      auth: {
+        user: 'user@example.com',
+        pass: 'password',
+      },
+    });
+  }
 
   /**
    * Handle Send Mail Event
@@ -28,20 +45,26 @@ export class MailerListener {
     const { to, subject, template, context } = event;
 
     this.logger.log(
-      `[비동기 메일 큐 가동] Target: ${to} | Template: ${template} | 발송 프로세스 진입`,
+      `[Mail Queue 가동] 수신: ${to} | 템플릿: ${template} | SMTP 전송`,
     );
 
     try {
-      // TODO: Nodemailer 또는 외부 인프라(SES 등) 커넥터 결합 예정
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const htmlContent = MailTemplateFactory.createHtml(template, context);
+
+      const info = (await this.transporter.sendMail({
+        from: 'Nano Platform <noreply@nano.com>',
+        to,
+        subject,
+        html: htmlContent,
+      })) as SentMessageInfo;
 
       this.logger.log(
-        `[비동기 메일 발송 완료] 수신자: ${to}에게 메일 전달 무결성 완료`,
+        `[Mail 발송 완료] Message ID: ${info.messageId} | 미리보기: ${nodemailer.getTestMessageUrl(info)}`,
       );
-    } catch (error) {
+    } catch (err) {
       this.logger.error(
-        `[메일 발송 대참사] 수신자: ${to} 메일 전송 중 인프라 누수 발생`,
-        error instanceof Error ? error.stack : undefined,
+        `[Mail 발송 실패] 수신: ${to} 에게 메일 전송 실패`,
+        err instanceof Error ? err.stack : undefined,
       );
     }
   }
