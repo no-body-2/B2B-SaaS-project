@@ -11,9 +11,19 @@ import { WorkspaceModule } from './workspace/workspace.module';
 import { NanoModule } from './nano/nano.module';
 import { WorkflowModule } from './workflow/workflow.module';
 import { ChannelModule } from './channel/channel.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
+    EventEmitterModule.forRoot({
+      wildcard: false,
+      delimiter: '.',
+      newListener: false,
+      removeListener: false,
+      maxListeners: 10,
+      verboseMemoryLeak: true,
+      ignoreErrors: false,
+    }),
     AuthModule,
     UserModule,
     WorkspaceModule,
