@@ -14,6 +14,9 @@ import {
   WebSocketServer,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  SubscribeMessage,
+  MessageBody,
+  ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
@@ -55,6 +58,57 @@ export class ChannelGateway
   handleDisconnect(client: Socket) {
     this.logger.log(
       `[WebSocket 연결 종료] Client ID: ${client.id} 가 실시간 채팅 채널에서 연결을 종료했습니다.`,
+    );
+  }
+
+  /**
+   * Handle JoinRoom
+   * @description
+   * - 클라이언트가 특정 채팅방 화면에 진입했을 때, 해당 방 ID 구획(Room)으로 소켓 인프라 설정
+   * @event - joinRoom
+   * @payload { chatroomId: string }
+   */
+  @SubscribeMessage('joinRoom')
+  async handleJoinRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { chatroomId: string },
+  ) {
+    const { chatroomId } = data;
+
+    if (!chatroomId) {
+      client.emit('error', {
+        message: '채팅방 식별 정보(chatroomId)가 유실되었습니다.',
+      });
+      return;
+    }
+
+    // 1. 클라이언트 연결
+    await client.join(chatroomId);
+
+    this.logger.log(
+      `[ChatRoom 합류 성공] Client ID: ${client.id} | ChatRoom ID: ${chatroomId}`,
+    );
+
+    // 2. 채팅방 입장 알림
+    this.server.to(chatroomId).emit('joinedRoomNotice', {
+      message: `새로운 사용자가 대화방에 합류했습니다.`,
+      clientId: client.id,
+    });
+  }
+
+  /**
+   * Broadcast New Message
+   * @description
+   * - REST API 레이어에서 성공적으로 영속화된 메시지 객체를 해당 채팅방 전체에 실시간 브로드캐스팅
+   * @param chatroomId - 대상 채팅방 ID
+   * @param messagePayload - 프런트엔드가 수령할 메시지 스냅샷
+   */
+  broadcastNewMessage(chatroomId: string, messagePayload: any) {
+    // 1. 신규 메시지 해당 채팅방 대상 전송
+    this.server.to(chatroomId).emit('newMessage', messagePayload);
+
+    this.logger.log(
+      `[WS 브로드캐스트 완료] ChatRoom ID: ${chatroomId} -> 실시간 메시지 패킷 송출`,
     );
   }
 }

@@ -14,11 +14,13 @@ import { Module } from '@nestjs/common';
 import { ChannelService } from './channel.service';
 import { ChannelController } from './channel.controller';
 import { WorkspaceGuardService } from '../common/guard/workspace-guard.service';
+import { ChannelGateway } from './channel.gateway';
+import { MailerModule } from '../mailer/mailer.module';
 
 @Module({
-  imports: [],
+  imports: [MailerModule],
   controllers: [ChannelController],
-  providers: [ChannelService, WorkspaceGuardService],
+  providers: [ChannelService, WorkspaceGuardService, ChannelGateway],
   exports: [ChannelService],
 })
 export class ChannelModule {}
