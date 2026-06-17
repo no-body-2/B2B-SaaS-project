@@ -28,12 +28,14 @@ import { WorkspaceMemberQueryDto } from './dto/member/workspace-member-query.dto
 import { Prisma } from '@b2b/database';
 import { TargetMemberDto } from './dto/member/target-member.dto';
 import { UpdateMemberRoleDto } from './dto/member/update-role.dto';
+import { MailerService } from '../mailer/mailer.service';
 
 @Injectable()
 export class WorkspaceMemberService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly workspaceGuard: WorkspaceGuardService,
+    private readonly mailerService: MailerService,
   ) {}
 
   /**
@@ -112,8 +114,29 @@ export class WorkspaceMemberService {
       },
     });
 
-    // TODO: 이메일 전송 부 추가
-    // 7. 결과 반환
+    // 7. 워크스페이스 이름 추출
+    const workspaceName = await this.prisma.workspace.findUnique({
+      where: {
+        id: workspaceId,
+      },
+      select: {
+        name: true,
+      },
+    });
+
+    // 8. 토큰을 바탕으로 링크 생성
+    const verifiedLink = `${process.env.WORKSPACE_INVITATION_URL}?token=${invitationToken}&workspaceId=${workspaceId}`;
+
+    // 9. 이메일 전송
+    this.mailerService.sendInvitationMail(
+      dto.email,
+      workspaceName?.name ?? 'Unknown Workspace',
+      verifiedLink,
+    );
+
+    // TODO: 이메일 전송 부 추가 -> Test만 남음
+
+    // 10. 결과 반환
     return {
       message: '초대 요청이 성공적으로 전송되었습니다. 6시간 후 만료됩니다.',
       invitationId: newInvitation.id,

@@ -29,12 +29,14 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { RequestEmailChangeDto } from './dto/request-email-change.dto';
 import { VerifyEmailChangeDto } from './dto/verify-email-change.dto';
 import { UpdateUserPreferenceDto } from './dto/update-preference.dto';
+import { MailerService } from '../mailer/mailer.service';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly redisService: RedisService,
+    private readonly mailerService: MailerService,
   ) {}
 
   /**
@@ -293,6 +295,9 @@ export class UserService {
     // TODO: MailerService 생성 및 연동 후 메일 발송 처리 및 테스트
     const verifiedUrl = `https://example.com/user/email-change/verify?token=${token}`;
     console.log(`[인증 메일 발송 완료] URL: ${verifiedUrl}`);
+
+    // 6. 메일 전송
+    this.mailerService.sendChangeEmailMail(dto.newEmail, verifiedUrl);
 
     return {
       message: '인증 메일이 발송되었습니다. 30분 이내에 인증을 완료해 주세요.',

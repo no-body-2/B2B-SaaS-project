@@ -12,6 +12,7 @@ import { NanoModule } from './nano/nano.module';
 import { WorkflowModule } from './workflow/workflow.module';
 import { ChannelModule } from './channel/channel.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { MailerModule } from './mailer/mailer.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     NanoModule,
     WorkflowModule,
     ChannelModule,
+    MailerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

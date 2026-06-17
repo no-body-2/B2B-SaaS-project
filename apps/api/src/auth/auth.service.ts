@@ -24,6 +24,7 @@ import * as argon2 from 'argon2'; // bcrypt 대신 보안성이 더 훌륭한 (C
 import { OAuth2Client } from 'google-auth-library';
 import { GoogleLoginDto } from './dto/google-login.dto';
 import { TokenHelper } from './utils/token.helper';
+import { MailerService } from '../mailer/mailer.service';
 
 @Injectable()
 export class AuthService {
@@ -34,6 +35,7 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly tokenHelper: TokenHelper,
+    private readonly mailerService: MailerService,
   ) {
     this.googleClient = new OAuth2Client(
       process.env.GOOGLE_CLIENT_ID,
@@ -52,7 +54,7 @@ export class AuthService {
    * - {BadRequestException} - 필수 입력값 누락, 비밀번호 형식 불일치 등 유효성 검사 실패 시
    * - {ConflictException} - 이미 사용 중인 이메일로 가입을 시도할 경우
    *
-   * @todo
+   * @TODO
    * - api/v2 코드를 생성할 시, Table에 nickname 항목을 추가할 것
    */
   async registerUser(dto: RegisterDto) {
@@ -81,6 +83,8 @@ export class AuthService {
 
     // 4. Client에게 정보를 반환하기 전 password 제외
     const { password: _, ...result } = newUser;
+
+    this.mailerService.sendWelcomeMail(newUser.email!, newUser.firstName);
 
     return result;
   }

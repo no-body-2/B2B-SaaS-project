@@ -19,6 +19,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh-strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { TokenHelper } from './utils/token.helper';
+import { MailerModule } from '../mailer/mailer.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { TokenHelper } from './utils/token.helper';
       secret: process.env.JWT_ACCESS_SECRET,
       signOptions: { expiresIn: '1h' },
     }),
+    MailerModule,
   ],
   controllers: [AuthController],
   providers: [

@@ -15,8 +15,10 @@ import { WorkspaceService } from './workspace.service';
 import { WorkspaceController } from './workspace.controller';
 import { WorkspaceMemberService } from './workspace-member.service';
 import { WorkspaceMemberController } from './workspace-member.controller';
+import { MailerModule } from '../mailer/mailer.module';
 
 @Module({
+  imports: [MailerModule],
   controllers: [WorkspaceController, WorkspaceMemberController],
   providers: [WorkspaceService, WorkspaceMemberService],
   exports: [WorkspaceService, WorkspaceMemberService],

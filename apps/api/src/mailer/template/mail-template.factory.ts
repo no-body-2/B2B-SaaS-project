@@ -14,7 +14,7 @@ export class MailTemplateFactory {
    * @description 템플릿 타입에 따라 동적 데이터(Context)를 바인딩하여 완성된 HTML 문자열을 반환
    */
   static createHtml(
-    templateType: 'WELCOME' | 'INVITATION' | 'RESET_PASSWORD',
+    templateType: 'WELCOME' | 'INVITATION' | 'CHANGE_EMAIL',
     context: Record<string, any>,
   ): string {
     switch (templateType) {
@@ -22,8 +22,8 @@ export class MailTemplateFactory {
         return this.getInvitationTemplate(context);
       case 'WELCOME':
         return this.getWelcomeTemplate(context);
-      case 'RESET_PASSWORD':
-        return this.getResetPasswordTemplate(context);
+      case 'CHANGE_EMAIL':
+        return this.getChangeEmailTemplate(context);
       default:
         return `<h3>Nano Platform</h3><p>요청하신 프로세스가 완료되었습니다.</p>`;
     }
@@ -53,14 +53,12 @@ export class MailTemplateFactory {
     `;
   }
 
-  private static getResetPasswordTemplate(
-    context: Record<string, any>,
-  ): string {
+  private static getChangeEmailTemplate(context: Record<string, any>): string {
     return `
       <div style="font-family: sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
-        <h2>비밀번호 재설정 안내</h2>
-        <p>아래 링크를 통해 비밀번호 변경을 완료해 주세요.</p>
-        <a href="${context.resetLink}">비밀번호 재설정하기</a>
+        <h2>이메일 재설정 안내</h2>
+        <p>아래 링크를 통해 이메일 변경을 완료해 주세요.</p>
+        <a href="${context.resetLink}">이메일 재설정하기</a>
       </div>
     `;
   }
