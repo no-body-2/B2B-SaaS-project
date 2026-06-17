@@ -111,4 +111,22 @@ export class ChannelGateway
       `[WS 브로드캐스트 완료] ChatRoom ID: ${chatroomId} -> 실시간 메시지 패킷 송출`,
     );
   }
+
+  /**
+   * broadcastUpdateMessage
+   * @description 수정된 메시지를 채팅방 안의 유저들에게 실시간 전송
+   */
+  broadcastUpdateMessage(chatroomId: string, payload: any) {
+    this.server.to(chatroomId).emit('updateMessage', payload);
+    this.logger.log(`[WS 송출] UpdateMessage -> ChatRoom: ${chatroomId}`);
+  }
+
+  /**
+   * broadcastDeleteMessage
+   * @description Soft Delete된 메시지를 '삭제됨' 상태로 실시간 전송
+   */
+  broadcastDeleteMessage(chatroomId: string, payload: any) {
+    this.server.to(chatroomId).emit('deleteMessage', payload);
+    this.logger.log(`[WS 송출] DeleteMessage -> ChatRoom: ${chatroomId}`);
+  }
 }

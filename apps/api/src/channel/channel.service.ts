@@ -29,12 +29,16 @@ import { createId } from '@paralleldrive/cuid2';
 import { Prisma } from '@b2b/database';
 import { UpdateLastReadDto } from './dto/update-last-read.dto';
 import { SearchChatMessageDto } from './dto/search-chat-message.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ChannelGateway } from './channel.gateway';
 
 @Injectable()
 export class ChannelService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly workspaceGuard: WorkspaceGuardService,
+    private readonly channelGateway: ChannelGateway,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   /* TODO
@@ -476,8 +480,8 @@ export class ChannelService {
       );
     }
 
-    // 3. 트랜잭션으로 작업 처리
-    return this.prisma.$transaction(async (tx) => {
+    // 3. 트랜잭션으로 작업 처리 -> 브로드캐스팅을 위해 결과 저장
+    const result = await this.prisma.$transaction(async (tx) => {
       // 3-1. ChatMessage Table에 데이터 저장
       const newMessage = await tx.chatMessage.create({
         data: {
@@ -490,15 +494,12 @@ export class ChannelService {
         },
       });
 
-      // 3-2. Chatroom의 updatedAt 갱신
+      // 3-2. Chatroom Table의 updatedAt 컬럼 업데이트
       await tx.chatroom.update({
         where: { id: chatroomId },
-        data: {
-          updatedAt: new Date(),
-        },
+        data: { updatedAt: new Date() },
       });
 
-      // 3-3. 결과 반환
       return {
         message: '메시지 전송 성공',
         messageId: newMessage.id,
@@ -509,6 +510,49 @@ export class ChannelService {
         createdAt: newMessage.createdAt,
       };
     });
+
+    // 4. 브로드캐스팅
+    this.channelGateway.broadcastNewMessage(chatroomId, result);
+
+    // 5. 결과 반환
+    return {
+      message: '메시지 전송 성공',
+      result,
+    };
+
+    // // 3. 트랜잭션으로 작업 처리
+    // return this.prisma.$transaction(async (tx) => {
+    //   // 3-1. ChatMessage Table에 데이터 저장
+    //   const newMessage = await tx.chatMessage.create({
+    //     data: {
+    //       id: `msg-${createId()}`,
+    //       chatroomId,
+    //       senderId: userId,
+    //       type: type,
+    //       content,
+    //       isDeleted: false,
+    //     },
+    //   });
+    //
+    //   // 3-2. Chatroom의 updatedAt 갱신
+    //   await tx.chatroom.update({
+    //     where: { id: chatroomId },
+    //     data: {
+    //       updatedAt: new Date(),
+    //     },
+    //   });
+    //
+    //   // 3-3. 결과 반환
+    //   return {
+    //     message: '메시지 전송 성공',
+    //     messageId: newMessage.id,
+    //     chatroomId: newMessage.chatroomId,
+    //     senderId: newMessage.senderId,
+    //     type: newMessage.type,
+    //     content: newMessage.content,
+    //     createdAt: newMessage.createdAt,
+    //   };
+    // });
   }
 
   /**
@@ -656,17 +700,39 @@ export class ChannelService {
       },
     });
 
-    // 5. 결과 반환
-    return {
-      message: '메시지 수정 성공',
+    // 5. 브로드캐스팅 및 반환을 위한 result 변수
+    const result = {
+      event: 'MESSAGE_UPDATED',
       messageId: updatedMessage.id,
       chatroomId: updatedMessage.chatroomId,
-      senderId: updatedMessage.senderId,
-      type: updatedMessage.type,
       content: updatedMessage.content,
       isEdited: updatedMessage.isEdited,
       updatedAt: updatedMessage.updatedAt,
     };
+
+    // 6. 브로드캐스팅
+    this.channelGateway.broadcastUpdateMessage(
+      updatedMessage.chatroomId,
+      result,
+    );
+
+    // 7. 결과 반환
+    return {
+      message: '메시지 수정 성공',
+      result,
+    };
+
+    // // 5. 결과 반환
+    // return {
+    //   message: '메시지 수정 성공',
+    //   messageId: updatedMessage.id,
+    //   chatroomId: updatedMessage.chatroomId,
+    //   senderId: updatedMessage.senderId,
+    //   type: updatedMessage.type,
+    //   content: updatedMessage.content,
+    //   isEdited: updatedMessage.isEdited,
+    //   updatedAt: updatedMessage.updatedAt,
+    // };
   }
 
   /**
@@ -712,14 +778,31 @@ export class ChannelService {
       },
     });
 
-    // 5. 결과 반환
-    return {
-      message: '메시지 삭제 성공',
+    // 5. 반환할 결과 result 변수
+    const result = {
+      event: 'MESSAGE_DELETED',
       messageId: message.id,
       chatroomId: message.chatroomId,
       isDeleted: true,
-      deletedAt: new Date(),
     };
+
+    // 6. 브로드캐스팅
+    this.channelGateway.broadcastDeleteMessage(message.chatroomId, result);
+
+    // 7. 결과 반환
+    return {
+      message: '메시지 삭제 성공',
+      result,
+    };
+
+    // // 5. 결과 반환
+    // return {
+    //   message: '메시지 삭제 성공',
+    //   messageId: message.id,
+    //   chatroomId: message.chatroomId,
+    //   isDeleted: true,
+    //   deletedAt: new Date(),
+    // };
   }
 
   /**
@@ -778,7 +861,7 @@ export class ChannelService {
 
     // 4. 결과 반환
     return {
-      message: '위치 저장 성공 메시지',
+      message: '최근 열람 위치 저장 성공',
       chatroomId,
       userId,
       lastReadMessageId,
