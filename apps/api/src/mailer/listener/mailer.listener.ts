@@ -1,4 +1,5 @@
 // apps/api/src/mailer/listener/mailer/listener.ts
+// FIXME: SMTP Exception 535
 
 /**
  * Mailer Event Listener
