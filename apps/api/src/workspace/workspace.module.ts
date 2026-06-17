@@ -15,10 +15,12 @@ import { WorkspaceService } from './workspace.service';
 import { WorkspaceController } from './workspace.controller';
 import { WorkspaceMemberService } from './workspace-member.service';
 import { WorkspaceMemberController } from './workspace-member.controller';
-import { MailerModule } from '../mailer/mailer.module';
+import { PrismaModule } from '../prisma/prisma.module';
+import { GuardModule } from '../common/guard/guard.module';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
-  imports: [MailerModule],
+  imports: [PrismaModule, GuardModule, MailerModule],
   controllers: [WorkspaceController, WorkspaceMemberController],
   providers: [WorkspaceService, WorkspaceMemberService],
   exports: [WorkspaceService, WorkspaceMemberService],

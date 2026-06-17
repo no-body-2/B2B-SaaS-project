@@ -13,6 +13,7 @@ import { WorkflowModule } from './workflow/workflow.module';
 import { ChannelModule } from './channel/channel.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { MailerModule } from './mailer/mailer.module';
+import { GuardModule } from './common/guard/guard.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { MailerModule } from './mailer/mailer.module';
     WorkflowModule,
     ChannelModule,
     MailerModule,
+    GuardModule,
   ],
   controllers: [AppController],
   providers: [AppService],

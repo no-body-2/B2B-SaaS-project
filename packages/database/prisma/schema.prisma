@@ -256,6 +256,7 @@ model ApprovalRequest {
 model PendingNano {
   approvalId String  @id @map("approval_id")
   nanoId     String? @map("nano_id")
+  comment    String? @map("comment")
 
   createdAt DateTime @default(now()) @map("created_at")
 
