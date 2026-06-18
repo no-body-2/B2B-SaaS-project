@@ -36,7 +36,7 @@ export class WorkspaceMemberService {
     private readonly prisma: PrismaService,
     private readonly workspaceGuard: WorkspaceGuardService,
     private readonly mailerService: MailerService,
-  ) {}
+  ) { }
 
   /**
    * WORKSPACE-MEMBER-001
@@ -63,8 +63,8 @@ export class WorkspaceMemberService {
     await this.workspaceGuard.verifyWorkspaceAdmin(userId, workspaceId);
 
     // 2. 대상 사용자 검색
-    const targetUser = await this.prisma.user.findUnique({
-      where: { id: dto.email },
+    const targetUser = await this.prisma.user.findFirst({
+      where: { email: dto.email },
     });
 
     // 3. 대상 사용자 워크스페이스 합류 여부 검사

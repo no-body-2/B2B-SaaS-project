@@ -29,7 +29,7 @@ export class WorkspaceService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly workspaceGuard: WorkspaceGuardService,
-  ) {}
+  ) { }
 
   /**
    * WORKSPACE-CORE-001
@@ -98,8 +98,14 @@ export class WorkspaceService {
    */
   async getUsersWorkspaces(userId: string) {
     // 1. 교차 테이블 WorkspaceMember 기준으로 쿼리
+    // fixed: DeletedAt이 Null인 값만 조회하도록 수정하여 안정성 확보
     const memberRecords = await this.prisma.workspaceMember.findMany({
-      where: { userId },
+      where: {
+        userId,
+        workspace: {
+          deletedAt: null
+        }
+      },
       include: { workspace: true },
       orderBy: { workspace: { createdAt: 'desc' } },
     });
@@ -143,10 +149,10 @@ export class WorkspaceService {
     const { workspaceId } = param;
 
     // 2. 워크스페이스 존재 여부 확인
-    const workspaceExists = await this.prisma.workspace.count({
+    const workspaceExists = await this.prisma.workspace.findUnique({
       where: { id: workspaceId },
     });
-    if (workspaceExists === 0) {
+    if (!workspaceExists || workspaceExists.deletedAt !== null) {
       throw new NotFoundException('해당하는 워크스페이스를 찾을 수 없습니다.');
     }
 
