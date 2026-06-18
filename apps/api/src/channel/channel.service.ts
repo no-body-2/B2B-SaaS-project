@@ -480,6 +480,7 @@ export class ChannelService {
       );
     }
 
+    // FIXME: P2022 Exception -> Schema 파일에 type 부분을 추가하면 해결될 것으로 예상
     // 3. 트랜잭션으로 작업 처리 -> 브로드캐스팅을 위해 결과 저장
     const result = await this.prisma.$transaction(async (tx) => {
       // 3-1. ChatMessage Table에 데이터 저장

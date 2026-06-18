@@ -13,11 +13,12 @@
 import { Module } from '@nestjs/common';
 import { WorkflowController } from './workflow.controller';
 import { WorkflowService } from './workflow.service';
-import { WorkspaceGuardService } from '../common/guard/workspace-guard.service';
+import { GuardModule } from '../common/guard/guard.module';
 
 @Module({
+  imports: [GuardModule],
   controllers: [WorkflowController],
-  providers: [WorkflowService, WorkspaceGuardService],
+  providers: [WorkflowService],
   exports: [WorkflowService],
 })
 export class WorkflowModule {}
