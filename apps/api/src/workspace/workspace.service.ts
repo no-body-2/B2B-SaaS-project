@@ -29,7 +29,7 @@ export class WorkspaceService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly workspaceGuard: WorkspaceGuardService,
-  ) { }
+  ) {}
 
   /**
    * WORKSPACE-CORE-001
@@ -103,8 +103,8 @@ export class WorkspaceService {
       where: {
         userId,
         workspace: {
-          deletedAt: null
-        }
+          deletedAt: null,
+        },
       },
       include: { workspace: true },
       orderBy: { workspace: { createdAt: 'desc' } },

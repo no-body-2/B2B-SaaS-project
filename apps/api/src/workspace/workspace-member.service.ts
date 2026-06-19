@@ -36,7 +36,7 @@ export class WorkspaceMemberService {
     private readonly prisma: PrismaService,
     private readonly workspaceGuard: WorkspaceGuardService,
     private readonly mailerService: MailerService,
-  ) { }
+  ) {}
 
   /**
    * WORKSPACE-MEMBER-001

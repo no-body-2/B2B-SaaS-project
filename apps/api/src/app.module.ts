@@ -14,6 +14,7 @@ import { ChannelModule } from './channel/channel.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { MailerModule } from './mailer/mailer.module';
 import { GuardModule } from './common/guard/guard.module';
+import { SchedulerModule } from './common/scheduler/scheduler.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { GuardModule } from './common/guard/guard.module';
     ChannelModule,
     MailerModule,
     GuardModule,
+    SchedulerModule,
   ],
   controllers: [AppController],
   providers: [AppService],
