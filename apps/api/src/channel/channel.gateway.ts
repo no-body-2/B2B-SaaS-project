@@ -19,7 +19,9 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Logger } from '@nestjs/common';
+import { Logger, UnauthorizedException } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { JwtService } from '@nestjs/jwt';
 
 @WebSocketGateway({
   namespace: 'chat',
@@ -30,24 +32,49 @@ import { Logger } from '@nestjs/common';
   },
 })
 export class ChannelGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
-{
+  implements OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(ChannelGateway.name);
 
   @WebSocketServer()
   server!: Server;
+
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly prisma: PrismaService,
+  ) { }
 
   /**
    * Handle Connection
    * @description
    * - Client 측에서 Handshake 완료 후 커넥션이 생성되면 작동
    */
-  // FIXME: client.id 타입 확인 후 Lint 에러 지울 것
-  handleConnection(client: Socket) {
-    this.logger.log(
-      `[WebSocket 연결 성공] Client ID: ${client.id} 가 실시간 채팅 채널에 연결되었습니다.`,
-    );
-    // TODO: Access Token 검증부 추가
+  async handleConnection(client: Socket) {
+    try {
+      // 1. Handshake 정보에서 토큰 추출
+      const authHeader = client.handshake.headers.authorization || client.handshake.auth?.token;
+
+      if (!authHeader) {
+        throw new UnauthorizedException('인증 토큰이 존재하지 않습니다.');
+      }
+
+      // 2. Bearer 접두사 제거
+      const token = authHeader.replace('Bearer ', '');
+
+      // 3. 토큰 검증 및 복호화
+      const payload = await this.jwtService.verifyAsync(token, { secret: process.env.JWT_ACCESS_SECRET });
+
+      // 4. 소켓 세션에 사용자 식별자 바인딩
+      client.data.userId = payload.sub;
+      client.data.email = payload.email;
+
+      // 5. 로깅
+      this.logger.log(
+        `[WebSocket 연결 성공] Client ID: ${client.id} 가 실시간 채팅 채널에 연결되었습니다.`,
+      );
+    } catch (err) {
+      this.logger.warn(`[WebSocket 인증 실패] Client ID: ${client.id} 연결 차단 | 차단 사유: ${err instanceof Error ? err.message : '유효하지 않은 Access Token'}`)
+      client.disconnect(true);
+    }
   }
 
   /**
@@ -74,10 +101,36 @@ export class ChannelGateway
     @MessageBody() data: { chatroomId: string },
   ) {
     const { chatroomId } = data;
+    const userId = client.data.userId;
 
     if (!chatroomId) {
       client.emit('error', {
         message: '채팅방 식별 정보(chatroomId)가 유실되었습니다.',
+      });
+      return;
+    }
+
+    if (!userId) {
+      client.emit('error', {
+        message: '사용자 식별 정보가 유실되었습니다.',
+      });
+      client.disconnect(true);
+      return;
+    }
+
+    const isRoomMember = await this.prisma.chatroomMember.count({
+      where: {
+        chatroomId,
+        userId,
+      },
+    });
+
+    if (isRoomMember === 0) {
+      this.logger.warn(
+        `[WebSocket 권한 위반 침입 감지] User ID: ${userId}가 권한이 없는 방(${chatroomId}) 입장을 시도함`,
+      );
+      client.emit('error', {
+        message: '해당 채팅방에 접근할 권한이 없습니다.',
       });
       return;
     }
@@ -93,6 +146,7 @@ export class ChannelGateway
     this.server.to(chatroomId).emit('joinedRoomNotice', {
       message: `새로운 사용자가 대화방에 합류했습니다.`,
       clientId: client.id,
+      userId: userId,
     });
   }
 
