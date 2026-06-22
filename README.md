@@ -25,6 +25,8 @@
 ## Backend
 ### 2026-06-15
 - Api v1 완공
+### 2026-06-22
+- 작업 스케줄러 및 node mailer, Web Socket 메서드 추가 완료
 
 ---
 
