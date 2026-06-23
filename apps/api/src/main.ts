@@ -12,8 +12,9 @@
 
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationError } from 'class-validator';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -35,6 +36,22 @@ async function bootstrap() {
 
       // TODO: 설정 및 기본 코드 작성 완료 시 에러 응답 정의 및 테스트
       // 5. exceptionFactory: NestJS의 기본 에러 응답을 해당 프로젝트에 맞춰 커스터마이징
+      exceptionFactory: (validationErrors: ValidationError[] = []) => {
+        const errorMap: Record<string, string> = {};
+
+        validationErrors.forEach((err) => {
+          if (err.constraints) {
+            const constraintsKeys = Object.keys(err.constraints);
+            errorMap[err.property] = err.constraints[constraintsKeys[0]];
+          }
+        });
+
+        return new BadRequestException({
+          statusCode: 400,
+          message: '입력 데이터 유효성 검증 실패',
+          errors: errorMap,
+        });
+      },
     }),
   );
 
