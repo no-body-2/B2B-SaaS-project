@@ -157,7 +157,7 @@ export class WorkspaceService {
     }
 
     // 3. 사용자가 해당 워크스페이스에 소속되어 있는 상태인지 확인
-    const membership = await this.workspaceGuard.verifyWorkspaceOwner(
+    const membership = await this.workspaceGuard.validateMembership(
       userId,
       workspaceId,
     );

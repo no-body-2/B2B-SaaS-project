@@ -19,7 +19,7 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Logger, UnauthorizedException } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 
@@ -50,11 +50,15 @@ export class ChannelGateway
    */
   async handleConnection(client: Socket) {
     try {
-      // 1. Handshake 정보에서 토큰 추출
-      const authHeader = client.handshake.headers.authorization || client.handshake.auth?.token;
+      const authHeader =
+        client.handshake.auth?.token || client.handshake.headers?.authorization;
 
       if (!authHeader) {
-        throw new UnauthorizedException('인증 토큰이 존재하지 않습니다.');
+        this.logger.warn(
+          `[WebSocket 연결 거부] Client ID: ${client.id} - 인증 토큰이 누락되었습니다.`,
+        );
+        client.disconnect(true);
+        return;
       }
 
       // 2. Bearer 접두사 제거
