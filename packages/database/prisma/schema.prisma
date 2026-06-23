@@ -176,7 +176,7 @@ model ChatMessage {
 
   // Relations
   chatroom Chatroom       @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
-  sender   ChatroomMember @relation(fields: [chatroomId, senderId], references: [chatroomId, userId])
+  sender   ChatroomMember @relation(fields: [chatroomId, senderId], references: [chatroomId, userId], onDelete: Cascade)
 
   @@map("chat_messages")
 }
@@ -203,7 +203,7 @@ model Nano {
   parent   Nano?  @relation("NanoHierarchy", fields: [parentNanoId], references: [id])
   children Nano[] @relation("NanoHierarchy")
 
-  writerMember WorkspaceMember? @relation(fields: [workspaceId, writerId], references: [workspaceId, userId])
+  writerMember WorkspaceMember? @relation(fields: [workspaceId, writerId], references: [workspaceId, userId], onDelete: Cascade)
 
   histories    NanoHistory[]
   pendingNanos PendingNano[]
@@ -272,6 +272,7 @@ model RefreshToken {
   id          String @id @default(cuid())
   userId      String @map("user_id")
   hashedToken String @map("hashed_token")
+  jti String @unique @map("jti")
 
   // 어느 기기에서 접속했는 지 정보를 얻기 위한 속성
   userAgent String? @map("user_agent")

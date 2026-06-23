@@ -22,15 +22,14 @@ export class MailerListener {
   private readonly logger = new Logger(MailerListener.name);
   private transporter: nodemailer.Transporter;
 
-  // TODO: 임시 값으로 설정해 둔 상태 -> 실제 값으로 변경할 것 -> Mail Service 에서 자체 도메인 Email 생성 및 연동 후 .env 파일로 값 안정성 보장
   constructor() {
     this.transporter = nodemailer.createTransport({
-      host: 'smtp.ethereal.email',
-      port: 587,
-      secure: false,
+      host: process.env.SMTP_HOST || 'smtp.ethereal.email',
+      port: parseInt(process.env.SMTP_PORT || '587', 10),
+      secure: process.env.SMTP_SECURE === 'true',
       auth: {
-        user: 'user@example.com',
-        pass: 'password',
+        user: process.env.SMTP_USER || 'user@example.com',
+        pass: process.env.SMTP_PASSWORD || 'password',
       },
     });
   }

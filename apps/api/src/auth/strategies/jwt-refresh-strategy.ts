@@ -48,7 +48,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
    * @param payload - JWT 복호화를 통해 추출된 데이터 객체
    * @returns 'req.user'에 할당되어 컨트롤러로 전달될 세션 데이터 객체
    */
-  validate(req: Request, payload: { sub: string; email: string }) {
+  validate(req: Request, payload: { sub: string; email: string, jti: string }) {
     const refreshToken = req
       .get('Authorization')
       ?.replace('Bearer ', '')
@@ -61,6 +61,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
     return {
       userId: payload.sub,
       email: payload.email,
+      jti: payload.jti,
       refreshToken,
     };
   }

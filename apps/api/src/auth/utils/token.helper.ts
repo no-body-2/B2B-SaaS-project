@@ -14,13 +14,14 @@ import { User } from '@b2b/database';
 import { PrismaService } from '../../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
+import { createId } from '@paralleldrive/cuid2';
 
 @Injectable()
 export class TokenHelper {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   /**
    * AUTH - Generate And Save Token
@@ -47,16 +48,20 @@ export class TokenHelper {
     }
 
     // 1. Payload에 비밀번호 등의 민감한 정보를 제외한 최소한의 식별자 전달
-    const payload = { sub: user.id, email: user.email };
+    const accessTokenPayload = { sub: user.id, email: user.email };
 
     // 2. Access Token 생성 (1시간)
-    const accessToken = await this.jwtService.signAsync(payload, {
+    const accessToken = await this.jwtService.signAsync(accessTokenPayload, {
       secret: accessSecret,
       expiresIn: '1h',
     });
 
+    // 2-1. JTI 생성
+    const jti = createId();
+    const refreshTokenPayload = { ...accessTokenPayload, jti };
+
     // 3. Refresh Token 생성 (7일)
-    const refreshToken = await this.jwtService.signAsync(payload, {
+    const refreshToken = await this.jwtService.signAsync(refreshTokenPayload, {
       secret: refreshSecret,
       expiresIn: '7d',
     });
