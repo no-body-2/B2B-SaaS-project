@@ -36,7 +36,7 @@ export class WorkspaceMemberService {
     private readonly prisma: PrismaService,
     private readonly workspaceGuard: WorkspaceGuardService,
     private readonly mailerService: MailerService,
-  ) { }
+  ) {}
 
   /**
    * WORKSPACE-MEMBER-001
@@ -348,17 +348,6 @@ export class WorkspaceMemberService {
     await this.workspaceGuard.verifyWorkspaceOwner(userId, workspaceId);
     await this.workspaceGuard.validateMembership(targetUserId, workspaceId);
 
-    // 1-1. 대상 사용자 워크스페이스 소유 수 확인
-    const targetUsersWorkspaceCount = await this.prisma.workspaceMember.count({
-      where: { userId: targetUserId, role: 'OWNER' },
-    });
-
-    if (targetUsersWorkspaceCount >= 3) {
-      throw new BadRequestException(
-        '해당 사용자의 워크스페이스 소유 제한이 꽉 찼습니다.',
-      );
-    }
-
     // 2. 본인의 권한 변경 방지
     if (userId === targetUserId) {
       throw new BadRequestException('본인의 권한을 변경할 수 없습니다.');
@@ -367,7 +356,7 @@ export class WorkspaceMemberService {
     // 2-1. 워크스페이스 소유 제한 수 검증
     if (newRole === 'OWNER') {
       const ownedCount = await this.prisma.workspaceMember.count({
-        where: { userId: targetUserId, role: 'OWNER' }
+        where: { userId: targetUserId, role: 'OWNER' },
       });
 
       if (ownedCount >= 3) {

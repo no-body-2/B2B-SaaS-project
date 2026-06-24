@@ -21,7 +21,7 @@ export class TokenHelper {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
-  ) { }
+  ) {}
 
   /**
    * AUTH - Generate And Save Token

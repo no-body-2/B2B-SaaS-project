@@ -23,6 +23,11 @@ import { Logger } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 
+interface JwtPayload {
+  sub: string;
+  email: string;
+}
+
 @WebSocketGateway({
   namespace: 'chat',
   cors: {
@@ -32,7 +37,8 @@ import { JwtService } from '@nestjs/jwt';
   },
 })
 export class ChannelGateway
-  implements OnGatewayConnection, OnGatewayDisconnect {
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   private readonly logger = new Logger(ChannelGateway.name);
 
   @WebSocketServer()
@@ -41,7 +47,7 @@ export class ChannelGateway
   constructor(
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
-  ) { }
+  ) {}
 
   /**
    * Handle Connection
@@ -50,8 +56,8 @@ export class ChannelGateway
    */
   async handleConnection(client: Socket) {
     try {
-      const authHeader =
-        client.handshake.auth?.token || client.handshake.headers?.authorization;
+      const authHeader = (client.handshake.auth?.token ||
+        client.handshake.headers?.authorization) as string | undefined;
 
       if (!authHeader) {
         this.logger.warn(
@@ -65,18 +71,25 @@ export class ChannelGateway
       const token = authHeader.replace('Bearer ', '');
 
       // 3. 토큰 검증 및 복호화
-      const payload = await this.jwtService.verifyAsync(token, { secret: process.env.JWT_ACCESS_SECRET });
+      const payload = (await this.jwtService.verifyAsync(token, {
+        secret: process.env.JWT_ACCESS_SECRET,
+      })) as unknown as JwtPayload;
 
       // 4. 소켓 세션에 사용자 식별자 바인딩
-      client.data.userId = payload.sub;
-      client.data.email = payload.email;
+      const socketData = client.data as { userId?: string; email?: string };
+      socketData.userId = payload.sub;
+      socketData.email = payload.email;
 
       // 5. 로깅
       this.logger.log(
         `[WebSocket 연결 성공] Client ID: ${client.id} 가 실시간 채팅 채널에 연결되었습니다.`,
       );
     } catch (err) {
-      this.logger.warn(`[WebSocket 인증 실패] Client ID: ${client.id} 연결 차단 | 차단 사유: ${err instanceof Error ? err.message : '유효하지 않은 Access Token'}`)
+      this.logger.warn(
+        `[WebSocket 인증 실패] Client ID: ${client.id} 연결 차단 | 차단 사유: ${
+          err instanceof Error ? err.message : '유효하지 않은 Access Token'
+        }`,
+      );
       client.disconnect(true);
     }
   }
@@ -105,7 +118,8 @@ export class ChannelGateway
     @MessageBody() data: { chatroomId: string },
   ) {
     const { chatroomId } = data;
-    const userId = client.data.userId;
+    const socketData = client.data as { userId?: string; email?: string };
+    const userId = socketData.userId;
 
     if (!chatroomId) {
       client.emit('error', {
@@ -171,8 +185,11 @@ export class ChannelGateway
   }
 
   /**
-   * broadcastUpdateMessage
-   * @description 수정된 메시지를 채팅방 안의 유저들에게 실시간 전송
+   * Broadcast Update Message
+   * @description
+   * - 수정된 메시지를 채팅방 안의 유저들에게 실시간 전송
+   * @param chatroomId - 대상 채팅방 ID
+   * @param payload - 프런트엔드가 수령할 수정된 메시지 정보
    */
   broadcastUpdateMessage(chatroomId: string, payload: any) {
     this.server.to(chatroomId).emit('updateMessage', payload);
@@ -180,8 +197,11 @@ export class ChannelGateway
   }
 
   /**
-   * broadcastDeleteMessage
-   * @description Soft Delete된 메시지를 '삭제됨' 상태로 실시간 전송
+   * Broadcast Delete Message
+   * @description
+   * - Soft Delete된 메시지를 '삭제됨' 상태로 실시간 전송
+   * @param chatroomId - 대상 채팅방 ID
+   * @param payload - 프런트엔드가 수령할 삭제된 메시지 정보
    */
   broadcastDeleteMessage(chatroomId: string, payload: any) {
     this.server.to(chatroomId).emit('deleteMessage', payload);
