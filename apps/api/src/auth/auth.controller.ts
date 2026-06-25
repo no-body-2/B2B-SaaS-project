@@ -188,12 +188,13 @@ export class AuthController {
   @ApiBearerAuth('refreshToken')
   async refreshTokens(
     @CurrentUser()
-    reqUser: { userId: string; email: string; refreshToken: string },
+    reqUser: { userId: string; email: string; jti: string; refreshToken: string },
     @Ip() ip?: string,
     @Headers('user-agent') userAgent?: string,
   ) {
     return this.authService.refreshTokens(
       reqUser.userId,
+      reqUser.jti,
       reqUser.refreshToken,
       ip,
       userAgent,
@@ -231,9 +232,10 @@ export class AuthController {
     reqUser: {
       userId: string;
       email: string;
+      jti: string;
       refreshToken: string;
     },
   ) {
-    return this.authService.logout(reqUser.userId, reqUser.refreshToken);
+    return this.authService.logout(reqUser.userId, reqUser.jti, reqUser.refreshToken);
   }
 }

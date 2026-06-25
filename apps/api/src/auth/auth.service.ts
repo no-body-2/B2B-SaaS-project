@@ -216,6 +216,7 @@ export class AuthService {
    */
   async refreshTokens(
     userId: string,
+    jti: string,
     refreshToken: string,
     ipAddress?: string,
     userAgent?: string,
@@ -238,31 +239,29 @@ export class AuthService {
       );
     }
 
-    // 3. 해당 사용자에게 발급된 활성 상태의 토큰 조회
-    const activeTokens = await this.prisma.refreshToken.findMany({
-      where: {
-        userId: user.id,
-        expiresAt: { gt: new Date() }, // 만료되지 않은 토큰만 조회
-      },
+    // 3. jti를 이용해 특정 세션 토큰 직접 조회 (최적화)
+    const tokenSession = await this.prisma.refreshToken.findUnique({
+      where: { jti },
     });
 
-    // 4. Client에서 전달 된 Token과 DB의 Token 해시값 검증
-    let validTokenSession;
-    for (const session of activeTokens) {
-      const isMatched = await argon2.verify(session.hashedToken, refreshToken);
-      if (isMatched) {
-        validTokenSession = session;
-        break;
-      }
-    }
-    if (!validTokenSession) {
+    // 4. 세션 존재 여부 및 만료 시간 검증
+    if (!tokenSession || tokenSession.expiresAt <= new Date()) {
       throw new UnauthorizedException(
         '유효하지 않거나 이미 만료된 토큰입니다. 다시 로그인해 주세요.',
       );
     }
-    // 5. 토큰 탈취 방지를 위한 기존 Refresh Token 삭제
+
+    // 5. Client에서 전달된 Token과 DB의 Token 해시값 1회 검증
+    const isMatched = await argon2.verify(tokenSession.hashedToken, refreshToken);
+    if (!isMatched) {
+      throw new UnauthorizedException(
+        '유효하지 않거나 이미 만료된 토큰입니다. 다시 로그인해 주세요.',
+      );
+    }
+
+    // 6. 토큰 탈취 방지를 위한 기존 Refresh Token 삭제
     await this.prisma.refreshToken.delete({
-      where: { id: validTokenSession.id },
+      where: { id: tokenSession.id },
     });
 
     return this.tokenHelper.generateAndSaveTokens(user, ipAddress, userAgent);
@@ -277,27 +276,22 @@ export class AuthService {
    * @returns Logout 성공 메시지
    * @throws UnauthorizedException - 유효하지 않은 Refresh Token일 경우
    */
-  async logout(userId: string, refreshToken: string) {
-    // 1. 사용자가 보유한 만료되지 않은 모든 세션 조회
-    const activeSessions = await this.prisma.refreshToken.findMany({
-      where: {
-        userId,
-        expiresAt: { gt: new Date() },
-      },
+  async logout(userId: string, jti: string, refreshToken: string) {
+    // 1. jti를 이용해 특정 세션 직접 조회
+    const tokenSession = await this.prisma.refreshToken.findUnique({
+      where: { jti },
     });
 
-    // 2. 현재 기기의 Token과 DB의 해시값 비교
-    let targetSessionId: string | null = null;
-    for (const session of activeSessions) {
-      const isMatched = await argon2.verify(session.hashedToken, refreshToken);
-      if (isMatched) {
-        targetSessionId = session.id;
-        break;
-      }
+    // 2. 세션 존재 여부 및 만료 시간 검증
+    if (!tokenSession || tokenSession.expiresAt <= new Date()) {
+      throw new UnauthorizedException(
+        '이미 로그아웃되었거나 유효하지 않은 세션입니다.',
+      );
     }
 
-    // 3. 일치하는 세션이 없는 경우 이미 로그아웃 상태이거나 위조된 세션이므로 오류 반환
-    if (!targetSessionId) {
+    // 3. 해시 검증
+    const isMatched = await argon2.verify(tokenSession.hashedToken, refreshToken);
+    if (!isMatched) {
       throw new UnauthorizedException(
         '이미 로그아웃되었거나 유효하지 않은 세션입니다.',
       );
@@ -305,7 +299,7 @@ export class AuthService {
 
     // 4. 해당 기기의 세션을 DB에서 영구 삭제
     await this.prisma.refreshToken.delete({
-      where: { id: targetSessionId },
+      where: { id: tokenSession.id },
     });
 
     return {
