@@ -90,7 +90,7 @@ export class WorkflowController {
    * - Nano 결재 처리
    * @url POST /workspace/approvals/:approvalRequestId/decide
    */
-  @Patch('approvals/:approvalRequestId/decide')
+  @Patch(':workspaceId/approvals/:approvalRequestId/decide')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth('accessToken')
   @ApiOperation({
