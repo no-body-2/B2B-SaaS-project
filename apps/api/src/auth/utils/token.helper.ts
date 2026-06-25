@@ -80,6 +80,7 @@ export class TokenHelper {
         hashedToken: hashedRefreshToken,
         ipAddress: ipAddress || 'Unknown',
         userAgent: userAgent || 'Unknown',
+        jti,
         expiresAt,
       },
     });

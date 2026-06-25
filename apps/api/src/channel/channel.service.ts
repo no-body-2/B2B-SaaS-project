@@ -270,7 +270,7 @@ export class ChannelService {
       // 비고: 단순 수치 계산이 아닌 nextOwner 로직에도 사용할 수 있으므로 count() 대신 findMany() 사용
       const remainingMembers = await tx.chatroomMember.findMany({
         where: { chatroomId },
-        orderBy: { joinedAt: 'desc' },
+        orderBy: { joinedAt: 'asc' },
       });
 
       // 3-A. 채팅방 이용자가 0명인 경우

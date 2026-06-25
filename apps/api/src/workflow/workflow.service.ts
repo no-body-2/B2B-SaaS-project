@@ -97,7 +97,7 @@ export class WorkflowService {
           nanoId,
           title: title ?? targetNano.title ?? '',
           content: content ? content : (targetNano.content ?? undefined),
-          writerId: targetNano.writerId,
+          writerId: userId,
           workspaceId,
           version: `v-${Date.now()}`,
         },

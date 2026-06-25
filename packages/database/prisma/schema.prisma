@@ -87,7 +87,7 @@ model WorkspaceInvitation {
 
   // Relations
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  inviter   User      @relation("InviterRelation", fields: [inviterId], references: [id])
+  inviter   User      @relation("InviterRelation", fields: [inviterId], references: [id], onDelete: Cascade)
 
   @@unique([workspaceId, targetEmail, status])
   @@index([expiresAt])
@@ -200,7 +200,7 @@ model Nano {
 
   // Relations
   // Tree 구조를 위한 Nano와 Nano 참조
-  parent   Nano?  @relation("NanoHierarchy", fields: [parentNanoId], references: [id])
+  parent   Nano?  @relation("NanoHierarchy", fields: [parentNanoId], references: [id], onDelete: Cascade)
   children Nano[] @relation("NanoHierarchy")
 
   writerMember WorkspaceMember? @relation(fields: [workspaceId, writerId], references: [workspaceId, userId], onDelete: Cascade)
@@ -245,7 +245,7 @@ model ApprovalRequest {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  history     NanoHistory  @relation(fields: [historyId], references: [id])
+  history     NanoHistory  @relation(fields: [historyId], references: [id], onDelete: Cascade)
   pendingNano PendingNano?
 
   @@map("approval_requests")
@@ -261,7 +261,7 @@ model PendingNano {
   createdAt DateTime @default(now()) @map("created_at")
 
   approval ApprovalRequest @relation(fields: [approvalId], references: [id], onDelete: Cascade)
-  nano     Nano?           @relation(fields: [nanoId], references: [id])
+  nano     Nano?           @relation(fields: [nanoId], references: [id], onDelete: Cascade)
 
   @@map("pending_nanos")
 }

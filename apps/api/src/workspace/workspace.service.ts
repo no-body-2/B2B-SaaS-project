@@ -309,7 +309,7 @@ export class WorkspaceService {
    * @param param - URL 경로로 전달된 워크스페이스 식별자 모음
    * @returns - 복구 성공 메시지
    * @throws
-   * - {BadRequestException} - 입력한 Confirm Name이 워크스페이스의 이름과 일치하지 않는 경우
+   * - {BadRequestException} - 이미 활성화 상태인 워크스페이스인 경우
    * - {NotFoundException} - 해당하는 워크스페이스를 찾을 수 없는 경우
    */
   async restoreWorkspace(userId: string, param: WorkspaceParamDto) {
