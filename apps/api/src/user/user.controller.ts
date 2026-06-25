@@ -15,6 +15,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Query,
   HttpCode,
   HttpStatus,
@@ -297,5 +298,40 @@ export class UserController {
       reqUser.userId,
       updateUserPreferenceDto,
     );
+  }
+
+  /**
+   * USER-ACCOUNT-004
+   * @description
+   * - 로그인한 사용자가 본인의 계정을 탈퇴 (Soft Delete)
+   * @url DELETE /user/me
+   */
+  @Delete('me')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '회원 탈퇴',
+    description: '로그인한 사용자가 자신의 계정을 Soft Delete 처리하고, 모든 Refresh Token 세션을 파기합니다.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '회원 탈퇴 처리 성공',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '유효하지 않거나 만료된 Access Token으로 접근을 시도한 경우',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '이미 탈퇴 처리된 계정인 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당하는 사용자를 찾을 수 없는 경우',
+  })
+  async deleteMe(
+    @CurrentUser() reqUser: { userId: string },
+  ) {
+    return this.userService.deleteMe(reqUser.userId);
   }
 }

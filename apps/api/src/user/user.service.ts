@@ -462,4 +462,45 @@ export class UserService {
       },
     };
   }
+
+  /**
+   * USER-ACCOUNT-004
+   * 사용자 회원 탈퇴 (Soft Delete)
+   * @description
+   * - 로그인한 사용자가 스스로 계정을 탈퇴하여 deletedAt 필드에 날짜를 기입하고 모든 세션을 강제 만료시킵니다.
+   * @param userId - 사용자 ID (CUID)
+   * @returns 탈퇴 완료 메시지
+   * @throws
+   * - {NotFoundException} - 사용자를 찾을 수 없을 경우
+   * - {ForbiddenException} - 이미 탈퇴 대기 중인 상태일 경우
+   */
+  async deleteMe(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('해당하는 사용자를 찾을 수 없습니다.');
+    }
+
+    if (user.deletedAt !== null) {
+      throw new ForbiddenException('이미 탈퇴 대기 중인 계정입니다.');
+    }
+
+    // 트랜잭션으로 유저의 deletedAt 기록 및 리프레시 토큰 전체 파기 수행
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: userId },
+        data: { deletedAt: new Date() },
+      }),
+      this.prisma.refreshToken.deleteMany({
+        where: { userId },
+      }),
+    ]);
+
+    return {
+      message: '회원 탈퇴 요청이 정상 접수되었습니다. 기존 토큰 세션이 모두 파기되었습니다.',
+      deletedAt: new Date(),
+    };
+  }
 }

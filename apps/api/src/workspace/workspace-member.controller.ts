@@ -288,7 +288,7 @@ export class WorkspaceMemberController {
   })
   async leaveWorkspace(
     @CurrentUser() reqUser: { userId: string },
-    @Param('workspaceId') param: WorkspaceParamDto,
+    @Param() param: WorkspaceParamDto,
   ) {
     return this.workspaceMemberService.leaveWorkspace(reqUser.userId, param);
   }
