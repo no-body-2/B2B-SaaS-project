@@ -203,6 +203,13 @@ export class ChannelService {
       throw new NotFoundException('해당하는 채팅방을 찾을 수 없습니다.');
     }
 
+    // 2-1. 비공개 채팅방 직접 입장 제한 가드
+    if (chatRoom.isPrivate) {
+      throw new ForbiddenException(
+        '비공개 채팅방은 직접 참여할 수 없습니다. 초대를 통해 입장해 주세요.',
+      );
+    }
+
     // 3. 사용자가 이미 채팅방에 참여한 경우
     const isAlreadyMember = await this.prisma.chatroomMember.findFirst({
       where: { userId, chatroomId },
