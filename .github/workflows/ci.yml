@@ -51,4 +51,13 @@ jobs:
         env:
           DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/b2b_saas?schema=public"
           JWT_ACCESS_SECRET: "ci_test_jwt_access_secret_key_12345!"
-        run: pnpm --filter run api test:e2e
+        run: pnpm --filter api test:e2e
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && secrets.DEPLOY_WEBHOOK_URL != ''
+    steps:
+      - name: Trigger Deploy Webhook
+        run: |
+          curl -X POST "${{ secrets.DEPLOY_WEBHOOK_URL }}"
