@@ -4,9 +4,7 @@ import axios from 'axios';
 const IS_MOCK = process.env.NEXT_PUBLIC_API_MOCK !== 'false';
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
-// ----------------------------------------------------
-// 1. 실제 NestJS API 통신용 Axios 인스턴스 및 인터셉터 설정
-// ----------------------------------------------------
+// 실제 NestJS API 통신용 Axios 인스턴스 및 인터셉터 설정
 const realApi = axios.create({
   baseURL: BASE_URL,
   headers: {
@@ -74,9 +72,7 @@ realApi.interceptors.response.use(
   }
 );
 
-// ----------------------------------------------------
-// 2. LocalStorage 기반 Mock 데이터베이스 및 헬퍼 함수
-// ----------------------------------------------------
+// LocalStorage 기반 Mock 데이터베이스 및 헬퍼 함수
 const getMockStorage = <T>(key: string, defaultValue: T): T => {
   if (typeof window === 'undefined') return defaultValue;
   const data = localStorage.getItem(key);
@@ -93,9 +89,9 @@ const setMockStorage = <T>(key: string, value: T) => {
   }
 };
 
-// --- Mock Seed Data 초기 기동 시 자동 생성 ---
+// Mock Seed Data 초기 기동 시 자동 생성
 const initializeMockDb = () => {
-  // 1. 가상 유저
+  // 가상 유저
   getMockStorage('b2b_mock_users', [
     {
       id: 'usr-1',
@@ -111,24 +107,24 @@ const initializeMockDb = () => {
     },
   ]);
 
-  // 2. 워크스페이스
+  // 워크스페이스
   getMockStorage('b2b_mock_workspaces', [
     {
       id: 'ws-1',
-      name: '플루드 코리아',
-      domain: 'flude',
+      name: '루미나노 코리아',
+      domain: 'luminano',
       createdAt: new Date().toISOString(),
       deletedAt: null,
     },
   ]);
 
-  // 3. 워크스페이스 멤버 매핑
+  // 워크스페이스 멤버 매핑
   getMockStorage('b2b_mock_workspace_members', [
     { workspaceId: 'ws-1', userId: 'usr-1', role: 'OWNER' },
     { workspaceId: 'ws-1', userId: 'usr-2', role: 'MEMBER' },
   ]);
 
-  // 4. 문서 (Nano) 트리
+  // 문서 (Nano) 트리
   getMockStorage('b2b_mock_nanos', [
     {
       id: 'nano-1',
@@ -159,7 +155,7 @@ const initializeMockDb = () => {
     },
   ]);
 
-  // 5. 결재 요청 목록
+  // 결재 요청 목록
   getMockStorage('b2b_mock_approval_requests', [
     {
       id: 'appr-1',
@@ -175,7 +171,7 @@ const initializeMockDb = () => {
     },
   ]);
 
-  // 6. 채팅방 목록
+  // 채팅방 목록
   getMockStorage('b2b_mock_chatrooms', [
     {
       id: 'ch-1',
@@ -193,7 +189,7 @@ const initializeMockDb = () => {
     },
   ]);
 
-  // 7. 채팅 메시지 목록
+  // 채팅 메시지 목록
   getMockStorage('b2b_mock_chat_messages', [
     {
       id: 'msg-1',
@@ -222,9 +218,7 @@ if (typeof window !== 'undefined') {
   initializeMockDb();
 }
 
-// ----------------------------------------------------
-// 3. Mock API 가상 모듈 정의
-// ----------------------------------------------------
+// Mock API 가상 모듈 정의
 const mockApi = {
   auth: {
     register: async (dto: any) => {
@@ -669,9 +663,7 @@ const mockApi = {
   },
 };
 
-// ----------------------------------------------------
-// 4. 모드 통합 내보내기 (IS_MOCK 여부에 따라 API 동적 연동)
-// ----------------------------------------------------
+// 모드 통합 내보내기 (IS_MOCK 여부에 따라 API 동적 연동)
 export const apiClient = IS_MOCK
   ? mockApi
   : {

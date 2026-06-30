@@ -3,9 +3,7 @@ import { io } from 'socket.io-client';
 const IS_MOCK = process.env.NEXT_PUBLIC_API_MOCK !== 'false';
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
-// ----------------------------------------------------
-// 1. Mock Socket 시뮬레이터 클래스 (실제 Socket.io 클라이언트 인터페이스 모방)
-// ----------------------------------------------------
+// Mock Socket 시뮬레이터 클래스 (실제 Socket.io 클라이언트 인터페이스 모방)
 class MockSocket {
   private callbacks: { [event: string]: Function[] } = {};
   private mockInterval: NodeJS.Timeout | null = null;
@@ -64,21 +62,21 @@ class MockSocket {
 
   private startSimulation() {
     this.stopSimulation();
-    
+
     // 12초마다 가상의 사용자로부터 새 메시지 도착 시뮬레이션
     const mockMessages = [
-      '문서 결재 부탁드립니다 대표님!',
+      '문서 결재 부탁드립니다.',
       '오타 수정 완료했습니다.',
       '혹시 이번주 릴리즈 일정은 어떻게 되나요?',
-      '오늘 안에 기획 문서 초안 완료하겠습니다.',
-      '네 알겠습니다! 넵!',
+      '기획서 초안 전송 부탁드립니다.',
+      '네 알겠습니다!',
     ];
 
     this.mockInterval = setInterval(() => {
       if (!this.currentChatroomId) return;
-      
+
       const randomContent = mockMessages[Math.floor(Math.random() * mockMessages.length)];
-      
+
       // 메시지 저장소 갱신
       if (typeof window !== 'undefined') {
         const key = 'b2b_mock_chat_messages';
@@ -95,7 +93,7 @@ class MockSocket {
         };
         msgs.push(newMsg);
         localStorage.setItem(key, JSON.stringify(msgs));
-        
+
         // 화면 갱신을 위해 브로드캐스트 이벤트 시뮬레이션 트리거
         this.trigger('newMessage', newMsg);
       }
@@ -110,9 +108,7 @@ class MockSocket {
   }
 }
 
-// ----------------------------------------------------
-// 2. 통합 소켓 인스턴스 생성 팩토리
-// ----------------------------------------------------
+// 통합 소켓 인스턴스 생성 팩토리
 export const getSocket = (token?: string) => {
   if (IS_MOCK) {
     return new MockSocket() as any;

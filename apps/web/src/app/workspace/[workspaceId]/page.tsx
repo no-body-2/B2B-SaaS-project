@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useWorkspace } from '../../../context/WorkspaceContext';
 import { useAuth } from '../../../context/AuthContext';
 import WorkspaceSettings from '../../../components/WorkspaceSettings';
+import LumiNanoIcon from '../../../components/LumiNanoIcon';
 
 import NanoEditor from '../../../components/NanoEditor';
 import WorkflowPanel from '../../../components/WorkflowPanel';
@@ -98,35 +99,38 @@ export default function WorkspaceDetailView() {
 
   if (authLoading || loadingWorkspace || !activeWorkspace) {
     return (
-      <div className="flex flex-1 items-center justify-center min-h-screen bg-slate-955">
+      <div className="flex flex-1 items-center justify-center min-h-screen bg-background">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
-          <span className="text-xs font-semibold text-slate-400">워크스페이스 동기화 중...</span>
+          <Loader2 className="w-8 h-8 animate-spin text-luminano-accent" />
+          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">워크스페이스 동기화 중...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-1 h-screen overflow-hidden bg-slate-950 text-slate-100">
+    <div className="flex flex-1 h-screen overflow-hidden bg-background text-foreground">
       
-      {/* 1. 좌측 통합 사이드바 */}
-      <aside className="w-64 flex flex-col border-r border-slate-800 bg-slate-900 overflow-y-auto">
+      {/* 좌측 통합 사이드바 */}
+      <aside className="w-64 flex flex-col border-r border-luminano-border bg-luminano-point overflow-y-auto h-full max-h-screen">
         
         {/* 상단 로고 및 정보 */}
-        <div className="p-4 border-b border-slate-800 flex items-center gap-2">
+        <div className="p-4 border-b border-luminano-border flex items-center gap-2">
           <button
             onClick={() => router.push('/dashboard')}
-            className="p-1 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-md transition cursor-pointer bg-transparent border-0"
+            className="p-1 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-800/40 rounded-md transition cursor-pointer bg-transparent border-0"
             title="대시보드로 돌아가기"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
+          <div className="w-7 h-7 rounded-md flex items-center justify-center overflow-hidden shrink-0">
+            <LumiNanoIcon size={28} />
+          </div>
           <div className="flex flex-col min-w-0">
-            <span className="font-bold text-sm tracking-tight text-slate-150 truncate">
+            <span className="font-bold text-sm tracking-tight text-slate-800 dark:text-slate-150 truncate">
               {activeWorkspace.name}
             </span>
-            <span className="text-[10px] text-slate-450 truncate">
+            <span className="text-[10px] text-slate-500 dark:text-slate-450 truncate">
               {user?.name} ({activeWorkspace.role})
             </span>
           </div>
@@ -144,7 +148,7 @@ export default function WorkspaceDetailView() {
               </span>
               <button
                 onClick={() => setIsCreatingDoc(!isCreatingDoc)}
-                className="p-1 hover:bg-slate-800 rounded-md transition cursor-pointer text-slate-500 hover:text-violet-400 bg-transparent border-0"
+                className="p-1 hover:bg-slate-800/40 rounded-md transition cursor-pointer text-slate-500 hover:text-luminano-accent bg-transparent border-0"
                 title="새 문서 추가"
               >
                 <Plus className="w-3.5 h-3.5" />
@@ -158,12 +162,12 @@ export default function WorkspaceDetailView() {
                   placeholder="새 문서 제목..."
                   value={newDocTitle}
                   onChange={(e) => setNewDocTitle(e.target.value)}
-                  className="flex-1 px-2.5 py-1 border border-slate-800 rounded text-xs bg-slate-950 focus:outline-none text-slate-150"
+                  className="flex-1 px-2.5 py-1 border border-luminano-border rounded text-xs bg-background focus:outline-none focus:ring-1 focus:ring-luminano-accent text-foreground"
                   autoFocus
                 />
                 <button
                   type="submit"
-                  className="px-2 py-1 bg-violet-600 text-white rounded text-[10px] cursor-pointer"
+                  className="px-2 py-1 bg-luminano-accent text-white dark:text-slate-950 font-bold rounded text-[10px] cursor-pointer border-0"
                 >
                   등록
                 </button>
@@ -175,7 +179,7 @@ export default function WorkspaceDetailView() {
                 <button
                   key={doc.id}
                   onClick={() => clickNano(doc.id)}
-                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide text-left transition cursor-pointer bg-transparent border-0 text-slate-400 hover:bg-slate-800 hover:text-slate-50"
+                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide text-left transition cursor-pointer bg-transparent border-0 text-slate-600 hover:bg-slate-800/40 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-50"
                 >
                   <FileText className="w-3.5 h-3.5 text-slate-500 shrink-0" />
                   <span className="truncate">{doc.title}</span>
@@ -184,7 +188,7 @@ export default function WorkspaceDetailView() {
             </div>
           </div>
 
-          {/* 나. 실시간 채팅 영역 (Channels) */}
+          {/* 실시간 채팅 영역 (Channels) */}
           <div className="flex flex-col gap-1.5">
             <div className="flex justify-between items-center px-2 text-slate-500 font-semibold text-[10px] uppercase tracking-wider">
               <span className="flex items-center gap-1">
@@ -193,7 +197,7 @@ export default function WorkspaceDetailView() {
               </span>
               <button
                 onClick={() => setIsCreatingChannel(!isCreatingChannel)}
-                className="p-1 hover:bg-slate-800 rounded-md transition cursor-pointer text-slate-500 hover:text-violet-400 bg-transparent border-0"
+                className="p-1 hover:bg-slate-800/40 rounded-md transition cursor-pointer text-slate-500 hover:text-luminano-accent bg-transparent border-0"
                 title="새 채널 추가"
               >
                 <Plus className="w-3.5 h-3.5" />
@@ -201,16 +205,16 @@ export default function WorkspaceDetailView() {
             </div>
 
             {isCreatingChannel && (
-              <form onSubmit={handleCreateChatroom} className="flex flex-col gap-1.5 px-2 mt-1 bg-slate-950/50 p-2 rounded">
+              <form onSubmit={handleCreateChatroom} className="flex flex-col gap-1.5 px-2 mt-1 bg-background/50 p-2 rounded border border-luminano-border">
                 <input
                   type="text"
                   placeholder="채널명..."
                   value={newChannelName}
                   onChange={(e) => setNewChannelName(e.target.value)}
-                  className="px-2.5 py-1 border border-slate-800 rounded text-xs bg-slate-950 focus:outline-none text-slate-150"
+                  className="px-2.5 py-1 border border-luminano-border rounded text-xs bg-background focus:outline-none focus:ring-1 focus:ring-luminano-accent text-foreground"
                   autoFocus
                 />
-                <label className="flex items-center gap-1.5 text-[10px] text-slate-400 font-semibold mt-1">
+                <label className="flex items-center gap-1.5 text-[10px] text-slate-600 dark:text-slate-400 font-semibold mt-1">
                   <input
                     type="checkbox"
                     checked={isPrivateChannel}
@@ -220,7 +224,7 @@ export default function WorkspaceDetailView() {
                 </label>
                 <button
                   type="submit"
-                  className="w-full mt-1.5 py-1 bg-violet-600 text-white rounded text-[10px] font-semibold cursor-pointer"
+                  className="w-full mt-1.5 py-1 bg-luminano-accent text-white dark:text-slate-950 font-bold rounded text-[10px] cursor-pointer border-0"
                 >
                   채널 생성
                 </button>
@@ -232,7 +236,7 @@ export default function WorkspaceDetailView() {
                 <button
                   key={ch.id}
                   onClick={() => clickChannel(ch.id)}
-                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide text-left transition cursor-pointer bg-transparent border-0 text-slate-400 hover:bg-slate-800 hover:text-slate-50"
+                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide text-left transition cursor-pointer bg-transparent border-0 text-slate-600 hover:bg-slate-800/40 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-550"
                 >
                   {ch.isPrivate ? (
                     <Lock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
@@ -245,14 +249,14 @@ export default function WorkspaceDetailView() {
             </div>
           </div>
 
-          {/* 다. 결재 프로세스 및 설정 단추 */}
-          <div className="flex flex-col gap-1 border-t border-slate-800 pt-4">
+          {/* 결재 프로세스 및 설정 단추 */}
+          <div className="flex flex-col gap-1 border-t border-luminano-border pt-4">
             <button
               onClick={() => setCurrentTab('approval')}
-              className={`w-full flex justify-between items-center px-3 py-2 rounded-lg text-xs font-semibold transition cursor-pointer border border-transparent ${
+              className={`w-full flex justify-between items-center px-3 py-2 rounded-lg text-xs font-semibold transition cursor-pointer border ${
                 currentTab === 'approval' 
-                  ? 'bg-violet-950/40 text-violet-400 border border-violet-900/50' 
-                  : 'text-slate-350 hover:bg-slate-800 bg-transparent'
+                  ? 'bg-luminano-accent/10 text-luminano-accent border-luminano-accent/30' 
+                  : 'text-slate-700 hover:bg-slate-800/40 dark:text-slate-350 bg-transparent border-transparent'
               }`}
             >
               <span className="flex items-center gap-2">
@@ -260,7 +264,7 @@ export default function WorkspaceDetailView() {
                 결재 워크플로우
               </span>
               {pendingApprovalsCount > 0 && (
-                <span className="bg-red-500 text-white font-mono text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                <span className="bg-red-500 text-white font-mono text-[9px] font-bold px-1.5 py-0.5 rounded-full border-0">
                   {pendingApprovalsCount}
                 </span>
               )}
@@ -268,10 +272,10 @@ export default function WorkspaceDetailView() {
 
             <button
               onClick={() => setCurrentTab('settings')}
-              className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition cursor-pointer border border-transparent ${
+              className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition cursor-pointer border ${
                 currentTab === 'settings' 
-                  ? 'bg-violet-950/40 text-violet-400 border border-violet-900/50' 
-                  : 'text-slate-350 hover:bg-slate-800 bg-transparent'
+                  ? 'bg-luminano-accent/10 text-luminano-accent border-luminano-accent/30' 
+                  : 'text-slate-700 hover:bg-slate-800/40 dark:text-slate-350 bg-transparent border-transparent'
               }`}
             >
               <Settings className="w-4 h-4" />
@@ -283,8 +287,8 @@ export default function WorkspaceDetailView() {
 
       </aside>
 
-      {/* 2. 우측 동적 메인 본문 콘텐츠 */}
-      <main className="flex-1 flex flex-col overflow-hidden bg-slate-950">
+      {/* 우측 동적 메인 본문 콘텐츠 */}
+      <main className="flex-1 flex flex-col overflow-hidden bg-background h-full max-h-screen">
         
         {currentTab === 'doc' && (
           <NanoEditor />

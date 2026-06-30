@@ -47,7 +47,7 @@ export default function ChatPanel() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // 1. 초기 메시지 데이터 로드 및 소켓 이벤트 바인딩
+  // 초기 메시지 데이터 로드 및 소켓 이벤트 바인딩
   useEffect(() => {
     if (!activeWorkspace || !activeChannel) return;
 
@@ -218,23 +218,23 @@ export default function ChatPanel() {
 
   if (!activeChannel) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-slate-950">
-        <MessageSquare className="w-12 h-12 text-slate-700 mb-3" />
-        <h3 className="text-slate-300 font-bold text-base">선택된 채널이 없습니다</h3>
-        <p className="text-slate-500 text-xs mt-1">좌측 사이드바에서 실시간 채팅방을 선택해 참가하세요.</p>
+      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-background">
+        <MessageSquare className="w-12 h-12 text-slate-500 mb-3" />
+        <h3 className="text-slate-800 dark:text-slate-300 font-bold text-base">선택된 채널이 없습니다</h3>
+        <p className="text-slate-600 dark:text-slate-500 text-xs mt-1">좌측 사이드바에서 실시간 채팅방을 선택해 참가하세요.</p>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex overflow-hidden bg-slate-900 border-l border-slate-800">
+    <div className="flex-1 flex h-full overflow-hidden bg-luminano-point border-l border-luminano-border">
       
-      {/* 2.1 메인 채팅 패널 (왼쪽 영역) */}
+      {/* 메인 채팅 패널 (왼쪽 영역) */}
       <div className="flex-1 flex flex-col overflow-hidden relative">
         
         {/* 상단 채널 헤더 바 */}
-        <div className="p-4 border-b border-slate-800 flex justify-between items-center shadow-xs bg-slate-900 z-10">
-          <div className="flex items-center gap-1.5 font-bold text-sm text-slate-100">
+        <div className="p-4 border-b border-luminano-border flex justify-between items-center shadow-xs bg-luminano-point z-10">
+          <div className="flex items-center gap-1.5 font-bold text-sm text-slate-800 dark:text-slate-100">
             {activeChannel.isPrivate ? (
               <Lock className="w-4 h-4 text-amber-500 shrink-0" />
             ) : (
@@ -251,11 +251,11 @@ export default function ChatPanel() {
                 placeholder="대화 검색..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-3 pr-8 py-1.5 border border-slate-800 rounded-lg text-xs bg-slate-950 text-slate-200 focus:outline-none focus:ring-1 focus:ring-violet-500 w-44"
+                className="pl-3 pr-8 py-1.5 border border-luminano-border rounded-lg text-xs bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-luminano-accent w-44"
               />
               <button
                 type="submit"
-                className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-slate-500 hover:text-violet-400 cursor-pointer bg-transparent border-0"
+                className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-slate-500 hover:text-luminano-accent cursor-pointer bg-transparent border-0"
               >
                 <Search className="w-3.5 h-3.5" />
               </button>
@@ -273,15 +273,15 @@ export default function ChatPanel() {
         </div>
 
         {/* 메시지 리스트 스크롤러 */}
-        <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 bg-slate-955">
+        <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 bg-background h-[calc(100vh-130px)] max-h-[calc(100vh-130px)] min-h-0">
           {loading ? (
             <div className="flex-1 flex justify-center items-center">
-              <Loader2 className="w-6 h-6 animate-spin text-violet-500" />
+              <Loader2 className="w-6 h-6 animate-spin text-luminano-accent" />
             </div>
           ) : messages.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center">
-              <MessageSquare className="w-10 h-10 text-slate-700 mb-2" />
-              <span className="text-xs text-slate-500">대화방에 참여했습니다. 첫 메시지를 보내보세요!</span>
+              <MessageSquare className="w-10 h-10 text-slate-500 mb-2" />
+              <span className="text-xs text-slate-600 dark:text-slate-500">대화방에 참여했습니다. 첫 메시지를 보내보세요!</span>
             </div>
           ) : (
             messages.map((msg) => {
@@ -289,10 +289,9 @@ export default function ChatPanel() {
               const isEditing = editingMsgId === msg.id;
 
               return (
-                <div key={msg.id} className={`flex gap-3 max-w-[80%] ${isMe ? 'self-end flex-row-reverse' : 'self-start'}`}>
-                  
+                <div key={msg.id} className={`flex gap-3 ${isMe ? 'flex-row-reverse' : ''}`}>
                   {!isMe && (
-                    <div className="w-8 h-8 rounded-full bg-slate-850 text-slate-350 font-extrabold text-xs flex items-center justify-center shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-350 font-extrabold text-xs flex items-center justify-center shrink-0">
                       {msg.senderName.charAt(0)}
                     </div>
                   )}
@@ -301,17 +300,17 @@ export default function ChatPanel() {
                   <div className="flex flex-col gap-1">
                     
                     {/* 발송 정보 */}
-                    <div className={`flex items-center gap-2 text-[10px] text-slate-500 ${isMe ? 'justify-end' : ''}`}>
-                      <span className="font-bold text-slate-400">{msg.senderName}</span>
+                    <div className={`flex items-center gap-2 text-[10px] text-slate-655 dark:text-slate-500 ${isMe ? 'justify-end' : ''}`}>
+                      <span className="font-bold text-slate-700 dark:text-slate-400">{msg.senderName}</span>
                       <span>{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                      {msg.isEdited && <span className="text-slate-500 font-semibold">(수정됨)</span>}
+                      {msg.isEdited && <span className="text-slate-600 dark:text-slate-500 font-semibold">(수정됨)</span>}
                     </div>
 
                     {/* 대화 내용 풍선 */}
                     <div className={`group relative p-3 rounded-2xl text-xs leading-relaxed shadow-3xs ${
                       isMe 
-                        ? 'bg-violet-600 text-white rounded-tr-none' 
-                        : 'bg-slate-950 border border-slate-850 rounded-tl-none text-slate-200'
+                        ? 'bg-luminano-accent text-white dark:text-slate-950 font-bold rounded-tr-none' 
+                        : 'bg-luminano-point border border-luminano-border rounded-tl-none text-slate-800 dark:text-slate-200'
                     }`}>
                       {isEditing ? (
                         <div className="flex flex-col gap-2 min-w-[200px]">
@@ -319,13 +318,13 @@ export default function ChatPanel() {
                             type="text"
                             value={editingText}
                             onChange={(e) => setEditingText(e.target.value)}
-                            className="w-full px-2 py-1 text-slate-200 bg-slate-900 border border-slate-800 rounded text-xs focus:outline-none"
+                            className="w-full px-2 py-1 text-slate-800 dark:text-slate-200 bg-background border border-luminano-border rounded text-xs focus:outline-none"
                             autoFocus
                           />
                           <div className="flex justify-end gap-1.5">
                             <button
                               onClick={() => setEditingMsgId(null)}
-                              className="p-1 hover:bg-slate-800 rounded text-[10px] text-slate-450 font-bold bg-transparent border-0 cursor-pointer"
+                              className="p-1 hover:bg-slate-800/40 rounded text-[10px] text-slate-600 dark:text-slate-450 font-bold bg-transparent border-0 cursor-pointer"
                             >
                               <X className="w-3 h-3" />
                             </button>
@@ -343,20 +342,20 @@ export default function ChatPanel() {
 
                       {/* 마우스 오버 시 수정/삭제 메뉴 노출 (작성자 본인 전용) */}
                       {isMe && !isEditing && (
-                        <div className="absolute top-1/2 -translate-y-1/2 -left-12 hidden group-hover:flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-md p-1 shadow-md">
+                        <div className="absolute top-1/2 -translate-y-1/2 -left-12 hidden group-hover:flex items-center gap-1 bg-luminano-point border border-luminano-border rounded-md p-1 shadow-md">
                           <button
                             onClick={() => {
                               setEditingMsgId(msg.id);
                               setEditingText(msg.content);
                             }}
-                            className="p-1 hover:bg-slate-800 text-slate-400 hover:text-violet-400 rounded border-0 cursor-pointer bg-transparent"
+                            className="p-1 hover:bg-slate-800/40 text-slate-500 hover:text-luminano-accent rounded border-0 cursor-pointer bg-transparent"
                             title="수정"
                           >
                             <Edit2 className="w-3 h-3" />
                           </button>
                           <button
                             onClick={() => handleDeleteMessage(msg.id)}
-                            className="p-1 hover:bg-slate-800 text-slate-400 hover:text-red-400 rounded border-0 cursor-pointer bg-transparent"
+                            className="p-1 hover:bg-slate-800/40 text-slate-500 hover:text-red-400 rounded border-0 cursor-pointer bg-transparent"
                             title="삭제"
                           >
                             <Trash2 className="w-3 h-3" />
@@ -373,18 +372,18 @@ export default function ChatPanel() {
         </div>
 
         {/* 하단 입력 폼 */}
-        <form onSubmit={handleSend} className="p-4 border-t border-slate-800 flex gap-3 bg-slate-900 z-10 shadow-lg">
+        <form onSubmit={handleSend} className="p-4 border-t border-luminano-border flex gap-3 bg-luminano-point z-10 shadow-lg">
           <input
             type="text"
             placeholder="메시지를 입력하세요..."
             value={text}
             onChange={(e) => setText(e.target.value)}
-            className="flex-1 px-4 py-2.5 border border-slate-800 rounded-xl text-sm bg-slate-950 text-slate-100 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500"
+            className="flex-1 px-4 py-2.5 border border-luminano-border rounded-xl text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-luminano-accent/20 focus:border-luminano-accent"
           />
           <button
             type="submit"
             disabled={!text.trim()}
-            className="p-2.5 bg-violet-600 hover:bg-violet-700 disabled:bg-violet-600/60 text-white rounded-xl transition shadow-md shadow-violet-500/10 cursor-pointer flex items-center justify-center shrink-0 border-0"
+            className="p-2.5 bg-luminano-accent hover:bg-luminano-accent/90 disabled:bg-luminano-accent/60 text-white dark:text-slate-950 font-bold rounded-xl transition shadow-md shadow-luminano-accent/10 cursor-pointer flex items-center justify-center shrink-0 border-0"
           >
             <Send className="w-4 h-4" />
           </button>
@@ -392,17 +391,17 @@ export default function ChatPanel() {
 
       </div>
 
-      {/* 2.2 우측 검색 서랍 패널 (키워드 매칭 시 활성화) */}
+      {/* 우측 검색 서랍 패널 (키워드 매칭 시 활성화) */}
       {showSearch && (
-        <div className="w-80 border-l border-slate-800 flex flex-col bg-slate-900">
-          <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-950/50">
-            <span className="text-xs font-bold text-slate-200 flex items-center gap-1">
-              <Search className="w-3.5 h-3.5 text-violet-500" />
+        <div className="w-80 border-l border-luminano-border flex flex-col bg-luminano-point">
+          <div className="p-4 border-b border-luminano-border flex justify-between items-center bg-background/50">
+            <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1">
+              <Search className="w-3.5 h-3.5 text-luminano-accent" />
               검색 결과 ({searchResults.length})
             </span>
             <button
               onClick={() => setShowSearch(false)}
-              className="p-1 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded-md transition cursor-pointer border-0 bg-transparent font-bold text-xs"
+              className="p-1 hover:bg-slate-800/40 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 rounded-md transition cursor-pointer border-0 bg-transparent font-bold text-xs"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
             </button>
@@ -411,23 +410,23 @@ export default function ChatPanel() {
           <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
             {searching ? (
               <div className="flex justify-center items-center py-10">
-                <Loader2 className="w-5 h-5 animate-spin text-violet-500" />
+                <Loader2 className="w-5 h-5 animate-spin text-luminano-accent" />
               </div>
             ) : searchResults.length === 0 ? (
-              <div className="text-center py-10 text-slate-500 text-xs font-medium">
+              <div className="text-center py-10 text-slate-600 dark:text-slate-500 text-xs font-medium">
                 일치하는 메시지가 존재하지 않습니다.
               </div>
             ) : (
               searchResults.map((res) => (
                 <div 
                   key={res.id} 
-                  className="p-3 border border-slate-800 rounded-lg hover:bg-slate-850 transition flex flex-col gap-1.5"
+                  className="p-3 border border-luminano-border rounded-lg hover:bg-slate-800/40 transition flex flex-col gap-1.5"
                 >
-                  <div className="flex justify-between items-center text-[10px] text-slate-500 font-semibold">
+                  <div className="flex justify-between items-center text-[10px] text-slate-600 dark:text-slate-500 font-semibold">
                     <span>{res.senderName}</span>
                     <span>{new Date(res.createdAt).toLocaleDateString()}</span>
                   </div>
-                  <p className="text-xs text-slate-300 leading-relaxed font-medium">
+                  <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
                     {res.content}
                   </p>
                 </div>

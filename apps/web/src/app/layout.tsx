@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "../context/AuthContext";
 import { WorkspaceProvider } from "../context/WorkspaceContext";
+import { ThemeProvider } from "../context/ThemeContext";
+import ThemeToggle from "../components/ThemeToggle";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Flude B2B SaaS",
+  title: "LumiNano B2B SaaS",
   description: "Next-gen Document Collaboration and Workflow Management Platform",
 };
 
@@ -29,12 +31,15 @@ export default function RootLayout({
       lang="ko"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-slate-950 text-slate-100">
-        <AuthProvider>
-          <WorkspaceProvider>
-            {children}
-          </WorkspaceProvider>
-        </AuthProvider>
+      <body className="min-h-full flex flex-col bg-background text-foreground">
+        <ThemeProvider>
+          <AuthProvider>
+            <WorkspaceProvider>
+              {children}
+            </WorkspaceProvider>
+          </AuthProvider>
+          <ThemeToggle />
+        </ThemeProvider>
       </body>
     </html>
   );
