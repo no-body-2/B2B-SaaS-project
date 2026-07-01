@@ -7,7 +7,7 @@ import { getSocket } from '../lib/socket';
 import { apiClient } from '../lib/api';
 import { 
   MessageSquare, Send, Search, Trash2, Edit2, Check, X, 
-  Hash, Lock, LogOut, ArrowLeft, Loader2 
+  Hash, Lock, LogOut, ArrowLeft, Loader2, Users, Crown
 } from 'lucide-react';
 
 interface ChatMessage {
@@ -23,7 +23,7 @@ interface ChatMessage {
 
 export default function ChatPanel() {
   const { user } = useAuth();
-  const { activeWorkspace, activeChannel, leaveChannel } = useWorkspace();
+  const { activeWorkspace, activeChannel, leaveChannel, members, selectWorkspace } = useWorkspace();
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [text, setText] = useState('');
@@ -38,6 +38,9 @@ export default function ChatPanel() {
   const [searchResults, setSearchResults] = useState<ChatMessage[]>([]);
   const [showSearch, setShowSearch] = useState(false);
   const [searching, setSearching] = useState(false);
+
+  // 방장 위임 팝오버 상태
+  const [showDelegateModal, setShowDelegateModal] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<any>(null);
@@ -216,6 +219,20 @@ export default function ChatPanel() {
     }
   };
 
+  const handleDelegate = async (targetUserId: string) => {
+    if (!activeWorkspace || !activeChannel) return;
+    try {
+      await apiClient.channels.delegate(activeWorkspace.id, activeChannel.id, {
+        targetUserId,
+      });
+      alert('방장 권한을 성공적으로 위임했습니다.');
+      setShowDelegateModal(false);
+      await selectWorkspace(activeWorkspace.id);
+    } catch (err: any) {
+      alert(err.response?.data?.message || '방장 위임 처리에 실패했습니다.');
+    }
+  };
+
   if (!activeChannel) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-8 bg-background">
@@ -261,6 +278,19 @@ export default function ChatPanel() {
               </button>
             </form>
 
+            {activeChannel.ownerId === user?.id && (
+              <button
+                onClick={() => setShowDelegateModal(!showDelegateModal)}
+                className={`p-1.5 text-slate-400 hover:text-luminano-accent rounded-md hover:bg-slate-800 transition cursor-pointer border border-transparent bg-transparent flex items-center gap-1 text-[11px] font-bold ${
+                  showDelegateModal ? 'text-luminano-accent bg-slate-800/60' : ''
+                }`}
+                title="방장 권한 위임"
+              >
+                <Crown className="w-3.5 h-3.5" />
+                위임
+              </button>
+            )}
+
             <button
               onClick={handleLeaveChannel}
               className="p-1.5 text-slate-400 hover:text-red-400 rounded-md hover:bg-slate-800 transition cursor-pointer border border-transparent bg-transparent flex items-center gap-1 text-[11px] font-bold"
@@ -271,6 +301,55 @@ export default function ChatPanel() {
             </button>
           </div>
         </div>
+
+        {/* 방장 위임 팝오버 */}
+        {showDelegateModal && (
+          <div className="absolute top-14 right-4 bg-luminano-point border border-luminano-border rounded-xl shadow-xl p-4 z-50 w-72 flex flex-col gap-3">
+            <div className="flex justify-between items-center border-b border-luminano-border pb-2">
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1">
+                <Crown className="w-3.5 h-3.5 text-amber-500" />
+                방장 권한 위임하기
+              </span>
+              <button
+                onClick={() => setShowDelegateModal(false)}
+                className="text-slate-500 hover:text-slate-100 cursor-pointer bg-transparent border-0"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <p className="text-[10px] text-slate-500">
+              아래 워크스페이스 멤버 중 새로운 채널 방장으로 지정할 멤버를 선택하세요.
+            </p>
+
+            <div className="flex flex-col gap-1 max-h-48 overflow-y-auto pr-1">
+              {members
+                .filter((m) => m.userId !== user?.id)
+                .map((m) => (
+                  <button
+                    key={m.userId}
+                    onClick={() => handleDelegate(m.userId)}
+                    className="w-full flex items-center justify-between px-2.5 py-1.5 hover:bg-slate-800/60 rounded-lg transition cursor-pointer text-left bg-transparent border-0"
+                  >
+                    <div className="flex flex-col">
+                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                        {m.user?.name || m.user?.email || '이름 없음'}
+                      </span>
+                      <span className="text-[9px] text-slate-500">{m.user?.email}</span>
+                    </div>
+                    <span className="text-[9px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400 font-mono capitalize">
+                      {m.role.toLowerCase()}
+                    </span>
+                  </button>
+                ))}
+              {members.filter((m) => m.userId !== user?.id).length === 0 && (
+                <span className="text-center py-4 text-[10px] text-slate-500">
+                  위임 가능한 다른 멤버가 없습니다.
+                </span>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* 메시지 리스트 스크롤러 */}
         <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 bg-background h-[calc(100vh-130px)] max-h-[calc(100vh-130px)] min-h-0">

@@ -257,6 +257,14 @@ const mockApi = {
       localStorage.removeItem('currentUser');
       return { data: { message: '로그아웃 성공' } };
     },
+    googleLogin: async (dto: any) => {
+      const accessToken = `mock_at_google_${Date.now()}`;
+      const refreshToken = `mock_rt_google_${Date.now()}`;
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('currentUser', JSON.stringify({ userId: 'usr-1', email: 'owner@example.com', name: '김대포 (OWNER)' }));
+      return { data: { accessToken, refreshToken, user: { id: 'usr-1', email: 'owner@example.com', name: '김대포 (OWNER)' } } };
+    },
   },
 
   user: {
@@ -276,6 +284,29 @@ const mockApi = {
       
       localStorage.clear();
       return { data: { message: '회원 탈퇴 완료' } };
+    },
+    updateProfile: async (dto: any) => {
+      const cu = localStorage.getItem('currentUser');
+      if (!cu) throw { response: { status: 401 } };
+      const current = JSON.parse(cu);
+      current.name = `${dto.lastName || ''}${dto.firstName || ''}`.trim() || current.name;
+      localStorage.setItem('currentUser', JSON.stringify(current));
+      return { data: { message: '모크 프로필 변경 완료' } };
+    },
+    changePassword: async (dto: any) => {
+      return { data: { message: '모크 비밀번호 변경 완료' } };
+    },
+    requestEmailChange: async (dto: any) => {
+      return { data: { message: '모크 이메일 변경 요청 완료' } };
+    },
+    verifyEmailChange: async (token: string) => {
+      return { data: { message: '모크 이메일 검증 승인 완료' } };
+    },
+    getPreference: async () => {
+      return { data: { theme: 'light', language: 'ko', timezone: 'Asia/Seoul' } };
+    },
+    updatePreference: async (dto: any) => {
+      return { data: { message: '모크 환경설정 변경 완료' } };
     },
   },
 
@@ -422,6 +453,9 @@ const mockApi = {
       setMockStorage('b2b_mock_workspace_members', filtered);
       return { data: { message: '탈퇴 성공' } };
     },
+    acceptInvite: async (dto: any) => {
+      return { data: { message: '모크 초대 수락 성공' } };
+    },
   },
 
   nanos: {
@@ -498,6 +532,9 @@ const mockApi = {
       const filtered = nanos.filter((n) => !(n.workspaceId === workspaceId && n.id === nanoId));
       setMockStorage('b2b_mock_nanos', filtered);
       return { data: { message: '문서 삭제 완료' } };
+    },
+    movePosition: async (workspaceId: string, nanoId: string, dto: any) => {
+      return { data: { message: '모크 문서 위치 변경 성공' } };
     },
   },
 
@@ -660,6 +697,12 @@ const mockApi = {
       );
       return { data: filtered };
     },
+    delegate: async (workspaceId: string, chatroomId: string, dto: any) => {
+      return { data: { message: '모크 방장 위임 완료' } };
+    },
+    read: async (workspaceId: string, chatroomId: string, dto: any) => {
+      return { data: { message: '모크 읽음 동기화 완료' } };
+    },
   },
 };
 
@@ -678,10 +721,17 @@ export const apiClient = IS_MOCK
             },
           });
         },
+        googleLogin: (dto: any) => realApi.post('/auth/google', dto),
       },
       user: {
         getMe: () => realApi.get('/user/me'),
         deleteMe: () => realApi.delete('/user/me'),
+        updateProfile: (dto: any) => realApi.patch('/user/me', dto),
+        changePassword: (dto: any) => realApi.patch('/user/password', dto),
+        requestEmailChange: (dto: any) => realApi.post('/user/email/request', dto),
+        verifyEmailChange: (token: string) => realApi.get(`/user/email/verify?token=${token}`),
+        getPreference: () => realApi.get('/user/preference'),
+        updatePreference: (dto: any) => realApi.patch('/user/preference', dto),
       },
       workspace: {
         create: (dto: any) => realApi.post('/workspace/create', dto),
@@ -699,6 +749,7 @@ export const apiClient = IS_MOCK
         kick: (workspaceId: string, targetUserId: string) =>
           realApi.delete(`/workspace/${workspaceId}/members/${targetUserId}`),
         leave: (workspaceId: string) => realApi.delete(`/workspace/${workspaceId}/leave`),
+        acceptInvite: (dto: any) => realApi.post('/workspace/invite/accept', dto),
       },
       nanos: {
         listRoot: (workspaceId: string) => realApi.get(`/workspace/${workspaceId}/nanos/root`),
@@ -709,6 +760,8 @@ export const apiClient = IS_MOCK
         update: (workspaceId: string, nanoId: string, dto: any) =>
           realApi.patch(`/workspace/${workspaceId}/nanos/${nanoId}`, dto),
         delete: (workspaceId: string, nanoId: string) => realApi.delete(`/workspace/${workspaceId}/nanos/${nanoId}`),
+        movePosition: (workspaceId: string, nanoId: string, dto: any) =>
+          realApi.patch(`/workspace/${workspaceId}/nanos/${nanoId}/position`, dto),
       },
       workflows: {
         createApproval: (workspaceId: string, nanoId: string, dto: any) =>
@@ -737,5 +790,9 @@ export const apiClient = IS_MOCK
           realApi.patch(`/workspace/${workspaceId}/messages/${messageId}`, { content }),
         searchMessages: (workspaceId: string, chatroomId: string, keyword: string) =>
           realApi.get(`/workspace/${workspaceId}/channels/${chatroomId}/search`, { params: { keyword } }),
+        delegate: (workspaceId: string, chatRoomId: string, dto: any) =>
+          realApi.patch(`/workspace/${workspaceId}/channels/${chatRoomId}/delegate`, dto),
+        read: (workspaceId: string, chatRoomId: string, dto: any) =>
+          realApi.patch(`/workspace/${workspaceId}/channels/${chatRoomId}/read`, dto),
       },
     };

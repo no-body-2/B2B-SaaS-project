@@ -16,6 +16,7 @@ interface AuthContextType {
   register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => Promise<void>;
   deleteAccount: () => Promise<void>;
+  googleLogin: (code: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -72,6 +73,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const googleLogin = async (code: string) => {
+    try {
+      const res = await apiClient.auth.googleLogin({ code });
+      const { user: userPayload, accessToken, refreshToken } = res.data;
+      
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('currentUser', JSON.stringify(userPayload));
+      
+      setUser(userPayload);
+    } catch (err) {
+      console.error('Google login failed:', err);
+      throw err;
+    }
+  };
+
   const logout = async () => {
     try {
       await apiClient.auth.logout();
@@ -100,7 +117,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, deleteAccount }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, deleteAccount, googleLogin }}>
       {children}
     </AuthContext.Provider>
   );

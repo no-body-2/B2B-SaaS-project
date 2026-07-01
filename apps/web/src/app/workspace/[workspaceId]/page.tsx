@@ -5,7 +5,9 @@ import { useParams, useRouter } from 'next/navigation';
 import { useWorkspace } from '../../../context/WorkspaceContext';
 import { useAuth } from '../../../context/AuthContext';
 import WorkspaceSettings from '../../../components/WorkspaceSettings';
+import UserProfileSettings from '../../../components/UserProfileSettings';
 import LumiNanoIcon from '../../../components/LumiNanoIcon';
+import { apiClient } from '../../../lib/api';
 
 import NanoEditor from '../../../components/NanoEditor';
 import WorkflowPanel from '../../../components/WorkflowPanel';
@@ -13,10 +15,10 @@ import ChatPanel from '../../../components/ChatPanel';
 
 import { 
   Building2, FileText, MessageSquare, ShieldCheck, Settings, 
-  ChevronLeft, Plus, Folder, Hash, Lock, Loader2 
+  ChevronLeft, Plus, Folder, Hash, Lock, Loader2, User, ArrowUp, ArrowDown
 } from 'lucide-react';
 
-type Tab = 'doc' | 'approval' | 'chat' | 'settings';
+type Tab = 'doc' | 'approval' | 'chat' | 'settings' | 'profile';
 
 export default function WorkspaceDetailView() {
   const params = useParams();
@@ -95,6 +97,49 @@ export default function WorkspaceDetailView() {
   const clickChannel = async (id: string) => {
     await selectChannel(id);
     setCurrentTab('chat');
+
+    try {
+      const messagesRes = await apiClient.channels.messagesList(workspaceId, id);
+      const messagesData = messagesRes.data || [];
+      if (messagesData.length > 0) {
+        const lastMsg = messagesData[messagesData.length - 1];
+        await apiClient.channels.read(workspaceId, id, {
+          lastReadMessageId: lastMsg.id,
+        });
+      }
+    } catch (err) {
+      console.error('Failed to sync chat read status:', err);
+    }
+  };
+
+  const handleMoveNano = async (nanoId: string, direction: 'up' | 'down') => {
+    try {
+      const index = nanos.findIndex((n) => n.id === nanoId);
+      if (index === -1) return;
+
+      if (direction === 'up' && index === 0) return;
+      if (direction === 'down' && index === nanos.length - 1) return;
+
+      let prevNanoId: string | undefined = undefined;
+
+      if (direction === 'up') {
+        if (index > 1) {
+          prevNanoId = nanos[index - 2].id;
+        }
+      } else {
+        prevNanoId = nanos[index + 1].id;
+      }
+
+      await apiClient.nanos.movePosition(workspaceId, nanoId, {
+        targetParentNanoId: undefined,
+        prevNanoId,
+      });
+
+      await selectWorkspace(workspaceId);
+    } catch (err) {
+      console.error(err);
+      alert('문서 위치 변경에 실패했습니다.');
+    }
   };
 
   if (authLoading || loadingWorkspace || !activeWorkspace) {
@@ -176,14 +221,40 @@ export default function WorkspaceDetailView() {
 
             <div className="flex flex-col gap-0.5 mt-1.5">
               {nanos.map((doc) => (
-                <button
+                <div
                   key={doc.id}
-                  onClick={() => clickNano(doc.id)}
-                  className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold tracking-wide text-left transition cursor-pointer bg-transparent border-0 text-slate-600 hover:bg-slate-800/40 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-50"
+                  className="w-full flex items-center justify-between px-2.5 py-1 rounded-lg text-xs font-semibold tracking-wide text-left transition hover:bg-slate-800/40 text-slate-600 dark:text-slate-400 group"
                 >
-                  <FileText className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                  <span className="truncate">{doc.title}</span>
-                </button>
+                  <button
+                    onClick={() => clickNano(doc.id)}
+                    className="flex items-center gap-2 flex-1 text-left bg-transparent border-0 cursor-pointer text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-50 font-semibold"
+                  >
+                    <FileText className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                    <span className="truncate">{doc.title}</span>
+                  </button>
+                  <div className="hidden group-hover:flex items-center gap-1">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMoveNano(doc.id, 'up');
+                      }}
+                      className="p-0.5 hover:bg-slate-700/50 rounded text-slate-500 hover:text-luminano-accent bg-transparent border-0 cursor-pointer"
+                      title="위로 이동"
+                    >
+                      <ArrowUp className="w-3 h-3" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMoveNano(doc.id, 'down');
+                      }}
+                      className="p-0.5 hover:bg-slate-700/50 rounded text-slate-500 hover:text-luminano-accent bg-transparent border-0 cursor-pointer"
+                      title="아래로 이동"
+                    >
+                      <ArrowDown className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -281,6 +352,18 @@ export default function WorkspaceDetailView() {
               <Settings className="w-4 h-4" />
               멤버 및 초대 관리
             </button>
+
+            <button
+              onClick={() => setCurrentTab('profile')}
+              className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition cursor-pointer border ${
+                currentTab === 'profile' 
+                  ? 'bg-luminano-accent/10 text-luminano-accent border-luminano-accent/30' 
+                  : 'text-slate-700 hover:bg-slate-800/40 dark:text-slate-350 bg-transparent border-transparent'
+              }`}
+            >
+              <User className="w-4 h-4" />
+              내 설정 & 프로필
+            </button>
           </div>
 
         </div>
@@ -307,6 +390,12 @@ export default function WorkspaceDetailView() {
         {currentTab === 'settings' && (
           <div className="flex-1 overflow-y-auto p-8">
             <WorkspaceSettings />
+          </div>
+        )}
+
+        {currentTab === 'profile' && (
+          <div className="flex-1 overflow-y-auto p-8">
+            <UserProfileSettings />
           </div>
         )}
 
