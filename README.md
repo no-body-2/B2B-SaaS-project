@@ -27,6 +27,12 @@
 - Api v1 완공
 ### 2026-06-22
 - 작업 스케줄러 및 node mailer, Web Socket 메서드 추가 완료
+### 2026-07-01
+- Frontend와 연동
+
+## Frontend
+### 2026-07-01
+- Mock -> Backend Api 호출 구조로 변경
 
 ---
 
