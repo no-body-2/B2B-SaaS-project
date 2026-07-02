@@ -6,4 +6,5 @@ beforeEach(() => {
   mockReset(dbMock);
 });
 
-export const dbMock = mockDeep<PrismaClient>() as unknown as DeepMockProxy<PrismaClient>;
+export const dbMock =
+  mockDeep<PrismaClient>() as unknown as DeepMockProxy<PrismaClient>;

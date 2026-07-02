@@ -4,12 +4,11 @@ import { PrismaService } from '../prisma/prisma.service';
 import { TokenHelper } from './utils/token.helper';
 import { MailerService } from '../mailer/mailer.service';
 import { dbMock } from '../prisma/__mocks__/prisma.service';
-import { ConflictException, UnauthorizedException, ForbiddenException } from '@nestjs/common';
+import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import * as argon2 from 'argon2';
 
 describe('AuthService (Unit/Integration Test)', () => {
   let service: AuthService;
-  let tokenHelper: TokenHelper;
 
   // 가상 메일 서비스
   const mockMailerService = {
@@ -37,7 +36,6 @@ describe('AuthService (Unit/Integration Test)', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    tokenHelper = module.get<TokenHelper>(TokenHelper);
   });
 
   describe('registerUser (회원가입 및 비밀번호 단방향 암호화)', () => {
@@ -73,7 +71,12 @@ describe('AuthService (Unit/Integration Test)', () => {
       // 2. 실제 DB 적재(create)에 넘어간 패스워드 값이 암호문(argon2 해시 포맷)인지 검증
       const mockCreateCalls = dbMock.user.create.mock.calls[0][0];
       expect(mockCreateCalls.data.password).not.toBe(registerDto.password);
-      expect(await argon2.verify(mockCreateCalls.data.password, registerDto.password)).toBe(true);
+      expect(
+        await argon2.verify(
+          mockCreateCalls.data.password,
+          registerDto.password,
+        ),
+      ).toBe(true);
     });
 
     it('이미 가입된 이메일인 경우 ConflictException을 던져야 한다', async () => {
@@ -110,7 +113,11 @@ describe('AuthService (Unit/Integration Test)', () => {
         expiresAt: new Date(Date.now() + 1000 * 60 * 60), // 1시간 남음
       } as any);
 
-      const result = await service.refreshTokens(mockUser.id, mockJti, mockRawRefreshToken);
+      const result = await service.refreshTokens(
+        mockUser.id,
+        mockJti,
+        mockRawRefreshToken,
+      );
 
       // 1. 결과 반환값 검증
       expect(result).toHaveProperty('accessToken');

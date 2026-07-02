@@ -4,7 +4,11 @@ import { PrismaService } from '../prisma/prisma.service';
 import { WorkspaceGuardService } from '../common/guard/workspace-guard.service';
 import { MailerService } from '../mailer/mailer.service';
 import { dbMock } from '../prisma/__mocks__/prisma.service';
-import { ConflictException, BadRequestException, ForbiddenException, GoneException, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  BadRequestException,
+  GoneException,
+} from '@nestjs/common';
 
 describe('WorkspaceMemberService', () => {
   let service: WorkspaceMemberService;
@@ -49,14 +53,25 @@ describe('WorkspaceMemberService', () => {
         expiresAt: new Date(),
       } as any);
       // 4. 워크스페이스 명세
-      dbMock.workspace.findUnique.mockResolvedValue({ name: '초대 워크스페이스' } as any);
+      dbMock.workspace.findUnique.mockResolvedValue({
+        name: '초대 워크스페이스',
+      } as any);
 
-      const result = await service.inviteWorkspaceMember(userId, param, inviteDto);
+      const result = await service.inviteWorkspaceMember(
+        userId,
+        param,
+        inviteDto,
+      );
 
-      expect(mockWorkspaceGuard.verifyWorkspaceAdmin).toHaveBeenCalledWith(userId, param.workspaceId);
+      expect(mockWorkspaceGuard.verifyWorkspaceAdmin).toHaveBeenCalledWith(
+        userId,
+        param.workspaceId,
+      );
       expect(dbMock.workspaceInvitation.create).toHaveBeenCalled();
       expect(mockMailerService.sendInvitationMail).toHaveBeenCalled();
-      expect(result.message).toContain('초대 요청이 성공적으로 전송되었습니다.');
+      expect(result.message).toContain(
+        '초대 요청이 성공적으로 전송되었습니다.',
+      );
     });
 
     it('실패 - 이미 워크스페이스에 소속된 멤버이면 ConflictException을 던진다', async () => {
@@ -92,13 +107,19 @@ describe('WorkspaceMemberService', () => {
       };
       const mockUser = { id: userId, email: 'target@example.com' };
 
-      dbMock.workspaceInvitation.findUnique.mockResolvedValue(mockInvitation as any);
+      dbMock.workspaceInvitation.findUnique.mockResolvedValue(
+        mockInvitation as any,
+      );
       dbMock.user.findUnique.mockResolvedValue(mockUser as any);
       dbMock.workspaceMember.count.mockResolvedValue(0); // 멤버 아님
-      dbMock.workspace.findUnique.mockResolvedValue({ name: '초대 워크스페이스' } as any);
+      dbMock.workspace.findUnique.mockResolvedValue({
+        name: '초대 워크스페이스',
+      } as any);
 
       // 트랜잭션 동작 모킹
-      dbMock.$transaction.mockImplementation(async (callback) => callback(dbMock));
+      dbMock.$transaction.mockImplementation(async (callback) =>
+        callback(dbMock),
+      );
       dbMock.workspaceInvitation.update.mockResolvedValue({} as any);
       dbMock.workspaceMember.create.mockResolvedValue({} as any);
 
@@ -118,9 +139,9 @@ describe('WorkspaceMemberService', () => {
         status: 'ACCEPTED',
       } as any);
 
-      await expect(service.acceptWorkspaceInvitation(userId, dto)).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(
+        service.acceptWorkspaceInvitation(userId, dto),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('실패 - 만료된 초대 토큰일 경우 EXPIRED 상태 갱신 후 GoneException을 던진다', async () => {
@@ -131,9 +152,9 @@ describe('WorkspaceMemberService', () => {
       } as any);
       dbMock.workspaceInvitation.update.mockResolvedValue({} as any);
 
-      await expect(service.acceptWorkspaceInvitation(userId, dto)).rejects.toThrow(
-        GoneException,
-      );
+      await expect(
+        service.acceptWorkspaceInvitation(userId, dto),
+      ).rejects.toThrow(GoneException);
       expect(dbMock.workspaceInvitation.update).toHaveBeenCalledWith({
         where: { id: 'inv-1' },
         data: { status: 'EXPIRED' },
@@ -158,7 +179,10 @@ describe('WorkspaceMemberService', () => {
 
       const result = await service.updateMemberRole(userId, param, roleDto);
 
-      expect(mockWorkspaceGuard.verifyWorkspaceOwner).toHaveBeenCalledWith(userId, param.workspaceId);
+      expect(mockWorkspaceGuard.verifyWorkspaceOwner).toHaveBeenCalledWith(
+        userId,
+        param.workspaceId,
+      );
       expect(dbMock.workspaceMember.count).toHaveBeenCalledWith({
         where: { userId: param.targetUserId, role: 'OWNER' },
       });
@@ -167,7 +191,11 @@ describe('WorkspaceMemberService', () => {
 
     it('실패 - 본인의 권한을 스스로 변경하려고 할 시 BadRequestException을 던진다', async () => {
       await expect(
-        service.updateMemberRole(userId, { ...param, targetUserId: userId }, roleDto),
+        service.updateMemberRole(
+          userId,
+          { ...param, targetUserId: userId },
+          roleDto,
+        ),
       ).rejects.toThrow(BadRequestException);
     });
 

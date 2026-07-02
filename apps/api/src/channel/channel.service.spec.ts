@@ -5,7 +5,11 @@ import { WorkspaceGuardService } from '../common/guard/workspace-guard.service';
 import { ChannelGateway } from './channel.gateway';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { dbMock } from '../prisma/__mocks__/prisma.service';
-import { BadRequestException, ForbiddenException, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  ConflictException,
+} from '@nestjs/common';
 
 describe('ChannelService', () => {
   let service: ChannelService;
@@ -56,9 +60,16 @@ describe('ChannelService', () => {
         joinedAt: new Date(),
       } as any);
 
-      const result = await service.joinChatRoom(userId, workspaceId, chatroomId);
+      const result = await service.joinChatRoom(
+        userId,
+        workspaceId,
+        chatroomId,
+      );
 
-      expect(mockWorkspaceGuard.validateMembership).toHaveBeenCalledWith(userId, workspaceId);
+      expect(mockWorkspaceGuard.validateMembership).toHaveBeenCalledWith(
+        userId,
+        workspaceId,
+      );
       expect(dbMock.chatroomMember.create).toHaveBeenCalled();
       expect(result.message).toBe('채팅방 참여 성공');
     });
@@ -103,18 +114,26 @@ describe('ChannelService', () => {
         role: 'MEMBER',
       } as any);
 
-      dbMock.$transaction.mockImplementation(async (callback) => callback(dbMock));
+      dbMock.$transaction.mockImplementation(async (callback) =>
+        callback(dbMock),
+      );
       dbMock.chatroomMember.delete.mockResolvedValue({} as any);
       // 남은 멤버 0명 모킹
       dbMock.chatroomMember.findMany.mockResolvedValue([]);
       dbMock.chatroom.delete.mockResolvedValue({} as any);
 
-      const result = await service.leaveChatRoom(userId, workspaceId, chatroomId);
+      const result = await service.leaveChatRoom(
+        userId,
+        workspaceId,
+        chatroomId,
+      );
 
       expect(dbMock.chatroom.delete).toHaveBeenCalledWith({
         where: { id: chatroomId },
       });
-      expect(result.message).toContain('채팅방에 남은 사용자가 없어 자동 삭제 처리되었습니다.');
+      expect(result.message).toContain(
+        '채팅방에 남은 사용자가 없어 자동 삭제 처리되었습니다.',
+      );
     });
 
     it('성공 - OWNER 퇴장 시, 남은 멤버 중 가입일이 가장 오래된 멤버가 자동으로 OWNER로 승격된다', async () => {
@@ -124,9 +143,11 @@ describe('ChannelService', () => {
         role: 'OWNER', // 나가는 사람의 권한이 OWNER
       } as any);
 
-      dbMock.$transaction.mockImplementation(async (callback) => callback(dbMock));
+      dbMock.$transaction.mockImplementation(async (callback) =>
+        callback(dbMock),
+      );
       dbMock.chatroomMember.delete.mockResolvedValue({} as any);
-      
+
       const mockRemaining = [
         { userId: 'u-next-owner', joinedAt: new Date(Date.now() - 1000) },
         { userId: 'u-other-member', joinedAt: new Date() },
@@ -135,7 +156,11 @@ describe('ChannelService', () => {
       dbMock.chatroomMember.update.mockResolvedValue({} as any);
       dbMock.chatroom.update.mockResolvedValue({} as any);
 
-      const result = await service.leaveChatRoom(userId, workspaceId, chatroomId);
+      const result = await service.leaveChatRoom(
+        userId,
+        workspaceId,
+        chatroomId,
+      );
 
       // joinedAt 시점이 가장 앞선(오래된) u-next-owner가 OWNER로 승격되는지 검증
       expect(dbMock.chatroomMember.update).toHaveBeenCalledWith({
@@ -163,13 +188,20 @@ describe('ChannelService', () => {
         .mockResolvedValueOnce({ role: 'OWNER' } as any) // ownerId 조회
         .mockResolvedValueOnce({ userId: targetUserId } as any); // targetUserId 조회
 
-      dbMock.$transaction.mockImplementation(async (callback) => callback(dbMock));
+      dbMock.$transaction.mockImplementation(async (callback) =>
+        callback(dbMock),
+      );
       dbMock.chatroomMember.update.mockResolvedValue({} as any);
       dbMock.chatroom.update.mockResolvedValue({} as any);
 
-      const result = await service.delegateChatRoomOwner(ownerId, workspaceId, chatroomId, {
-        targetUserId,
-      });
+      const result = await service.delegateChatRoomOwner(
+        ownerId,
+        workspaceId,
+        chatroomId,
+        {
+          targetUserId,
+        },
+      );
 
       // 1. 위임 대상 승격 검증
       expect(dbMock.chatroomMember.update).toHaveBeenNthCalledWith(1, {
@@ -191,7 +223,9 @@ describe('ChannelService', () => {
 
     it('실패 - 자신에게 방장 권한을 넘기려 시도하면 BadRequestException을 던진다', async () => {
       await expect(
-        service.delegateChatRoomOwner(ownerId, workspaceId, chatroomId, { targetUserId: ownerId }),
+        service.delegateChatRoomOwner(ownerId, workspaceId, chatroomId, {
+          targetUserId: ownerId,
+        }),
       ).rejects.toThrow(BadRequestException);
     });
   });

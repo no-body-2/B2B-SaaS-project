@@ -21,7 +21,7 @@ describe('App & Auth Flow (e2e)', () => {
       .compile();
 
     app = moduleFixture.createNestApplication();
-    
+
     // main.ts의 ValidationPipe 환경을 일치시킵니다.
     app.useGlobalPipes(
       new ValidationPipe({
@@ -130,7 +130,10 @@ describe('App & Auth Flow (e2e)', () => {
       // 1. 가상 Refresh Token 생성 (Sign)
       const fakeRefreshToken = await jwtService.signAsync(
         { sub: testUser.id, email: testUser.email, jti: mockJti },
-        { secret: process.env.JWT_REFRESH_SECRET || 'test_refresh_secret', expiresIn: '7d' },
+        {
+          secret: process.env.JWT_REFRESH_SECRET || 'test_refresh_secret',
+          expiresIn: '7d',
+        },
       );
       const hashedFakeRT = await argon2.hash(fakeRefreshToken);
 
@@ -169,7 +172,10 @@ describe('App & Auth Flow (e2e)', () => {
       // 1. 임시 로그인 인증 토큰 발급
       const fakeAccessToken = await jwtService.signAsync(
         { sub: testUser.id, email: testUser.email, jti: mockJti },
-        { secret: process.env.JWT_ACCESS_SECRET || 'test_access_secret', expiresIn: '1h' },
+        {
+          secret: process.env.JWT_ACCESS_SECRET || 'test_access_secret',
+          expiresIn: '1h',
+        },
       );
 
       dbMock.user.findUnique.mockResolvedValue({
@@ -179,7 +185,9 @@ describe('App & Auth Flow (e2e)', () => {
       } as any);
 
       // 트랜잭션 soft-delete 및 refreshToken 강제 파기 Mocking
-      dbMock.$transaction.mockImplementation(async (callback) => callback(dbMock));
+      dbMock.$transaction.mockImplementation(async (callback) =>
+        callback(dbMock),
+      );
       dbMock.user.update.mockResolvedValue({} as any);
       dbMock.refreshToken.deleteMany.mockResolvedValue({} as any);
 
@@ -188,7 +196,9 @@ describe('App & Auth Flow (e2e)', () => {
         .set('Authorization', `Bearer ${fakeAccessToken}`)
         .expect(200)
         .expect((res) => {
-          expect(res.body.message).toContain('회원 탈퇴 요청이 정상 접수되었습니다.');
+          expect(res.body.message).toContain(
+            '회원 탈퇴 요청이 정상 접수되었습니다.',
+          );
         });
     });
   });

@@ -499,7 +499,8 @@ export class UserService {
     ]);
 
     return {
-      message: '회원 탈퇴 요청이 정상 접수되었습니다. 기존 토큰 세션이 모두 파기되었습니다.',
+      message:
+        '회원 탈퇴 요청이 정상 접수되었습니다. 기존 토큰 세션이 모두 파기되었습니다.',
       deletedAt: new Date(),
     };
   }

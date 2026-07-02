@@ -14,7 +14,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { WorkspaceService } from './workspace.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { WorkspaceGuardService } from '../common/guard/workspace-guard.service';
-import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { WorkspaceParamDto } from '../common/dto/workspace-param.dto';
 import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { DeleteWorkspaceDto } from './dto/delete-workspace.dto';
@@ -93,7 +97,7 @@ describe('WorkspaceService', () => {
 
     it('성공 - 워크스페이스를 생성하고 OWNER로 지정한다 (소유 개수 3개 미만)', async () => {
       mockPrismaService.workspaceMember.count.mockResolvedValue(1);
-      
+
       const createdWorkspace = {
         id: 'w-new123',
         name: dto.name,
@@ -177,7 +181,11 @@ describe('WorkspaceService', () => {
         deletedAt: new Date(),
       });
 
-      const result = await service.softDeleteWorkspace(userId, param, deleteDto);
+      const result = await service.softDeleteWorkspace(
+        userId,
+        param,
+        deleteDto,
+      );
 
       expect(mockPrismaService.workspace.findUnique).toHaveBeenCalledWith({
         where: { id: 'w-123' },
@@ -187,7 +195,9 @@ describe('WorkspaceService', () => {
         'w-123',
       );
       expect(mockPrismaService.workspace.update).toHaveBeenCalled();
-      expect(result.message).toContain('워크스페이스 삭제 요청이 완료되었습니다.');
+      expect(result.message).toContain(
+        '워크스페이스 삭제 요청이 완료되었습니다.',
+      );
     });
 
     it('실패 - 입력한 워크스페이스 확인용 이름이 일치하지 않을 시 BadRequestException을 던진다', async () => {
@@ -197,7 +207,9 @@ describe('WorkspaceService', () => {
       });
 
       await expect(
-        service.softDeleteWorkspace(userId, param, { confirmName: '잘못된 이름' }),
+        service.softDeleteWorkspace(userId, param, {
+          confirmName: '잘못된 이름',
+        }),
       ).rejects.toThrow(BadRequestException);
 
       expect(mockPrismaService.workspace.update).not.toHaveBeenCalled();

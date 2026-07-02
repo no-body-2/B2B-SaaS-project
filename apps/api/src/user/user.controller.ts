@@ -311,7 +311,8 @@ export class UserController {
   @ApiBearerAuth('accessToken')
   @ApiOperation({
     summary: '회원 탈퇴',
-    description: '로그인한 사용자가 자신의 계정을 Soft Delete 처리하고, 모든 Refresh Token 세션을 파기합니다.',
+    description:
+      '로그인한 사용자가 자신의 계정을 Soft Delete 처리하고, 모든 Refresh Token 세션을 파기합니다.',
   })
   @ApiResponse({
     status: 200,
@@ -329,9 +330,7 @@ export class UserController {
     status: 404,
     description: '해당하는 사용자를 찾을 수 없는 경우',
   })
-  async deleteMe(
-    @CurrentUser() reqUser: { userId: string },
-  ) {
+  async deleteMe(@CurrentUser() reqUser: { userId: string }) {
     return this.userService.deleteMe(reqUser.userId);
   }
 }

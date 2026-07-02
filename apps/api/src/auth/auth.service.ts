@@ -252,7 +252,10 @@ export class AuthService {
     }
 
     // 5. Client에서 전달된 Token과 DB의 Token 해시값 1회 검증
-    const isMatched = await argon2.verify(tokenSession.hashedToken, refreshToken);
+    const isMatched = await argon2.verify(
+      tokenSession.hashedToken,
+      refreshToken,
+    );
     if (!isMatched) {
       throw new UnauthorizedException(
         '유효하지 않거나 이미 만료된 토큰입니다. 다시 로그인해 주세요.',
@@ -290,7 +293,10 @@ export class AuthService {
     }
 
     // 3. 해시 검증
-    const isMatched = await argon2.verify(tokenSession.hashedToken, refreshToken);
+    const isMatched = await argon2.verify(
+      tokenSession.hashedToken,
+      refreshToken,
+    );
     if (!isMatched) {
       throw new UnauthorizedException(
         '이미 로그아웃되었거나 유효하지 않은 세션입니다.',
