@@ -62,6 +62,7 @@ jobs:
     steps:
       - name: Trigger Deploy Webhook
         env:
+          # TODO: WEBHOOK URL은 배포 후 반드시 추가할 것
           DEPLOY_WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
         if: env.DEPLOY_WEBHOOK_URL != ''
         run: |
