@@ -55,7 +55,9 @@ describe('App & Auth Flow (e2e)', () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 
   describe('GET / (헬스체크)', () => {
