@@ -7,10 +7,24 @@ import { PrismaService } from '../src/prisma/prisma.service';
 import { dbMock } from '../src/prisma/__mocks__/prisma.service';
 import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
+import { RedisService } from '../src/redis/redis.service';
 
 describe('App & Auth Flow (e2e)', () => {
   let app: INestApplication<App>;
   let jwtService: JwtService;
+
+  const mockRedisClient = {
+    get: jest.fn(),
+    set: jest.fn(),
+    del: jest.fn(),
+    disconnect: jest.fn(),
+  };
+
+  const mockRedisService = {
+    get: jest.fn(),
+    set: jest.fn(),
+    del: jest.fn(),
+  };
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -18,6 +32,10 @@ describe('App & Auth Flow (e2e)', () => {
     })
       .overrideProvider(PrismaService)
       .useValue(dbMock) // 실제 물리 DB 쿼리 오염을 원천 차단하기 위해 PrismaService를 mock으로 가로챕니다.
+      .overrideProvider('REDIS_CLIENT')
+      .useValue(mockRedisClient)
+      .overrideProvider(RedisService)
+      .useValue(mockRedisService)
       .compile();
 
     app = moduleFixture.createNestApplication();
@@ -185,9 +203,12 @@ describe('App & Auth Flow (e2e)', () => {
       } as any);
 
       // 트랜잭션 soft-delete 및 refreshToken 강제 파기 Mocking
-      dbMock.$transaction.mockImplementation(async (callback) =>
-        callback(dbMock),
-      );
+      dbMock.$transaction.mockImplementation(async (arg) => {
+        if (typeof arg === 'function') {
+          return arg(dbMock);
+        }
+        return Promise.all(arg);
+      });
       dbMock.user.update.mockResolvedValue({} as any);
       dbMock.refreshToken.deleteMany.mockResolvedValue({} as any);
 
