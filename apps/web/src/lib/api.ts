@@ -745,7 +745,7 @@ export const apiClient = IS_MOCK
         list: (workspaceId: string) => realApi.get(`/workspace/${workspaceId}/members`),
         invite: (workspaceId: string, email: string) => realApi.post(`/workspace/${workspaceId}/invite`, { email }),
         updateRole: (workspaceId: string, targetUserId: string, role: string) =>
-          realApi.patch(`/workspace/${workspaceId}/members/${targetUserId}/role`, { role }),
+          realApi.patch(`/workspace/${workspaceId}/members/${targetUserId}/role`, { newRole: role }),
         kick: (workspaceId: string, targetUserId: string) =>
           realApi.delete(`/workspace/${workspaceId}/members/${targetUserId}`),
         leave: (workspaceId: string) => realApi.delete(`/workspace/${workspaceId}/leave`),
@@ -783,7 +783,7 @@ export const apiClient = IS_MOCK
         messagesList: (workspaceId: string, chatroomId: string) =>
           realApi.get(`/workspace/${workspaceId}/channels/${chatroomId}/messages`),
         postMessage: (workspaceId: string, chatroomId: string, content: string) =>
-          realApi.post(`/workspace/${workspaceId}/channels/${chatroomId}/messages`, { content }),
+          realApi.post(`/workspace/${workspaceId}/channels/${chatroomId}/messages`, { content, type: 'TEXT' }),
         deleteMessage: (workspaceId: string, messageId: string) =>
           realApi.delete(`/workspace/${workspaceId}/messages/${messageId}`),
         patchMessage: (workspaceId: string, messageId: string, content: string) =>

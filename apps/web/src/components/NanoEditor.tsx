@@ -68,9 +68,9 @@ export default function NanoEditor() {
     setSubmittingAppr(true);
     try {
       await apiClient.workflows.createApproval(activeWorkspace.id, activeNano.id, {
-        title: apprTitle,
-        content, // 수정 제안된 문서 본문 스냅샷 수록
-        opinion: apprOpinion,
+        title: title, // 수정제안 문서 새 제목
+        content: { blockStyle: 'default', markdown: content || '' }, // 수정 제안된 문서 본문 스냅샷 수록
+        comment: apprOpinion || '문서 수정 결재 요청',
       });
       await fetchApprovals();
       setIsApprModalOpen(false);

@@ -394,7 +394,17 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
 
       // OWNER/ADMIN일 경우 바로 로컬 문서 상태 갱신
-      setActiveNano(res.data);
+      const raw = res.data;
+      const formatted = {
+        id: raw.nanoId || raw.id || nanoId,
+        title: raw.title || title,
+        content: typeof raw.content === 'object' ? (raw.content?.markdown || '') : (raw.content || ''),
+        workspaceId: activeWorkspace.id,
+        parentNanoId: activeNano?.parentNanoId || null,
+        order: activeNano?.order || 1,
+        createdAt: activeNano?.createdAt || new Date().toISOString()
+      };
+      setActiveNano(formatted);
       await fetchNanos();
       return res.data;
     } catch (err) {
@@ -445,7 +455,14 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const decideApproval = async (approvalRequestId: string, decision: 'APPROVED' | 'REJECTED', opinion?: string) => {
     if (!activeWorkspace) return;
     try {
-      await apiClient.workflows.decide(activeWorkspace.id, approvalRequestId, { decision, opinion });
+      const statusMap: Record<string, string> = {
+        APPROVED: 'APPROVE',
+        REJECTED: 'REJECT'
+      };
+      await apiClient.workflows.decide(activeWorkspace.id, approvalRequestId, { 
+        status: statusMap[decision] || 'APPROVE', 
+        comment: opinion || '결재 의견을 승인 처리합니다.' 
+      });
       await fetchApprovals();
       await fetchNanos(); // 결재 통과 시 문서 내용이 바뀌므로 동기화
       if (activeNano && approvals.find((a) => a.id === approvalRequestId)?.nanoId === activeNano.id) {
