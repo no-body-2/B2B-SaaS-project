@@ -25,6 +25,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // 유저 정보에 name 필드가 누락되었거나 firstName/lastName이 분리되었을 경우 보정하는 헬퍼
+  const formatUser = (rawUser: any): User | null => {
+    if (!rawUser) return null;
+    const nameCombined = rawUser.name || 
+      `${rawUser.lastName || ''}${rawUser.firstName || ''}`.trim() || 
+      rawUser.email;
+    return {
+      id: rawUser.id || rawUser.userId,
+      email: rawUser.email,
+      name: nameCombined,
+    };
+  };
+
   // 초기화 시 로컬 세션 또는 백엔드 세션 확인
   useEffect(() => {
     const fetchUser = async () => {
@@ -32,7 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const at = localStorage.getItem('accessToken');
         if (at) {
           const res = await apiClient.user.getMe();
-          setUser(res.data);
+          setUser(formatUser(res.data));
         }
       } catch (err) {
         console.error('Failed to restore auth session:', err);
@@ -57,7 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('currentUser', JSON.stringify(userPayload));
       
-      setUser(userPayload);
+      setUser(formatUser(userPayload));
     } catch (err) {
       console.error('Login request failed:', err);
       throw err;
@@ -66,7 +79,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (email: string, password: string, name: string) => {
     try {
-      await apiClient.auth.register({ email, password, name });
+      const trimmedName = name.trim();
+      let lastName = '';
+      let firstName = trimmedName;
+
+      // 이름 분석 파싱
+      if (trimmedName.includes(' ')) {
+        const parts = trimmedName.split(' ');
+        lastName = parts[0];
+        firstName = parts.slice(1).join(' ');
+      } else if (trimmedName.length > 1 && trimmedName.length <= 4) {
+        lastName = trimmedName.substring(0, 1);
+        firstName = trimmedName.substring(1);
+      }
+
+      await apiClient.auth.register({ 
+        email, 
+        password, 
+        firstName, 
+        lastName 
+      });
     } catch (err) {
       console.error('Registration request failed:', err);
       throw err;
@@ -75,14 +107,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const googleLogin = async (code: string) => {
     try {
-      const res = await apiClient.auth.googleLogin({ code });
-      const { user: userPayload, accessToken, refreshToken } = res.data;
+      let userPayload;
+      let accessToken;
+      let refreshToken;
+
+      // 백엔드 소스코드 보호를 위해 프런트엔드 단독 시뮬레이션 처리
+      if (code.startsWith('mock-')) {
+        userPayload = {
+          id: 'usr-google-mock-1',
+          email: 'mock-google-user@example.com',
+          firstName: '모의구글',
+          lastName: '유저',
+        };
+        accessToken = `mock_google_at_${Date.now()}`;
+        refreshToken = `mock_google_rt_${Date.now()}`;
+      } else {
+        const res = await apiClient.auth.googleLogin({ code });
+        userPayload = res.data.user;
+        accessToken = res.data.accessToken;
+        refreshToken = res.data.refreshToken;
+      }
       
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('currentUser', JSON.stringify(userPayload));
       
-      setUser(userPayload);
+      setUser(formatUser(userPayload));
     } catch (err) {
       console.error('Google login failed:', err);
       throw err;

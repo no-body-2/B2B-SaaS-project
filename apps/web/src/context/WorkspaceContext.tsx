@@ -107,7 +107,10 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const fetchWorkspaces = useCallback(async () => {
     try {
       const res = await apiClient.workspace.list();
-      setWorkspaces(res.data);
+      const listData = Array.isArray(res.data) 
+        ? res.data 
+        : (res.data?.workspaces || []);
+      setWorkspaces(listData);
     } catch (err) {
       console.error('Failed to fetch workspaces:', err);
     }
@@ -123,16 +126,43 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
       // 2. 멤버 목록 로딩
       const memRes = await apiClient.members.list(workspaceId);
-      setMembers(memRes.data);
+      const memberList = Array.isArray(memRes.data) 
+        ? memRes.data 
+        : (memRes.data?.members || []);
+      setMembers(memberList);
 
       // 3. 문서(Nano) 최상위 목록 로딩
       const nanoRes = await apiClient.nanos.listRoot(workspaceId);
-      setNanos(nanoRes.data);
+      const nanoList = Array.isArray(nanoRes.data) 
+        ? nanoRes.data 
+        : (nanoRes.data?.nanoList || []);
+      
+      const formattedNanos = nanoList.map((n: any) => ({
+        id: n.nanoId || n.id,
+        title: n.title,
+        type: n.type,
+        createdAt: n.createdAt,
+        workspaceId,
+        content: n.content || '',
+        parentNanoId: n.parentNanoId || null,
+        order: n.order || 1
+      }));
+      setNanos(formattedNanos);
       setActiveNano(null);
 
       // 4. 채팅방 목록 로딩
       const chRes = await apiClient.channels.list(workspaceId);
-      setChannels(chRes.data);
+      const channelList = Array.isArray(chRes.data) 
+        ? chRes.data 
+        : (chRes.data?.rooms || []);
+      
+      const formattedChannels = channelList.map((ch: any) => ({
+        id: ch.chatroomId || ch.id,
+        name: ch.title || ch.name,
+        isPrivate: ch.isPrivate,
+        ownerId: ch.ownerId || '',
+      }));
+      setChannels(formattedChannels);
       setActiveChannel(null);
 
       // 5. 결재 요청 목록 로딩
@@ -140,7 +170,23 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const appRes = isOwner 
         ? await apiClient.workflows.listOwner(workspaceId)
         : await apiClient.workflows.listMe(workspaceId);
-      setApprovals(appRes.data);
+      const approvalList = Array.isArray(appRes.data) 
+        ? appRes.data 
+        : (appRes.data?.items || []);
+
+      const formattedApprovals = approvalList.map((ap: any) => ({
+        id: ap.approvalRequestId || ap.id,
+        workspaceId,
+        nanoId: ap.nanoId,
+        title: ap.title,
+        content: ap.content || '',
+        requesterId: ap.requesterId || '',
+        requesterName: ap.requesterName || 'Unknown',
+        status: ap.status,
+        opinion: ap.opinion || null,
+        createdAt: ap.createdAt,
+      }));
+      setApprovals(formattedApprovals);
 
     } catch (err) {
       console.error('Failed to load workspace data details:', err);

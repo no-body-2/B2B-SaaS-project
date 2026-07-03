@@ -46,7 +46,9 @@ export default function Home() {
       }
     } catch (err: any) {
       console.error(err);
-      setErrorMsg(err.response?.data?.message || '인증 처리에 실패했습니다. 입력값을 확인해주세요.');
+      const rawMsg = err.response?.data?.message;
+      const parsedMsg = Array.isArray(rawMsg) ? rawMsg.join(', ') : rawMsg;
+      setErrorMsg(parsedMsg || '인증 처리에 실패했습니다. 입력값을 확인해주세요.');
     } finally {
       setSubmitting(false);
     }
@@ -60,7 +62,9 @@ export default function Home() {
       router.push('/dashboard');
     } catch (err: any) {
       console.error(err);
-      setErrorMsg(err.response?.data?.message || 'Google 로그인 처리 도중 에러가 발생했습니다.');
+      const rawMsg = err.response?.data?.message;
+      const parsedMsg = Array.isArray(rawMsg) ? rawMsg.join(', ') : rawMsg;
+      setErrorMsg(parsedMsg || 'Google 로그인 처리 도중 에러가 발생했습니다.');
     } finally {
       setSubmitting(false);
     }

@@ -65,7 +65,9 @@ export default function UserProfileSettings() {
       await apiClient.user.updateProfile({ firstName, lastName });
       setProfileMsg('성공적으로 이름을 변경하였습니다. 갱신을 위해 재로그인 하실 수 있습니다.');
     } catch (err: any) {
-      setProfileMsg(err.response?.data?.message || '프로필 수정에 실패했습니다.');
+      const rawMsg = err.response?.data?.message;
+      const parsedMsg = Array.isArray(rawMsg) ? rawMsg.join(', ') : rawMsg;
+      setProfileMsg(parsedMsg || '프로필 수정에 실패했습니다.');
     } finally {
       setUpdatingProfile(false);
     }
@@ -88,7 +90,9 @@ export default function UserProfileSettings() {
       setNewPassword('');
       setConfirmPassword('');
     } catch (err: any) {
-      setPasswordMsg(err.response?.data?.message || '비밀번호 변경에 실패했습니다.');
+      const rawMsg = err.response?.data?.message;
+      const parsedMsg = Array.isArray(rawMsg) ? rawMsg.join(', ') : rawMsg;
+      setPasswordMsg(parsedMsg || '비밀번호 변경에 실패했습니다.');
     } finally {
       setUpdatingPassword(false);
     }
@@ -105,7 +109,9 @@ export default function UserProfileSettings() {
       setEmailMsg('이메일 변경 인증 메일이 발송되었습니다. 메일함의 링크를 확인해주세요.');
       setNewEmail('');
     } catch (err: any) {
-      setEmailMsg(err.response?.data?.message || '이메일 변경 요청에 실패했습니다.');
+      const rawMsg = err.response?.data?.message;
+      const parsedMsg = Array.isArray(rawMsg) ? rawMsg.join(', ') : rawMsg;
+      setEmailMsg(parsedMsg || '이메일 변경 요청에 실패했습니다.');
     } finally {
       setRequestingEmail(false);
     }
