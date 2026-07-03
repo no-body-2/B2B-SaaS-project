@@ -110,7 +110,12 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const listData = Array.isArray(res.data) 
         ? res.data 
         : (res.data?.workspaces || []);
-      setWorkspaces(listData);
+      
+      const formatted = listData.map((ws: any) => ({
+        ...ws,
+        domain: ws.domain || ws.description || ws.name || ''
+      }));
+      setWorkspaces(formatted);
     } catch (err) {
       console.error('Failed to fetch workspaces:', err);
     }
@@ -122,7 +127,11 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       // 1. 워크스페이스 상세 정보 및 내 권한 파악
       const wsRes = await apiClient.workspace.getDetail(workspaceId);
-      setActiveWorkspace(wsRes.data);
+      const formattedWs = {
+        ...wsRes.data,
+        domain: wsRes.data.domain || wsRes.data.description || wsRes.data.name || ''
+      };
+      setActiveWorkspace(formattedWs);
 
       // 2. 멤버 목록 로딩
       const memRes = await apiClient.members.list(workspaceId);
@@ -198,7 +207,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const createWorkspace = async (name: string, domain: string) => {
     try {
-      await apiClient.workspace.create({ name, domain });
+      await apiClient.workspace.create({ name, description: domain });
       await fetchWorkspaces();
     } catch (err) {
       console.error('Create workspace failed:', err);
@@ -209,8 +218,12 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const updateWorkspaceInfo = async (name: string, domain: string) => {
     if (!activeWorkspace) return;
     try {
-      const res = await apiClient.workspace.update(activeWorkspace.id, { name, domain });
-      setActiveWorkspace((prev) => (prev ? { ...prev, ...res.data } : null));
+      const res = await apiClient.workspace.update(activeWorkspace.id, { name, description: domain });
+      const formattedRes = {
+        ...res.data,
+        domain: res.data.domain || res.data.description || res.data.name || ''
+      };
+      setActiveWorkspace((prev) => (prev ? { ...prev, ...formattedRes } : null));
       await fetchWorkspaces();
     } catch (err) {
       console.error('Update workspace failed:', err);
