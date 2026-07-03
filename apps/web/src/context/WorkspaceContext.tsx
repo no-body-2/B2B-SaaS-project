@@ -103,6 +103,24 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [approvals, setApprovals] = useState<ApprovalRequest[]>([]);
   const [loadingWorkspace, setLoadingWorkspace] = useState(false);
 
+  // 백엔드의 평탄화된 멤버 DTO를 프런트엔드의 중첩된 Member 모델 규격으로 변환하는 헬퍼
+  const formatMembers = useCallback((memberList: any[]): Member[] => {
+    return memberList.map((m: any) => {
+      const nameCombined = m.user?.name || 
+        `${m.firstname || m.user?.firstName || ''} ${m.lastname || m.user?.lastName || ''}`.trim() || 
+        m.email || 
+        'Unknown Member';
+      return {
+        userId: m.userId,
+        role: m.role || 'MEMBER',
+        user: {
+          name: nameCombined,
+          email: m.email || m.user?.email || '',
+        }
+      };
+    });
+  }, []);
+
   // 워크스페이스 목록 조회
   const fetchWorkspaces = useCallback(async () => {
     try {
@@ -138,7 +156,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const memberList = Array.isArray(memRes.data) 
         ? memRes.data 
         : (memRes.data?.members || []);
-      setMembers(memberList);
+      setMembers(formatMembers(memberList));
 
       // 3. 문서(Nano) 최상위 목록 로딩
       const nanoRes = await apiClient.nanos.listRoot(workspaceId);
@@ -259,7 +277,8 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       await apiClient.members.invite(activeWorkspace.id, email);
       const memRes = await apiClient.members.list(activeWorkspace.id);
-      setMembers(memRes.data);
+      const memberList = Array.isArray(memRes.data) ? memRes.data : (memRes.data?.members || []);
+      setMembers(formatMembers(memberList));
     } catch (err) {
       console.error('Failed to invite member:', err);
       throw err;
@@ -271,7 +290,8 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       await apiClient.members.updateRole(activeWorkspace.id, targetUserId, role);
       const memRes = await apiClient.members.list(activeWorkspace.id);
-      setMembers(memRes.data);
+      const memberList = Array.isArray(memRes.data) ? memRes.data : (memRes.data?.members || []);
+      setMembers(formatMembers(memberList));
     } catch (err) {
       console.error('Failed to update member role:', err);
       throw err;
@@ -283,7 +303,8 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       await apiClient.members.kick(activeWorkspace.id, targetUserId);
       const memRes = await apiClient.members.list(activeWorkspace.id);
-      setMembers(memRes.data);
+      const memberList = Array.isArray(memRes.data) ? memRes.data : (memRes.data?.members || []);
+      setMembers(formatMembers(memberList));
     } catch (err) {
       console.error('Failed to kick member:', err);
       throw err;
@@ -307,7 +328,21 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (!activeWorkspace) return;
     try {
       const nanoRes = await apiClient.nanos.listRoot(activeWorkspace.id);
-      setNanos(nanoRes.data);
+      const nanoList = Array.isArray(nanoRes.data) 
+        ? nanoRes.data 
+        : (nanoRes.data?.nanoList || []);
+      
+      const formattedNanos = nanoList.map((n: any) => ({
+        id: n.nanoId || n.id,
+        title: n.title,
+        type: n.type,
+        createdAt: n.createdAt,
+        workspaceId: activeWorkspace.id,
+        content: n.content || '',
+        parentNanoId: n.parentNanoId || null,
+        order: n.order || 1
+      }));
+      setNanos(formattedNanos);
     } catch (err) {
       console.error('Failed to fetch nanos:', err);
     }
@@ -317,7 +352,13 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (!activeWorkspace) return;
     try {
       const res = await apiClient.nanos.getDetail(activeWorkspace.id, nanoId);
-      setActiveNano(res.data);
+      const raw = res.data;
+      const formatted = {
+        ...raw,
+        id: raw.nanoId || raw.id,
+        content: typeof raw.content === 'object' ? (raw.content?.markdown || '') : (raw.content || '')
+      };
+      setActiveNano(formatted);
     } catch (err) {
       console.error('Failed to get nano detail:', err);
     }
@@ -326,7 +367,13 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const createNano = async (title: string, content: string, parentNanoId: string | null = null) => {
     if (!activeWorkspace) return;
     try {
-      await apiClient.nanos.create(activeWorkspace.id, { title, content, parentNanoId });
+      const contentPayload = { blockStyle: 'default', markdown: content || '' };
+      await apiClient.nanos.create(activeWorkspace.id, { 
+        title, 
+        type: 'PAGE',
+        content: contentPayload, 
+        parentNanoId: parentNanoId || undefined 
+      });
       await fetchNanos();
     } catch (err) {
       console.error('Failed to create nano:', err);
@@ -337,7 +384,8 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const updateNano = async (nanoId: string, title: string, content: string) => {
     if (!activeWorkspace) return;
     try {
-      const res = await apiClient.nanos.update(activeWorkspace.id, nanoId, { title, content });
+      const contentPayload = { blockStyle: 'default', markdown: content || '' };
+      const res = await apiClient.nanos.update(activeWorkspace.id, nanoId, { title, content: contentPayload });
       
       // 만약 일반 멤버인 경우, 수정본은 결재 상신되었으므로 로컬 리스트 갱신 후 리턴 알림
       if (activeWorkspace.role === 'MEMBER') {
@@ -375,7 +423,20 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const res = isOwner 
         ? await apiClient.workflows.listOwner(activeWorkspace.id)
         : await apiClient.workflows.listMe(activeWorkspace.id);
-      setApprovals(res.data);
+      const approvalList = Array.isArray(res.data) ? res.data : (res.data?.items || []);
+      const formattedApprovals = approvalList.map((ap: any) => ({
+        id: ap.approvalRequestId || ap.id,
+        workspaceId: activeWorkspace.id,
+        nanoId: ap.nanoId,
+        title: ap.title,
+        content: ap.content || '',
+        requesterId: ap.requesterId || '',
+        requesterName: ap.requesterName || 'Unknown',
+        status: ap.status,
+        opinion: ap.opinion || null,
+        createdAt: ap.createdAt,
+      }));
+      setApprovals(formattedApprovals);
     } catch (err) {
       console.error('Failed to fetch approvals:', err);
     }
@@ -412,7 +473,17 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (!activeWorkspace) return;
     try {
       const res = await apiClient.channels.list(activeWorkspace.id);
-      setChannels(res.data);
+      const channelList = Array.isArray(res.data) 
+        ? res.data 
+        : (res.data?.rooms || []);
+      
+      const formattedChannels = channelList.map((ch: any) => ({
+        id: ch.chatroomId || ch.id,
+        name: ch.title || ch.name,
+        isPrivate: ch.isPrivate,
+        ownerId: ch.ownerId || '',
+      }));
+      setChannels(formattedChannels);
     } catch (err) {
       console.error('Failed to fetch channels:', err);
     }
@@ -434,7 +505,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const createChannel = async (name: string, isPrivate: boolean = false) => {
     if (!activeWorkspace) return;
     try {
-      await apiClient.channels.create(activeWorkspace.id, { name, isPrivate });
+      await apiClient.channels.create(activeWorkspace.id, { title: name, isPrivate });
       await fetchChannels();
     } catch (err) {
       console.error('Failed to create channel:', err);
