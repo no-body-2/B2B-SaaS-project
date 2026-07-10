@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { useAuth } from '../context/AuthContext';
 import { UserPlus, ShieldAlert, ArrowRightLeft, UserMinus, LogOut, Loader2, Users } from 'lucide-react';
 
 export default function WorkspaceSettings() {
+  const router = useRouter();
   const { user } = useAuth();
   const { 
     activeWorkspace, 
@@ -13,13 +15,16 @@ export default function WorkspaceSettings() {
     inviteMember, 
     updateMemberRole, 
     kickMember, 
-    leaveWorkspace 
+    leaveWorkspace,
+    deleteWorkspace
   } = useWorkspace();
 
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviting, setInviting] = useState(false);
   const [inviteError, setInviteError] = useState('');
   const [inviteSuccess, setInviteSuccess] = useState('');
+  
+  const [confirmWsName, setConfirmWsName] = useState('');
 
   const isOwner = activeWorkspace?.role === 'OWNER';
 
@@ -76,6 +81,27 @@ export default function WorkspaceSettings() {
         await leaveWorkspace();
       } catch (err: any) {
         alert(err.response?.data?.message || '워크스페이스 나가기에 실패했습니다.');
+      }
+    }
+  };
+
+  const handleDeleteWorkspace = async () => {
+    if (!activeWorkspace) return;
+    if (!confirmWsName) {
+      alert('워크스페이스 이름을 입력해 주세요.');
+      return;
+    }
+    if (confirmWsName !== activeWorkspace.name) {
+      alert('입력한 이름이 워크스페이스 이름과 일치하지 않습니다.');
+      return;
+    }
+    if (confirm(`정말로 '${activeWorkspace.name}' 워크스페이스를 삭제하시겠습니까? 30일간 보관함에 보관된 후 영구 삭제됩니다.`)) {
+      try {
+        await deleteWorkspace(confirmWsName);
+        alert('워크스페이스가 삭제 보관함으로 이동되었습니다.');
+        router.push('/dashboard');
+      } catch (err: any) {
+        alert(err.response?.data?.message || '워크스페이스 삭제에 실패했습니다.');
       }
     }
   };
@@ -194,10 +220,27 @@ export default function WorkspaceSettings() {
         </div>
         
         {isOwner ? (
-          <p className="text-xs text-red-700 dark:text-red-400/80">
-            현재 회원님은 워크스페이스 최고 관리자(OWNER)입니다. 워크스페이스를 삭제하고 30일 보관함으로 이동시키거나, 대시보드로 돌아가 도메인을 관리하십시오. 
-            타인에게 최고 관리자 지위를 위임하기 전까지는 워크스페이스 탈퇴가 불가능합니다.
-          </p>
+          <div className="flex flex-col gap-4">
+            <p className="text-xs text-red-700 dark:text-red-400/80">
+              현재 회원님은 워크스페이스 최고 관리자(OWNER)입니다. 워크스페이스를 삭제하고 30일 보관함으로 이동시킬 수 있습니다.
+              삭제를 원하실 경우 워크스페이스 이름 <strong>{activeWorkspace?.name}</strong>을 아래에 동일하게 입력해 주십시오.
+            </p>
+            <div className="flex gap-3">
+              <input
+                type="text"
+                placeholder="워크스페이스 이름 입력..."
+                value={confirmWsName}
+                onChange={(e) => setConfirmWsName(e.target.value)}
+                className="flex-1 max-w-xs px-3 py-2 border border-red-300 dark:border-red-900/50 rounded-lg text-sm bg-background text-slate-800 dark:text-slate-105 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+              />
+              <button
+                onClick={handleDeleteWorkspace}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg text-xs transition cursor-pointer border-0"
+              >
+                워크스페이스 삭제
+              </button>
+            </div>
+          </div>
         ) : (
           <div className="flex justify-between items-center gap-4">
             <p className="text-xs text-red-700 dark:text-red-400/80 max-w-lg">

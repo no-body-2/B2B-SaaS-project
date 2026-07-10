@@ -97,14 +97,10 @@ export class WorkspaceService {
    * @param userId - 사용자 ID
    */
   async getUsersWorkspaces(userId: string) {
-    // 1. 교차 테이블 WorkspaceMember 기준으로 쿼리
-    // fixed: DeletedAt이 Null인 값만 조회하도록 수정하여 안정성 확보
+    // 1. 교차 테이블 WorkspaceMember 기준으로 쿼리 (소프트 삭제된 것도 포함하여 조회)
     const memberRecords = await this.prisma.workspaceMember.findMany({
       where: {
         userId,
-        workspace: {
-          deletedAt: null,
-        },
       },
       include: { workspace: true },
       orderBy: { workspace: { createdAt: 'desc' } },
@@ -125,6 +121,7 @@ export class WorkspaceService {
       logoUrl: record.workspace.logoUrl,
       role: record.role,
       createdAt: record.workspace.createdAt,
+      deletedAt: record.workspace.deletedAt,
     }));
 
     return {

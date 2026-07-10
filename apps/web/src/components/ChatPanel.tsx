@@ -63,7 +63,23 @@ export default function ChatPanel() {
     const loadHistory = async () => {
       try {
         const res = await apiClient.channels.messagesList(activeWorkspace.id, activeChannel.id);
-        setMessages(res.data);
+        const list = Array.isArray(res.data) ? res.data : (res.data?.items || []);
+        
+        // messageId를 id로 맵핑하고, members에서 senderName 조회
+        const formatted = list.map((m: any) => {
+          const sender = members.find((mem) => mem.userId === m.senderId);
+          return {
+            id: m.messageId || m.id,
+            chatroomId: m.chatroomId,
+            senderId: m.senderId,
+            senderName: sender?.user?.name || m.senderName || '알 수 없음',
+            content: m.content || '',
+            createdAt: m.createdAt,
+            isEdited: m.isEdited ?? false,
+            isDeleted: m.isDeleted ?? false,
+          };
+        });
+        setMessages(formatted);
         setTimeout(scrollToBottom, 100);
       } catch (err) {
         console.error('Failed to load chat history:', err);
@@ -84,9 +100,15 @@ export default function ChatPanel() {
     // 실시간 신규 메시지 청취
     socket.on('newMessage', (newMsg: ChatMessage) => {
       if (newMsg.chatroomId === activeChannel.id) {
+        const sender = members.find((mem) => mem.userId === newMsg.senderId);
+        const formattedMsg = {
+          ...newMsg,
+          id: newMsg.id || (newMsg as any).messageId,
+          senderName: sender?.user?.name || newMsg.senderName || '알 수 없음'
+        };
         setMessages((prev) => {
-          if (prev.some((m) => m.id === newMsg.id)) return prev;
-          return [...prev, newMsg];
+          if (prev.some((m) => m.id === formattedMsg.id)) return prev;
+          return [...prev, formattedMsg];
         });
         setTimeout(scrollToBottom, 50);
       }
@@ -110,7 +132,7 @@ export default function ChatPanel() {
       socket.off('deleteMessage');
       socket.disconnect();
     };
-  }, [activeWorkspace, activeChannel]);
+  }, [activeWorkspace, activeChannel, members]);
 
   // 2. 메시지 전송
   const handleSend = async (e: React.FormEvent) => {
@@ -122,11 +144,23 @@ export default function ChatPanel() {
 
     try {
       const res = await apiClient.channels.postMessage(activeWorkspace.id, activeChannel.id, payloadText);
-      setMessages((prev) => [...prev, res.data]);
+      const rawMsg = res.data;
+      const sender = members.find((mem) => mem.userId === rawMsg.senderId);
+      const formatted = {
+        id: rawMsg.messageId || rawMsg.id,
+        chatroomId: rawMsg.chatroomId,
+        senderId: rawMsg.senderId,
+        senderName: sender?.user?.name || rawMsg.senderName || '나',
+        content: rawMsg.content,
+        createdAt: rawMsg.createdAt,
+        isEdited: rawMsg.isEdited ?? false,
+        isDeleted: rawMsg.isDeleted ?? false,
+      };
+      setMessages((prev) => [...prev, formatted]);
       setTimeout(scrollToBottom, 50);
 
       if (process.env.NEXT_PUBLIC_API_MOCK !== 'false' && socketRef.current) {
-        socketRef.current.trigger?.('newMessage', res.data);
+        socketRef.current.trigger?.('newMessage', formatted);
       }
     } catch (err) {
       alert('메시지 전송에 실패했습니다.');

@@ -372,7 +372,7 @@ const mockApi = {
       return { data: workspaces[idx] };
     },
 
-    delete: async (workspaceId: string) => {
+    delete: async (workspaceId: string, confirmName?: string) => {
       const workspaces = getMockStorage('b2b_mock_workspaces', [] as any[]);
       const idx = workspaces.findIndex((w) => w.id === workspaceId);
       if (idx === -1) throw { response: { status: 404 } };
@@ -738,7 +738,8 @@ export const apiClient = IS_MOCK
         list: () => realApi.get('/workspace/list'),
         getDetail: (workspaceId: string) => realApi.get(`/workspace/${workspaceId}`),
         update: (workspaceId: string, dto: any) => realApi.patch(`/workspace/${workspaceId}`, dto),
-        delete: (workspaceId: string) => realApi.delete(`/workspace/${workspaceId}`),
+        delete: (workspaceId: string, confirmName: string) => 
+          realApi.delete(`/workspace/${workspaceId}`, { data: { confirmName } }),
         restore: (workspaceId: string) => realApi.patch(`/workspace/restore/${workspaceId}`),
       },
       members: {

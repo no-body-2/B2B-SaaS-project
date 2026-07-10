@@ -26,7 +26,7 @@ function AcceptInviteForm() {
     setErrorMsg('');
 
     try {
-      await apiClient.members.acceptInvite({ token });
+      await apiClient.members.acceptInvite({ invitationToken: token });
       setSuccess(true);
       setTimeout(() => {
         router.push('/dashboard');

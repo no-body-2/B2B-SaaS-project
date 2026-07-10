@@ -49,6 +49,7 @@ interface Channel {
   name: string;
   isPrivate: boolean;
   ownerId: string;
+  isJoined?: boolean;
 }
 
 interface WorkspaceContextType {
@@ -66,7 +67,7 @@ interface WorkspaceContextType {
   selectWorkspace: (workspaceId: string) => Promise<void>;
   createWorkspace: (name: string, domain: string) => Promise<void>;
   updateWorkspaceInfo: (name: string, domain: string) => Promise<void>;
-  deleteWorkspace: () => Promise<void>;
+  deleteWorkspace: (confirmName: string) => Promise<void>;
   restoreWorkspace: (workspaceId: string) => Promise<void>;
   
   inviteMember: (email: string) => Promise<void>;
@@ -188,6 +189,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         name: ch.title || ch.name,
         isPrivate: ch.isPrivate,
         ownerId: ch.ownerId || '',
+        isJoined: ch.isJoined ?? false,
       }));
       setChannels(formattedChannels);
       setActiveChannel(null);
@@ -249,10 +251,10 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
-  const deleteWorkspace = async () => {
+  const deleteWorkspace = async (confirmName: string) => {
     if (!activeWorkspace) return;
     try {
-      await apiClient.workspace.delete(activeWorkspace.id);
+      await apiClient.workspace.delete(activeWorkspace.id, confirmName);
       setActiveWorkspace(null);
       await fetchWorkspaces();
     } catch (err) {
@@ -439,7 +441,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         workspaceId: activeWorkspace.id,
         nanoId: ap.nanoId,
         title: ap.title,
-        content: ap.content || '',
+        content: typeof ap.content === 'object' ? (ap.content?.markdown || '') : (ap.content || ''),
         requesterId: ap.requesterId || '',
         requesterName: ap.requesterName || 'Unknown',
         status: ap.status,
@@ -499,6 +501,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         name: ch.title || ch.name,
         isPrivate: ch.isPrivate,
         ownerId: ch.ownerId || '',
+        isJoined: ch.isJoined ?? false,
       }));
       setChannels(formattedChannels);
     } catch (err) {
@@ -511,8 +514,19 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       const target = channels.find((c) => c.id === channelId) || null;
       if (target) {
-        await apiClient.channels.join(activeWorkspace.id, channelId);
+        if (!target.isJoined) {
+          try {
+            await apiClient.channels.join(activeWorkspace.id, channelId);
+          } catch (joinErr: any) {
+            if (joinErr.response?.status !== 409) {
+              throw joinErr;
+            }
+          }
+        }
         setActiveChannel(target);
+        if (!target.isJoined) {
+          await fetchChannels();
+        }
       }
     } catch (err) {
       console.error('Failed to select channel:', err);

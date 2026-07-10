@@ -36,23 +36,32 @@ export default function UserProfileSettings() {
 
   // 마운트 시 데이터 로드
   useEffect(() => {
-    const loadPreferences = async () => {
+    const loadProfileAndPreferences = async () => {
       try {
-        const res = await apiClient.user.getPreference();
-        if (res.data) {
-          setTheme(res.data.theme || 'light');
-          setLanguage(res.data.language || 'ko');
-          setTimezone(res.data.timezone || 'Asia/Seoul');
+        const [profileRes, prefRes] = await Promise.all([
+          apiClient.user.getMe(),
+          apiClient.user.getPreference()
+        ]);
+        
+        if (profileRes.data) {
+          setFirstName(profileRes.data.firstName || '');
+          setLastName(profileRes.data.lastName || '');
+        }
+        
+        if (prefRes.data) {
+          setTheme(prefRes.data.theme || 'light');
+          setLanguage(prefRes.data.language || 'ko');
+          setTimezone(prefRes.data.timezone || 'Asia/Seoul');
         }
       } catch (err) {
-        console.error('Failed to load preferences:', err);
+        console.error('Failed to load user info:', err);
       } finally {
         setLoadingPref(false);
       }
     };
 
     if (user) {
-      loadPreferences();
+      loadProfileAndPreferences();
     }
   }, [user]);
 

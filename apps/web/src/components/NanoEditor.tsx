@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../lib/api';
-import { FileText, Save, Trash2, Calendar, User, Eye, Edit3, ShieldAlert, Sparkles, Loader2 } from 'lucide-react';
+import { FileText, Save, Trash2, Calendar, User, Eye, Edit3, ShieldAlert, Sparkles, Loader2, Plus, ChevronRight, CornerDownRight } from 'lucide-react';
 
 export default function NanoEditor() {
   const { user } = useAuth();
@@ -13,13 +13,20 @@ export default function NanoEditor() {
     activeNano, 
     updateNano, 
     deleteNano, 
-    fetchApprovals 
+    fetchApprovals,
+    selectNano
   } = useWorkspace();
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isEditMode, setIsEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  // 하위 문서 (Child Nano) 관리 State
+  const [childNanos, setChildNanos] = useState<any[]>([]);
+  const [loadingChildren, setLoadingChildren] = useState(false);
+  const [newChildTitle, setNewChildTitle] = useState('');
+  const [creatingChild, setCreatingChild] = useState(false);
 
   // 결재 상신 모달 상태 (MEMBER 전용 가드)
   const [isApprModalOpen, setIsApprModalOpen] = useState(false);
@@ -29,14 +36,62 @@ export default function NanoEditor() {
 
   const isOwner = activeWorkspace?.role === 'OWNER';
 
+  const fetchChildren = async () => {
+    if (!activeWorkspace || !activeNano) return;
+    setLoadingChildren(true);
+    try {
+      const res = await apiClient.nanos.listChild(activeWorkspace.id, activeNano.id);
+      const childList = Array.isArray(res.data) 
+        ? res.data 
+        : (res.data?.nanoList || []);
+      setChildNanos(childList.map((n: any) => ({
+        id: n.nanoId || n.id,
+        title: n.title,
+        type: n.type,
+        createdAt: n.createdAt,
+      })));
+    } catch (err) {
+      console.error('Failed to load child nanos:', err);
+    } finally {
+      setLoadingChildren(false);
+    }
+  };
+
   useEffect(() => {
     if (activeNano) {
       setTitle(activeNano.title);
       setContent(activeNano.content || '');
       setIsEditMode(false);
       setIsApprModalOpen(false);
+      
+      if (activeWorkspace) {
+        fetchChildren();
+      }
+    } else {
+      setChildNanos([]);
     }
-  }, [activeNano]);
+  }, [activeNano, activeWorkspace]);
+
+  const handleCreateChild = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newChildTitle.trim() || !activeWorkspace || !activeNano) return;
+    
+    setCreatingChild(true);
+    try {
+      await apiClient.nanos.create(activeWorkspace.id, {
+        type: 'PAGE',
+        title: newChildTitle.trim(),
+        content: { blockStyle: 'default', markdown: '' },
+        parentNanoId: activeNano.id,
+      });
+      setNewChildTitle('');
+      await fetchChildren();
+    } catch (err) {
+      alert('하위 문서 생성에 실패했습니다.');
+    } finally {
+      setCreatingChild(false);
+    }
+  };
 
   const handleSaveClick = async () => {
     if (!activeWorkspace || !activeNano) return;
@@ -187,11 +242,63 @@ export default function NanoEditor() {
             className="flex-1 w-full min-h-[450px] p-6 border border-luminano-border rounded-xl text-sm font-mono bg-luminano-point text-foreground focus:outline-none focus:ring-2 focus:ring-luminano-accent/20 focus:border-luminano-accent resize-none leading-relaxed shadow-inner"
           />
         ) : (
-          <div className="flex-1 bg-luminano-point border border-luminano-border rounded-xl p-8 min-h-[450px] text-sm text-foreground whitespace-pre-wrap leading-relaxed shadow-sm">
-            {activeNano.content || (
-              <span className="text-slate-500 italic">문서 본문이 비어있습니다. 편집을 눌러 내용을 기술하십시오.</span>
-            )}
-          </div>
+          <>
+            <div className="bg-luminano-point border border-luminano-border rounded-xl p-8 min-h-[350px] text-sm text-foreground whitespace-pre-wrap leading-relaxed shadow-sm">
+              {activeNano.content || (
+                <span className="text-slate-500 italic">문서 본문이 비어있습니다. 편집을 눌러 내용을 기술하십시오.</span>
+              )}
+            </div>
+            
+            {/* 하위 문서 목록 및 생성부 */}
+            <div className="bg-luminano-point border border-luminano-border rounded-xl p-6 shadow-md flex flex-col gap-4 mt-2">
+              <div className="flex justify-between items-center border-b border-luminano-border pb-3">
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                  <CornerDownRight className="w-4 h-4 text-luminano-accent" />
+                  하위 문서 (Sub-pages)
+                </span>
+                <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">총 {childNanos.length}개</span>
+              </div>
+              
+              {loadingChildren ? (
+                <div className="flex justify-center py-4">
+                  <Loader2 className="w-5 h-5 animate-spin text-luminano-accent" />
+                </div>
+              ) : childNanos.length === 0 ? (
+                <p className="text-xs text-slate-500 italic py-2">연동된 하위 문서가 없습니다.</p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {childNanos.map((child) => (
+                    <button
+                      key={child.id}
+                      onClick={() => selectNano(child.id)}
+                      className="flex items-center justify-between p-3 rounded-lg border border-luminano-border hover:border-luminano-accent bg-background text-left transition cursor-pointer text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-50 text-xs font-bold"
+                    >
+                      <span className="truncate">{child.title}</span>
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
+                    </button>
+                  ))}
+                </div>
+              )}
+              
+              <form onSubmit={handleCreateChild} className="flex gap-2 border-t border-luminano-border pt-4 mt-2">
+                <input
+                  type="text"
+                  placeholder="새 하위 문서 제목..."
+                  value={newChildTitle}
+                  onChange={(e) => setNewChildTitle(e.target.value)}
+                  className="flex-1 px-3 py-1.5 border border-luminano-border rounded-lg text-xs bg-background text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-1 focus:ring-luminano-accent"
+                />
+                <button
+                  type="submit"
+                  disabled={creatingChild || !newChildTitle.trim()}
+                  className="px-3.5 py-1.5 bg-luminano-accent hover:bg-luminano-accent/90 disabled:bg-luminano-accent/60 text-white dark:text-slate-950 font-bold rounded-lg text-xs flex items-center gap-1 transition cursor-pointer border-0"
+                >
+                  {creatingChild ? <Loader2 className="w-3 animate-spin" /> : <Plus className="w-3 h-3" />}
+                  추가
+                </button>
+              </form>
+            </div>
+          </>
         )}
 
       </div>

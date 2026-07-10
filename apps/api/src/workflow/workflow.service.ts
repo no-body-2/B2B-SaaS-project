@@ -297,6 +297,7 @@ export class WorkflowService {
             },
           },
         },
+        pendingNano: true,
       },
     });
 
@@ -319,6 +320,8 @@ export class WorkflowService {
         nanoId: ar.nanoId,
         title: historyData.title ?? 'No Title',
         status: ar.status,
+        content: historyData.content,
+        opinion: ar.pendingNano?.comment || null,
         requesterName,
         createdAt: ar.createdAt,
         updatedAt: ar.updatedAt,
@@ -388,6 +391,7 @@ export class WorkflowService {
       },
       include: {
         history: true,
+        pendingNano: true,
       },
     });
 
@@ -405,6 +409,8 @@ export class WorkflowService {
         nanoId: ar.nanoId,
         title: historyData.title ?? 'No Title',
         status: ar.status,
+        content: historyData.content,
+        opinion: ar.pendingNano?.comment || null,
         createdAt: ar.createdAt,
         updatedAt: ar.updatedAt,
       };

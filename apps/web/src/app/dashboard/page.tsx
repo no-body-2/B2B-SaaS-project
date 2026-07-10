@@ -15,8 +15,12 @@ export default function Dashboard() {
     fetchWorkspaces, 
     selectWorkspace, 
     createWorkspace, 
-    loadingWorkspace 
+    loadingWorkspace,
+    restoreWorkspace
   } = useWorkspace();
+
+  const activeWorkspaces = workspaces.filter((ws) => !ws.deletedAt);
+  const deletedWorkspaces = workspaces.filter((ws) => ws.deletedAt);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [wsName, setWsName] = useState('');
@@ -151,11 +155,11 @@ export default function Dashboard() {
         </div>
 
         {/* 워크스페이스 목록 그리드 */}
-        {workspaces.length === 0 ? (
+        {activeWorkspaces.length === 0 ? (
           <div className="flex flex-col items-center justify-center border-2 border-dashed border-luminano-border rounded-2xl p-16 text-center bg-luminano-point">
             <Building2 className="w-12 h-12 text-slate-500 mb-4" />
             <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">소속된 워크스페이스가 없습니다</h3>
-            <p className="text-slate-600 dark:text-slate-450 text-sm max-w-sm mt-1.5 mb-6">
+            <p className="text-slate-600 dark:text-slate-455 text-sm max-w-sm mt-1.5 mb-6">
               새로운 워크스페이스를 만들거나, 동료에게 초대 링크를 받아 합류할 수 있습니다.
             </p>
             <button
@@ -163,14 +167,14 @@ export default function Dashboard() {
                 setErrorMsg('');
                 setIsModalOpen(true);
               }}
-              className="px-4 py-2 border border-luminano-border hover:bg-slate-800/40 text-slate-700 dark:text-slate-350 rounded-lg text-sm font-semibold transition cursor-pointer bg-transparent"
+              className="px-4 py-2 border border-luminano-border hover:bg-slate-800/40 text-slate-700 dark:text-slate-355 rounded-lg text-sm font-semibold transition cursor-pointer bg-transparent"
             >
               워크스페이스 만들기
             </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {workspaces.map((ws) => (
+            {activeWorkspaces.map((ws) => (
               <div
                 key={ws.id}
                 onClick={() => handleSelect(ws.id)}
@@ -202,6 +206,69 @@ export default function Dashboard() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* 삭제 보관함 섹션 */}
+        {deletedWorkspaces.length > 0 && (
+          <div className="mt-8 border-t border-luminano-border pt-8 flex flex-col gap-4">
+            <div>
+              <h2 className="text-xl font-bold text-red-600 dark:text-red-400 flex items-center gap-2">
+                <Trash2 className="w-5 h-5" />
+                삭제 대기 중인 워크스페이스 (보관함)
+              </h2>
+              <p className="text-xs text-slate-600 dark:text-slate-450 mt-1">
+                삭제 후 30일 이내인 경우 복구가 가능합니다. 최고 관리자(OWNER)만 복구를 수행할 수 있습니다.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {deletedWorkspaces.map((ws) => (
+                <div
+                  key={ws.id}
+                  className="bg-red-500/5 border border-red-500/25 rounded-xl p-6 shadow-sm flex flex-col justify-between min-h-[160px]"
+                >
+                  <div className="flex flex-col gap-2">
+                    <div className="flex justify-between items-start">
+                      <div className="w-10 h-10 bg-red-500/10 rounded-lg flex items-center justify-center text-red-500">
+                        <Building2 className="w-5 h-5" />
+                      </div>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-105 dark:bg-red-955/35 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900/50">
+                        보관 중
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-lg text-slate-800 dark:text-slate-200 mt-2">
+                      {ws.name}
+                    </h3>
+                    <span className="text-xs text-slate-500 font-mono">@{ws.domain}.luminano.com</span>
+                  </div>
+                  
+                  {ws.role === 'OWNER' ? (
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        if (confirm(`'${ws.name}' 워크스페이스를 복구하시겠습니까?`)) {
+                          try {
+                            await restoreWorkspace(ws.id);
+                            alert('워크스페이스가 성공적으로 복구되었습니다.');
+                            await fetchWorkspaces();
+                          } catch (err: any) {
+                            alert(err.response?.data?.message || '복구에 실패했습니다.');
+                          }
+                        }
+                      }}
+                      className="w-full mt-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition cursor-pointer border-0"
+                    >
+                      복구하기
+                    </button>
+                  ) : (
+                    <span className="text-[10px] text-slate-600 dark:text-slate-500 text-center italic mt-4 block">
+                      복구 권한 없음 (소유자 전용)
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </main>

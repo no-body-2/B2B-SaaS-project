@@ -100,12 +100,17 @@ export default function WorkspaceDetailView() {
 
     try {
       const messagesRes = await apiClient.channels.messagesList(workspaceId, id);
-      const messagesData = messagesRes.data || [];
-      if (messagesData.length > 0) {
-        const lastMsg = messagesData[messagesData.length - 1];
-        await apiClient.channels.read(workspaceId, id, {
-          lastReadMessageId: lastMsg.id,
-        });
+      const messagesList = Array.isArray(messagesRes.data)
+        ? messagesRes.data
+        : (messagesRes.data?.items || []);
+      if (messagesList.length > 0) {
+        const lastMsg = messagesList[messagesList.length - 1];
+        const msgId = lastMsg.messageId || lastMsg.id;
+        if (msgId) {
+          await apiClient.channels.read(workspaceId, id, {
+            lastReadMessageId: msgId,
+          });
+        }
       }
     } catch (err) {
       console.error('Failed to sync chat read status:', err);

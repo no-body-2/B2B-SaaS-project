@@ -13,11 +13,11 @@ import { IsIn, IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateMemberRoleDto {
-  @ApiProperty({ description: '새로 부여할 권한 등급 (ADMIN OR MEMBER)' })
+  @ApiProperty({ description: '새로 부여할 권한 등급 (ADMIN, MEMBER, OWNER)' })
   @IsNotEmpty({ message: '변경할 권한 등급은 필수 항목입니다.' })
   @IsString()
-  @IsIn(['ADMIN', 'MEMBER'], {
-    message: 'ADMIN 또는 MEMBER 권한만 변경 가능합니다.',
+  @IsIn(['ADMIN', 'MEMBER', 'OWNER'], {
+    message: 'ADMIN, MEMBER 또는 OWNER 권한만 변경 가능합니다.',
   })
   newRole!: string;
 }
