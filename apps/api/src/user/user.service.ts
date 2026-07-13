@@ -292,8 +292,8 @@ export class UserService {
     ]);
 
     // 5. 인증 링크 생성
-    // TODO: MailerService 생성 및 연동 후 메일 발송 처리 및 테스트
-    const verifiedUrl = `https://example.com/user/email-change/verify?token=${token}`;
+    const baseUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000';
+    const verifiedUrl = `${baseUrl.replace(/\/$/, '')}/user/email/verify?token=${token}`;
     console.log(`[인증 메일 발송 완료] URL: ${verifiedUrl}`);
 
     // 6. 메일 전송

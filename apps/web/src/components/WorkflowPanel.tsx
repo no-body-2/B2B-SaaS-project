@@ -1,14 +1,23 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { ShieldCheck, FileCheck2, Clock, CheckCircle2, XCircle, AlertCircle, Loader2 } from 'lucide-react';
 
 export default function WorkflowPanel() {
-  const { activeWorkspace, approvals, decideApproval, cancelApproval } = useWorkspace();
+  const { activeWorkspace, approvals, decideApproval, cancelApproval, fetchApprovals } = useWorkspace();
   const [selectedApprId, setSelectedApprId] = useState<string | null>(null);
   const [opinion, setOpinion] = useState('');
   const [processing, setProcessing] = useState(false);
+
+  // 검색 및 상태 필터 State
+  const [statusFilter, setStatusFilter] = useState<'PENDING' | 'PUBLISHED' | 'REJECTED' | 'ALL'>('ALL');
+  const [searchKeyword, setSearchKeyword] = useState('');
+
+  // 필터가 변경될 때마다 결재 데이터 리로딩
+  useEffect(() => {
+    fetchApprovals(statusFilter, searchKeyword);
+  }, [statusFilter, searchKeyword, fetchApprovals]);
 
   const isOwner = activeWorkspace?.role === 'OWNER';
   const selectedAppr = approvals.find((a) => a.id === selectedApprId);
@@ -87,6 +96,36 @@ export default function WorkflowPanel() {
           <h3 className="font-bold text-sm text-slate-800 dark:text-slate-100">
             {isOwner ? '수신 결재 대기 문서' : '내 기안 결재 내역'}
           </h3>
+        </div>
+
+        {/* 검색 및 필터 바 */}
+        <div className="p-3 border-b border-luminano-border bg-background/25 flex flex-col gap-2">
+          <input
+            type="text"
+            placeholder="기안 제목 검색..."
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+            className="w-full px-2.5 py-1.5 border border-luminano-border rounded-lg text-xs bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-luminano-accent"
+          />
+          <div className="flex gap-1 text-[10px] font-bold">
+            {(['ALL', 'PENDING', 'PUBLISHED', 'REJECTED'] as const).map((st) => {
+              const active = statusFilter === st;
+              const textMap = { ALL: '전체', PENDING: '대기', PUBLISHED: '승인', REJECTED: '반려' };
+              return (
+                <button
+                  key={st}
+                  onClick={() => setStatusFilter(st)}
+                  className={`flex-1 py-1 rounded text-center transition cursor-pointer border-0 ${
+                    active 
+                      ? 'bg-luminano-accent text-white dark:text-slate-950 font-bold' 
+                      : 'bg-background hover:bg-slate-800/40 text-slate-500'
+                  }`}
+                >
+                  {textMap[st]}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {approvals.length === 0 ? (

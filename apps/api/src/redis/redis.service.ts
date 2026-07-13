@@ -48,6 +48,24 @@ export class RedisService implements OnModuleDestroy {
     await this.redisClient.del(key);
   }
 
+  /**
+   * Redis Key 값 1 증가
+   * @param key - 증가 대상 Key
+   * @returns 증가 후의 값
+   */
+  async incr(key: string): Promise<number> {
+    return this.redisClient.incr(key);
+  }
+
+  /**
+   * Redis Key 만료 시간 설정
+   * @param key - 대상 Key
+   * @param seconds - 만료 시간 (초)
+   */
+  async expire(key: string, seconds: number): Promise<number> {
+    return this.redisClient.expire(key, seconds);
+  }
+
   // Application 종료 시 Redis 커넥션 종료
   onModuleDestroy() {
     this.redisClient.disconnect();

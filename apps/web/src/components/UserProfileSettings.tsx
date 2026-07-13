@@ -3,10 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { apiClient } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { User, Lock, Mail, Settings, Loader2, Sparkles } from 'lucide-react';
 
 export default function UserProfileSettings() {
   const { user } = useAuth();
+  const { setTheme: setThemeContext } = useTheme();
 
   // 1. 프로필 수정 State
   const [firstName, setFirstName] = useState('');
@@ -136,13 +138,8 @@ export default function UserProfileSettings() {
       setPrefMsg('환경 설정 정보가 데이터베이스에 영속화되었습니다.');
 
       // 로컬 테마와도 즉각 연동 처리
-      const root = window.document.documentElement;
-      if (theme === 'dark') {
-        root.classList.add('dark');
-        localStorage.setItem('theme', 'dark');
-      } else {
-        root.classList.remove('dark');
-        localStorage.setItem('theme', 'light');
+      if (theme === 'dark' || theme === 'light') {
+        setThemeContext(theme);
       }
     } catch (err: any) {
       setPrefMsg(err.response?.data?.message || '환경 설정 반영에 실패했습니다.');

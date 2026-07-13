@@ -45,21 +45,33 @@ export class NanoTreeHelper {
   /**
    * getAllDescendants
    * @description
-   * - 트리 구조에서 특정 Nano의 모든 하위 Nano ID를 재귀적으로 수집
+   * - 트리 구조에서 특정 Nano의 모든 하위 Nano ID를 재귀적으로 수집 (선택적으로 삭제된 Nano 포함 가능)
    * @param parentNanoId
    * @param idList
+   * @param includeDeleted
    */
-  async getAllDescendants(parentNanoId: string, idList: string[]) {
+  async getAllDescendants(
+    parentNanoId: string,
+    idList: string[],
+    includeDeleted: boolean = false,
+  ) {
     const children = await this.prisma.nano.findMany({
-      where: { parentNanoId: parentNanoId, deletedAt: null },
+      where: {
+        parentNanoId: parentNanoId,
+        ...(includeDeleted ? {} : { deletedAt: null }),
+      },
       select: { id: true },
     });
 
-    idList.push(parentNanoId);
+    if (!idList.includes(parentNanoId)) {
+      idList.push(parentNanoId);
+    }
 
     for (const child of children) {
-      idList.push(child.id);
-      await this.getAllDescendants(child.id, idList);
+      if (!idList.includes(child.id)) {
+        idList.push(child.id);
+      }
+      await this.getAllDescendants(child.id, idList, includeDeleted);
     }
   }
 }

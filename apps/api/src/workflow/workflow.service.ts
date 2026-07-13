@@ -75,17 +75,17 @@ export class WorkflowService {
       throw new BadRequestException('해당 Nano에 접근할 수 없습니다.');
     }
 
-    // 3. 진행 중인 결재 요청이 있는지 확인
-    const isAlreadyPending = await this.prisma.pendingNano.findFirst({
-      where: { nanoId },
-    });
-
-    if (isAlreadyPending) {
-      throw new BadRequestException('이미 진행 중인 결재 요청이 있습니다.');
-    }
-
-    // 4. 결재 요청 생성 (트랜잭션으로 관리하여 모든 작업이 성공적으로 완료되어야 함)
+    // 3. 결재 요청 생성 (트랜잭션으로 관리하여 모든 작업이 성공적으로 완료되어야 함)
     return this.prisma.$transaction(async (tx) => {
+      // 3-1. 진행 중인 결재 요청이 있는지 확인 (트랜잭션 내부에서 안전하게 체크)
+      const isAlreadyPending = await tx.pendingNano.findFirst({
+        where: { nanoId },
+      });
+
+      if (isAlreadyPending) {
+        throw new BadRequestException('이미 진행 중인 결재 요청이 있습니다.');
+      }
+
       const historyId = `h-${createId()}`;
       const approvalRequestId = `a-${createId()}`;
 
@@ -155,26 +155,27 @@ export class WorkflowService {
 
     await this.workspaceGuard.verifyWorkspaceOwner(userId, workspaceId);
 
-    const approvalRequest = await this.prisma.approvalRequest.findUnique({
-      where: {
-        id: approvalRequestId,
-      },
-      include: { history: true },
-    });
-
-    if (!approvalRequest || approvalRequest.status !== 'PENDING') {
-      throw new NotFoundException('처리 가능한 결재 요청이 아닙니다.');
-    }
-
-    const { nanoId, history } = approvalRequest;
-
-    if (!history) {
-      throw new NotFoundException(
-        '결재 요청에 해당하는 스냅샷 이력을 찾을 수 없습니다.',
-      );
-    }
-
     return this.prisma.$transaction(async (tx) => {
+      // 트랜잭션 내부에서 최신 상태를 직접 조회하고 검증
+      const approvalRequest = await tx.approvalRequest.findUnique({
+        where: {
+          id: approvalRequestId,
+        },
+        include: { history: true },
+      });
+
+      if (!approvalRequest || approvalRequest.status !== 'PENDING') {
+        throw new NotFoundException('처리 가능한 결재 요청이 아닙니다.');
+      }
+
+      const { nanoId, history } = approvalRequest;
+
+      if (!history) {
+        throw new NotFoundException(
+          '결재 요청에 해당하는 스냅샷 이력을 찾을 수 없습니다.',
+        );
+      }
+
       if (status === ApprovalDecideStatus.APPROVE) {
         await tx.nano.update({
           where: {

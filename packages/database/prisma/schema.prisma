@@ -193,6 +193,7 @@ model Nano {
   title        String? @map("title")
   content      Json?   @map("content") // JSON 타입 매핑
   writerId     String? @map("writer_id")
+  position     Float   @default(0.0) @map("position")
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")

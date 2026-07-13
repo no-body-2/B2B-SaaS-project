@@ -24,6 +24,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const IS_MOCK = process.env.NEXT_PUBLIC_API_MOCK !== 'false';
 
   // 유저 정보에 name 필드가 누락되었거나 firstName/lastName이 분리되었을 경우 보정하는 헬퍼
   const formatUser = (rawUser: any): User | null => {
@@ -67,7 +68,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // 토큰 및 세션 정보 저장
       localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
+      if (IS_MOCK && refreshToken) {
+        localStorage.setItem('refreshToken', refreshToken);
+      }
       localStorage.setItem('currentUser', JSON.stringify(userPayload));
       
       setUser(formatUser(userPayload));
@@ -129,7 +132,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
+      if (IS_MOCK && refreshToken) {
+        localStorage.setItem('refreshToken', refreshToken);
+      }
       localStorage.setItem('currentUser', JSON.stringify(userPayload));
       
       setUser(formatUser(userPayload));

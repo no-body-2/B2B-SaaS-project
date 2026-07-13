@@ -10,6 +10,8 @@ import {
   GoneException,
 } from '@nestjs/common';
 
+import { EventEmitter2 } from '@nestjs/event-emitter';
+
 describe('WorkspaceMemberService', () => {
   let service: WorkspaceMemberService;
 
@@ -23,6 +25,10 @@ describe('WorkspaceMemberService', () => {
     sendInvitationMail: jest.fn(),
   };
 
+  const mockEventEmitter = {
+    emit: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -30,6 +36,7 @@ describe('WorkspaceMemberService', () => {
         { provide: PrismaService, useValue: dbMock },
         { provide: WorkspaceGuardService, useValue: mockWorkspaceGuard },
         { provide: MailerService, useValue: mockMailerService },
+        { provide: EventEmitter2, useValue: mockEventEmitter },
       ],
     }).compile();
 

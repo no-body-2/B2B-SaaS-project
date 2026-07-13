@@ -7,6 +7,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 // 실제 NestJS API 통신용 Axios 인스턴스 및 인터셉터 설정
 const realApi = axios.create({
   baseURL: BASE_URL,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -37,23 +38,34 @@ realApi.interceptors.response.use(
     ) {
       originalRequest._retry = true;
       try {
-        const rt = localStorage.getItem('refreshToken');
-        if (!rt) throw new Error('No refresh token');
-
-        // Refresh API 호출
-        const res = await axios.post(
-          `${BASE_URL}/auth/refresh`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${rt}`,
-            },
-          }
-        );
+        let res;
+        if (IS_MOCK) {
+          const rt = localStorage.getItem('refreshToken');
+          if (!rt) throw new Error('No refresh token');
+          res = await axios.post(
+            `${BASE_URL}/auth/refresh`,
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${rt}`,
+              },
+            }
+          );
+        } else {
+          res = await axios.post(
+            `${BASE_URL}/auth/refresh`,
+            {},
+            {
+              withCredentials: true,
+            }
+          );
+        }
 
         const { accessToken, refreshToken } = res.data;
         localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
+        if (IS_MOCK && refreshToken) {
+          localStorage.setItem('refreshToken', refreshToken);
+        }
 
         // 이전 요청 재시도
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
@@ -392,12 +404,12 @@ const mockApi = {
   },
 
   members: {
-    list: async (workspaceId: string) => {
+    list: async (workspaceId: string, params?: any) => {
       const members = getMockStorage('b2b_mock_workspace_members', [] as any[]);
       const users = getMockStorage('b2b_mock_users', [] as any[]);
       const wsMembers = members.filter((m) => m.workspaceId === workspaceId);
       
-      const detailedMembers = wsMembers.map((m) => {
+      let detailedMembers = wsMembers.map((m) => {
         const u = users.find((user) => user.id === m.userId);
         return {
           userId: m.userId,
@@ -405,6 +417,18 @@ const mockApi = {
           user: u ? { name: u.name, email: u.email } : { name: '알 수 없음', email: '' },
         };
       });
+
+      if (params?.role && params.role !== 'ALL') {
+        detailedMembers = detailedMembers.filter((m) => m.role === params.role);
+      }
+      if (params?.keyword) {
+        const kw = params.keyword.toLowerCase();
+        detailedMembers = detailedMembers.filter(
+          (m) =>
+            m.user.name.toLowerCase().includes(kw) ||
+            m.user.email.toLowerCase().includes(kw)
+        );
+      }
       return { data: detailedMembers };
     },
 
@@ -455,6 +479,16 @@ const mockApi = {
     },
     acceptInvite: async (dto: any) => {
       return { data: { message: '모크 초대 수락 성공' } };
+    },
+    listInvitations: async (workspaceId: string) => {
+      const invitations = getMockStorage('b2b_mock_invitations', [] as any[]);
+      return { data: invitations.filter((inv) => inv.workspaceId === workspaceId) };
+    },
+    revokeInvitation: async (workspaceId: string, invitationId: string) => {
+      const invitations = getMockStorage('b2b_mock_invitations', [] as any[]);
+      const filtered = invitations.filter((inv) => inv.id !== invitationId);
+      setMockStorage('b2b_mock_invitations', filtered);
+      return { data: { message: '초대장이 취소되었습니다.' } };
     },
   },
 
@@ -536,6 +570,12 @@ const mockApi = {
     movePosition: async (workspaceId: string, nanoId: string, dto: any) => {
       return { data: { message: '모크 문서 위치 변경 성공' } };
     },
+    restore: async (workspaceId: string, nanoId: string) => {
+      return { data: { message: '모크 문서 복구 성공' } };
+    },
+    listDeleted: async (workspaceId: string) => {
+      return { data: [] };
+    },
   },
 
   workflows: {
@@ -586,15 +626,29 @@ const mockApi = {
       return { data: approvals[idx] };
     },
 
-    listOwner: async (workspaceId: string) => {
+    listOwner: async (workspaceId: string, params?: any) => {
       const approvals = getMockStorage('b2b_mock_approval_requests', [] as any[]);
-      return { data: approvals.filter((a) => a.workspaceId === workspaceId) };
+      let list = approvals.filter((a) => a.workspaceId === workspaceId);
+      if (params?.status && params.status !== 'ALL') {
+        list = list.filter((a) => a.status === params.status);
+      }
+      if (params?.keyword) {
+        list = list.filter((a) => a.title?.toLowerCase().includes(params.keyword.toLowerCase()));
+      }
+      return { data: list };
     },
 
-    listMe: async (workspaceId: string) => {
+    listMe: async (workspaceId: string, params?: any) => {
       const approvals = getMockStorage('b2b_mock_approval_requests', [] as any[]);
       const cu = JSON.parse(localStorage.getItem('currentUser') || '{}');
-      return { data: approvals.filter((a) => a.workspaceId === workspaceId && a.requesterId === cu.userId) };
+      let list = approvals.filter((a) => a.workspaceId === workspaceId && a.requesterId === cu.userId);
+      if (params?.status && params.status !== 'ALL') {
+        list = list.filter((a) => a.status === params.status);
+      }
+      if (params?.keyword) {
+        list = list.filter((a) => a.title?.toLowerCase().includes(params.keyword.toLowerCase()));
+      }
+      return { data: list };
     },
 
     cancel: async (workspaceId: string, approvalRequestId: string) => {
@@ -713,14 +767,7 @@ export const apiClient = IS_MOCK
       auth: {
         register: (dto: any) => realApi.post('/auth/register', dto),
         login: (dto: any) => realApi.post('/auth/login', dto),
-        logout: () => {
-          const rt = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
-          return realApi.post('/auth/logout', {}, {
-            headers: {
-              Authorization: rt ? `Bearer ${rt}` : undefined,
-            },
-          });
-        },
+        logout: () => realApi.post('/auth/logout'),
         googleLogin: (dto: any) => realApi.post('/auth/google', dto),
       },
       user: {
@@ -743,7 +790,7 @@ export const apiClient = IS_MOCK
         restore: (workspaceId: string) => realApi.patch(`/workspace/restore/${workspaceId}`),
       },
       members: {
-        list: (workspaceId: string) => realApi.get(`/workspace/${workspaceId}/members`),
+        list: (workspaceId: string, params?: any) => realApi.get(`/workspace/${workspaceId}/members`, { params }),
         invite: (workspaceId: string, email: string) => realApi.post(`/workspace/${workspaceId}/invite`, { email }),
         updateRole: (workspaceId: string, targetUserId: string, role: string) =>
           realApi.patch(`/workspace/${workspaceId}/members/${targetUserId}/role`, { newRole: role }),
@@ -751,6 +798,9 @@ export const apiClient = IS_MOCK
           realApi.delete(`/workspace/${workspaceId}/members/${targetUserId}`),
         leave: (workspaceId: string) => realApi.delete(`/workspace/${workspaceId}/leave`),
         acceptInvite: (dto: any) => realApi.post('/workspace/invite/accept', dto),
+        listInvitations: (workspaceId: string) => realApi.get(`/workspace/${workspaceId}/invitations`),
+        revokeInvitation: (workspaceId: string, invitationId: string) =>
+          realApi.delete(`/workspace/${workspaceId}/invitations/${invitationId}`),
       },
       nanos: {
         listRoot: (workspaceId: string) => realApi.get(`/workspace/${workspaceId}/nanos/root`),
@@ -763,14 +813,18 @@ export const apiClient = IS_MOCK
         delete: (workspaceId: string, nanoId: string) => realApi.delete(`/workspace/${workspaceId}/nanos/${nanoId}`),
         movePosition: (workspaceId: string, nanoId: string, dto: any) =>
           realApi.patch(`/workspace/${workspaceId}/nanos/${nanoId}/position`, dto),
+        restore: (workspaceId: string, nanoId: string) =>
+          realApi.patch(`/workspace/${workspaceId}/nanos/${nanoId}/restore`),
+        listDeleted: (workspaceId: string) =>
+          realApi.get(`/workspace/${workspaceId}/nanos/deleted`),
       },
       workflows: {
         createApproval: (workspaceId: string, nanoId: string, dto: any) =>
           realApi.post(`/workspace/${workspaceId}/nano/${nanoId}/create-approval`, dto),
         decide: (workspaceId: string, approvalRequestId: string, dto: any) =>
           realApi.patch(`/workspace/${workspaceId}/approvals/${approvalRequestId}/decide`, dto),
-        listOwner: (workspaceId: string) => realApi.get(`/workspace/${workspaceId}/approvals`),
-        listMe: (workspaceId: string) => realApi.get(`/workspace/${workspaceId}/approvals/me`),
+        listOwner: (workspaceId: string, params?: any) => realApi.get(`/workspace/${workspaceId}/approvals`, { params }),
+        listMe: (workspaceId: string, params?: any) => realApi.get(`/workspace/${workspaceId}/approvals/me`, { params }),
         cancel: (workspaceId: string, approvalRequestId: string) =>
           realApi.patch(`/workspace/${workspaceId}/approvals/${approvalRequestId}/cancel`),
       },

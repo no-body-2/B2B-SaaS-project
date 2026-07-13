@@ -5,6 +5,8 @@ import { useWorkspace } from '../context/WorkspaceContext';
 import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../lib/api';
 import { FileText, Save, Trash2, Calendar, User, Eye, Edit3, ShieldAlert, Sparkles, Loader2, Plus, ChevronRight, CornerDownRight } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function NanoEditor() {
   const { user } = useAuth();
@@ -243,8 +245,12 @@ export default function NanoEditor() {
           />
         ) : (
           <>
-            <div className="bg-luminano-point border border-luminano-border rounded-xl p-8 min-h-[350px] text-sm text-foreground whitespace-pre-wrap leading-relaxed shadow-sm">
-              {activeNano.content || (
+            <div className="bg-luminano-point border border-luminano-border rounded-xl p-8 min-h-[350px] text-sm text-foreground leading-relaxed shadow-sm markdown-body">
+              {activeNano.content ? (
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {activeNano.content}
+                </ReactMarkdown>
+              ) : (
                 <span className="text-slate-500 italic">문서 본문이 비어있습니다. 편집을 눌러 내용을 기술하십시오.</span>
               )}
             </div>

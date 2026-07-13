@@ -159,6 +159,30 @@ export class NanoController {
   }
 
   /**
+   * NANO-CORE-009
+   * @description
+   * - 삭제된 Nano 목록 조회
+   * @url GET /workspace/:workspaceId/nanos/deleted
+   */
+  @Get(':workspaceId/nanos/deleted')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '삭제된 Nano 목록 조회',
+    description: '워크스페이스 내에서 삭제(Soft Delete)된 Nanos 문서들의 목록을 조회',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '삭제된 Nano 목록 조회 성공',
+  })
+  async listDeletedNanos(
+    @CurrentUser() reqUser: { userId: string },
+    @Param() param: WorkspaceParamDto,
+  ) {
+    return this.nanoService.listDeletedNanos(reqUser.userId, param);
+  }
+
+  /**
    * NANO-CORE-004
    * @description
    * - Nano 상세 조회
@@ -319,5 +343,45 @@ export class NanoController {
     @Param() param: TargetNanoParamDto,
   ) {
     return this.nanoService.deleteNano(reqUser.userId, param);
+  }
+
+  /**
+   * NANO-CORE-008
+   * @description
+   * - 삭제된 Nano 복구
+   * @url PATCH /workspace/:workspaceId/nanos/:nanoId/restore
+   */
+  @Patch(':workspaceId/nanos/:nanoId/restore')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: 'Nano 복구',
+    description: '삭제된 Nano와 하위 Nano 문서들을 복구',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Nano 복구 성공',
+  })
+  @ApiResponse({
+    status: 400,
+    description: '해당 Nano가 타 워크스페이스 소속이거나, 이미 복구된 상태인 경우',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '유효하지 않은 Access Token',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '복구 요청자가 OWNER 권한이 없거나 해당 Nano의 작성자가 아닌 경우',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '해당 Nano가 존재하지 않는 경우',
+  })
+  async restoreNano(
+    @CurrentUser() reqUser: { userId: string },
+    @Param() param: TargetNanoParamDto,
+  ) {
+    return this.nanoService.restoreNano(reqUser.userId, param);
   }
 }

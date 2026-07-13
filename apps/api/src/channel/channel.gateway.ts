@@ -22,6 +22,7 @@ import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
+import { OnEvent } from '@nestjs/event-emitter';
 
 interface JwtPayload {
   sub: string;
@@ -31,7 +32,18 @@ interface JwtPayload {
 @WebSocketGateway({
   namespace: 'chat',
   cors: {
-    origin: '*', // TODO: 개발 중에만 * 사용, 배포 시 반드시 값을 지정할 것
+    origin: (requestOrigin: string, callback: (err: Error | null, allow?: boolean) => void) => {
+      const allowedOrigins = [
+        process.env.FRONTEND_URL,
+        'http://localhost:3000',
+        'http://127.0.0.1:3000'
+      ].filter(Boolean) as string[];
+      if (!requestOrigin || allowedOrigins.includes(requestOrigin) || allowedOrigins.some(o => requestOrigin.startsWith(o))) {
+        callback(null, true);
+      } else {
+        callback(new Error('CORS 연결 거부'));
+      }
+    },
     methods: ['GET', 'POST'],
     credentials: true,
   },
@@ -206,5 +218,36 @@ export class ChannelGateway
   broadcastDeleteMessage(chatroomId: string, payload: any) {
     this.server.to(chatroomId).emit('deleteMessage', payload);
     this.logger.log(`[WS 송출] DeleteMessage -> ChatRoom: ${chatroomId}`);
+  }
+
+  /**
+   * Disconnect User Sockets
+   * @description
+   * - 특정 사용자가 강퇴(Kick)되었거나 소속이 해제되었을 때, 실시간 커넥션을 강제 종료시킵니다.
+   * @param userId - 강퇴 대상 사용자 ID
+   */
+  disconnectUser(userId: string) {
+    if (!this.server) return;
+    try {
+      const sockets = this.server.sockets.sockets;
+      for (const [id, socket] of sockets.entries()) {
+        if (socket.data?.userId === userId) {
+          socket.disconnect(true);
+          this.logger.log(`[WS 연결 강제 해제] User ID: ${userId} 가 강퇴처리되어 연결이 해제되었습니다.`);
+        }
+      }
+    } catch (err) {
+      this.logger.error('Failed to disconnect user sockets:', err);
+    }
+  }
+
+  /**
+   * Handle User Kicked Event
+   * @description
+   * - 이벤트 이미터를 통해 발행된 'user.kicked' 이벤트를 구독하여 소켓 강제 종료 수행
+   */
+  @OnEvent('user.kicked')
+  handleUserKicked(payload: { userId: string }) {
+    this.disconnectUser(payload.userId);
   }
 }

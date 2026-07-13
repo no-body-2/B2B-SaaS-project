@@ -74,6 +74,7 @@ interface WorkspaceContextType {
   updateMemberRole: (targetUserId: string, role: string) => Promise<void>;
   kickMember: (targetUserId: string) => Promise<void>;
   leaveWorkspace: () => Promise<void>;
+  fetchMembers: (params?: any) => Promise<void>;
 
   fetchNanos: () => Promise<void>;
   selectNano: (nanoId: string) => Promise<void>;
@@ -81,7 +82,7 @@ interface WorkspaceContextType {
   updateNano: (nanoId: string, title: string, content: string) => Promise<any>;
   deleteNano: (nanoId: string) => Promise<void>;
 
-  fetchApprovals: () => Promise<void>;
+  fetchApprovals: (status?: string, keyword?: string) => Promise<void>;
   decideApproval: (approvalRequestId: string, decision: 'APPROVED' | 'REJECTED', opinion?: string) => Promise<void>;
   cancelApproval: (approvalRequestId: string) => Promise<void>;
 
@@ -273,6 +274,19 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
+  const fetchMembers = async (params?: any) => {
+    if (!activeWorkspace) return;
+    try {
+      const memRes = await apiClient.members.list(activeWorkspace.id, params);
+      const memberList = Array.isArray(memRes.data) 
+        ? memRes.data 
+        : (memRes.data?.members || []);
+      setMembers(formatMembers(memberList));
+    } catch (err) {
+      console.error('Failed to fetch workspace members:', err);
+    }
+  };
+
   // 멤버 관리
   const inviteMember = async (email: string) => {
     if (!activeWorkspace) return;
@@ -428,13 +442,17 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   // 결재 (Workflow) 관리
-  const fetchApprovals = async () => {
+  const fetchApprovals = async (status?: string, keyword?: string) => {
     if (!activeWorkspace) return;
     try {
       const isOwner = activeWorkspace.role === 'OWNER';
+      const params: any = {};
+      if (status && status !== 'ALL') params.status = status;
+      if (keyword) params.keyword = keyword;
+
       const res = isOwner 
-        ? await apiClient.workflows.listOwner(activeWorkspace.id)
-        : await apiClient.workflows.listMe(activeWorkspace.id);
+        ? await apiClient.workflows.listOwner(activeWorkspace.id, params)
+        : await apiClient.workflows.listMe(activeWorkspace.id, params);
       const approvalList = Array.isArray(res.data) ? res.data : (res.data?.items || []);
       const formattedApprovals = approvalList.map((ap: any) => ({
         id: ap.approvalRequestId || ap.id,
@@ -578,6 +596,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         updateMemberRole,
         kickMember,
         leaveWorkspace,
+        fetchMembers,
         fetchNanos,
         selectNano,
         createNano,

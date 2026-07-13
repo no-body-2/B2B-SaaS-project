@@ -19,7 +19,9 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  Res,
 } from '@nestjs/common';
+import * as express from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -34,12 +36,25 @@ import {
 import { JwtRefreshGuard } from './guards/jwt-refresh-guard';
 import { Public } from '../common/decorators/public.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { RateLimitGuard } from './guards/rate-limit.guard';
 
 // 기본 주소 '/auth'
 @ApiTags('인증 (Auth)')
 @Controller('auth')
+@UseGuards(RateLimitGuard)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  private setRefreshTokenCookie(res: express.Response, refreshToken: string) {
+    const isProd = process.env.NODE_ENV === 'production';
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: 'lax',
+      path: '/auth',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+  }
 
   /**
    * AUTH-LOCAL-001
@@ -106,12 +121,15 @@ export class AuthController {
   })
   async login(
     @Body() loginDto: LoginDto,
+    @Res({ passthrough: true }) res: express.Response,
     @Ip() ip?: string,
     @Headers('user-agent') userAgent?: string,
   ) {
     // loginDto 검증 조건
 
-    return this.authService.loginUser(loginDto, ip, userAgent);
+    const result = await this.authService.loginUser(loginDto, ip, userAgent);
+    this.setRefreshTokenCookie(res, result.refreshToken);
+    return result;
   }
 
   /**
@@ -148,10 +166,13 @@ export class AuthController {
   })
   async googleLogin(
     @Body() googleLoginDto: GoogleLoginDto,
+    @Res({ passthrough: true }) res: express.Response,
     @Ip() ip?: string,
     @Headers('user-agent') userAgent?: string,
   ) {
-    return this.authService.googleLogin(googleLoginDto, ip, userAgent);
+    const result = await this.authService.googleLogin(googleLoginDto, ip, userAgent);
+    this.setRefreshTokenCookie(res, result.refreshToken);
+    return result;
   }
 
   /**
@@ -194,16 +215,19 @@ export class AuthController {
       jti: string;
       refreshToken: string;
     },
+    @Res({ passthrough: true }) res: express.Response,
     @Ip() ip?: string,
     @Headers('user-agent') userAgent?: string,
   ) {
-    return this.authService.refreshTokens(
+    const result = await this.authService.refreshTokens(
       reqUser.userId,
       reqUser.jti,
       reqUser.refreshToken,
       ip,
       userAgent,
     );
+    this.setRefreshTokenCookie(res, result.refreshToken);
+    return result;
   }
 
   /**
@@ -240,7 +264,9 @@ export class AuthController {
       jti: string;
       refreshToken: string;
     },
+    @Res({ passthrough: true }) res: express.Response,
   ) {
+    res.clearCookie('refreshToken', { path: '/auth' });
     return this.authService.logout(
       reqUser.userId,
       reqUser.jti,

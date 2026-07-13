@@ -29,6 +29,7 @@ import { Prisma } from '@b2b/database';
 import { TargetMemberDto } from './dto/member/target-member.dto';
 import { UpdateMemberRoleDto } from './dto/member/update-role.dto';
 import { MailerService } from '../mailer/mailer.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class WorkspaceMemberService {
@@ -36,6 +37,7 @@ export class WorkspaceMemberService {
     private readonly prisma: PrismaService,
     private readonly workspaceGuard: WorkspaceGuardService,
     private readonly mailerService: MailerService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   /**
@@ -408,6 +410,8 @@ export class WorkspaceMemberService {
       where: { workspaceId_userId: { workspaceId, userId: targetUserId } },
     });
 
+    this.eventEmitter.emit('user.kicked', { userId: targetUserId });
+
     return {
       message: '워크스페이스 멤버 추방 성공',
       workspaceId,
@@ -450,11 +454,68 @@ export class WorkspaceMemberService {
       where: { workspaceId_userId: { workspaceId, userId } },
     });
 
+    this.eventEmitter.emit('user.kicked', { userId });
+
     // 4. 결과 반환
     return {
       message: '워크스페이스 나가기 성공',
       workspaceId,
       leftAt: new Date(),
+    };
+  }
+
+  /**
+   * WORKSPACE-MEMBER-007
+   * 보낸 초대 목록 조회
+   * @description
+   * - 워크스페이스 관리자가 발송한 초대 내역 목록을 조회
+   * @param userId - 요청 사용자의 ID
+   * @param param - 워크스페이스 식별자
+   * @returns - 초대 내역 목록
+   */
+  async listInvitations(userId: string, param: WorkspaceParamDto) {
+    const { workspaceId } = param;
+    
+    // 워크스페이스 멤버 여부 검증
+    await this.workspaceGuard.validateMembership(userId, workspaceId);
+
+    const invitations = await this.prisma.workspaceInvitation.findMany({
+      where: { workspaceId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return invitations;
+  }
+
+  /**
+   * WORKSPACE-MEMBER-008
+   * 보낸 초대 철회 (취소)
+   * @description
+   * - 워크스페이스 소유자(OWNER)가 대기 중인 초대를 철회(삭제) 처리
+   * @param userId - 요청 사용자의 ID
+   * @param workspaceId - 워크스페이스 식별자
+   * @param invitationId - 철회할 초대 ID
+   * @returns - 초대 철회 성공 메시지
+   */
+  async revokeInvitation(userId: string, workspaceId: string, invitationId: string) {
+    // OWNER 권한 보유 확인
+    await this.workspaceGuard.verifyWorkspaceOwner(userId, workspaceId);
+
+    const invitation = await this.prisma.workspaceInvitation.findUnique({
+      where: { id: invitationId },
+    });
+
+    if (!invitation || invitation.workspaceId !== workspaceId) {
+      throw new NotFoundException('해당 초대를 찾을 수 없습니다.');
+    }
+
+    await this.prisma.workspaceInvitation.delete({
+      where: { id: invitationId },
+    });
+
+    return {
+      message: '초대장이 성공적으로 철회되었습니다.',
+      invitationId,
     };
   }
 }

@@ -28,6 +28,9 @@ describe('WorkflowService', () => {
     }).compile();
 
     service = module.get<WorkflowService>(WorkflowService);
+
+    // 트랜잭션 함수 기본 모킹 등록
+    dbMock.$transaction.mockImplementation(async (callback) => callback(dbMock));
   });
 
   describe('createApprovalRequest (결재 요청 생성)', () => {

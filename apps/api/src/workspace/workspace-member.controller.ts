@@ -292,4 +292,61 @@ export class WorkspaceMemberController {
   ) {
     return this.workspaceMemberService.leaveWorkspace(reqUser.userId, param);
   }
+
+  /**
+   * WORKSPACE-MEMBER-007
+   * @description
+   * - 발송된 워크스페이스 초대 목록 조회
+   * @url GET /workspace/:workspaceId/invitations
+   */
+  @Get(':workspaceId/invitations')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '보낸 초대장 목록 조회',
+    description: '워크스페이스 내에 발송된 전체 초대 내역 목록을 리턴',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '초대 목록 조회 성공',
+  })
+  async listInvitations(
+    @CurrentUser() reqUser: { userId: string },
+    @Param() param: WorkspaceParamDto,
+  ) {
+    return this.workspaceMemberService.listInvitations(reqUser.userId, param);
+  }
+
+  /**
+   * WORKSPACE-MEMBER-008
+   * @description
+   * - 보낸 워크스페이스 초대 취소 (철회)
+   * @url DELETE /workspace/:workspaceId/invitations/:invitationId
+   */
+  @Delete(':workspaceId/invitations/:invitationId')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({
+    summary: '보낸 초대장 회수 (취소)',
+    description: '워크스페이스 OWNER 권한으로 대기 중인 초대 내역을 철회 처리',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '초대장 철회 성공',
+  })
+  @ApiResponse({
+    status: 404,
+    description: '초대 내역을 찾을 수 없는 경우',
+  })
+  async revokeInvitation(
+    @CurrentUser() reqUser: { userId: string },
+    @Param('workspaceId') workspaceId: string,
+    @Param('invitationId') invitationId: string,
+  ) {
+    return this.workspaceMemberService.revokeInvitation(
+      reqUser.userId,
+      workspaceId,
+      invitationId,
+    );
+  }
 }

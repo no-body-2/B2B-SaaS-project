@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { useAuth } from '../context/AuthContext';
-import { UserPlus, ShieldAlert, ArrowRightLeft, UserMinus, LogOut, Loader2, Users } from 'lucide-react';
+import { UserPlus, ShieldAlert, ArrowRightLeft, UserMinus, LogOut, Loader2, Users, Mail, Trash2, RotateCcw, FileText, X } from 'lucide-react';
+import { apiClient } from '../lib/api';
 
 export default function WorkspaceSettings() {
   const router = useRouter();
@@ -16,8 +17,20 @@ export default function WorkspaceSettings() {
     updateMemberRole, 
     kickMember, 
     leaveWorkspace,
-    deleteWorkspace
+    deleteWorkspace,
+    fetchMembers
   } = useWorkspace();
+
+  // 멤버 검색 및 필터 State
+  const [memberSearch, setMemberSearch] = useState('');
+  const [memberRoleFilter, setMemberRoleFilter] = useState<'ALL' | 'OWNER' | 'ADMIN' | 'MEMBER'>('ALL');
+
+  useEffect(() => {
+    fetchMembers({
+      keyword: memberSearch,
+      role: memberRoleFilter === 'ALL' ? undefined : memberRoleFilter
+    });
+  }, [memberSearch, memberRoleFilter, fetchMembers]);
 
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviting, setInviting] = useState(false);
@@ -25,6 +38,70 @@ export default function WorkspaceSettings() {
   const [inviteSuccess, setInviteSuccess] = useState('');
   
   const [confirmWsName, setConfirmWsName] = useState('');
+
+  const [invitations, setInvitations] = useState<any[]>([]);
+  const [deletedNanos, setDeletedNanos] = useState<any[]>([]);
+  const [loadingInvitations, setLoadingInvitations] = useState(false);
+  const [loadingDeleted, setLoadingDeleted] = useState(false);
+
+  const loadInvitations = async () => {
+    if (!activeWorkspace) return;
+    setLoadingInvitations(true);
+    try {
+      const res = await apiClient.members.listInvitations(activeWorkspace.id);
+      setInvitations(res.data || []);
+    } catch (err) {
+      console.error('Failed to load invitations:', err);
+    } finally {
+      setLoadingInvitations(false);
+    }
+  };
+
+  const loadDeletedNanos = async () => {
+    if (!activeWorkspace) return;
+    setLoadingDeleted(true);
+    try {
+      const res = await apiClient.nanos.listDeleted(activeWorkspace.id);
+      setDeletedNanos(res.data || []);
+    } catch (err) {
+      console.error('Failed to load deleted nanos:', err);
+    } finally {
+      setLoadingDeleted(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeWorkspace) {
+      loadInvitations();
+      loadDeletedNanos();
+    }
+  }, [activeWorkspace]);
+
+  const handleRevokeInvite = async (invitationId: string, email: string) => {
+    if (!activeWorkspace) return;
+    if (confirm(`${email} 님에게 보낸 초대를 철회하시겠습니까?`)) {
+      try {
+        await apiClient.members.revokeInvitation(activeWorkspace.id, invitationId);
+        alert('초대가 철회되었습니다.');
+        loadInvitations();
+      } catch (err: any) {
+        alert(err.response?.data?.message || '초대 철회에 실패했습니다.');
+      }
+    }
+  };
+
+  const handleRestoreNano = async (nanoId: string, title: string) => {
+    if (!activeWorkspace) return;
+    if (confirm(`'${title}' 문서를 복구하시겠습니까?`)) {
+      try {
+        await apiClient.nanos.restore(activeWorkspace.id, nanoId);
+        alert('문서가 복구되었습니다. 새로고침 후 문서 트리에서 확인해 주세요.');
+        loadDeletedNanos();
+      } catch (err: any) {
+        alert(err.response?.data?.message || '문서 복구에 실패했습니다.');
+      }
+    }
+  };
 
   const isOwner = activeWorkspace?.role === 'OWNER';
 
@@ -43,6 +120,7 @@ export default function WorkspaceSettings() {
       await inviteMember(inviteEmail);
       setInviteSuccess(`${inviteEmail} 님에게 초대장을 성공적으로 발송하여 멤버십을 연동했습니다.`);
       setInviteEmail('');
+      loadInvitations();
     } catch (err: any) {
       setInviteError(err.response?.data?.message || '초대에 실패했습니다. 유효하지 않은 계정이거나 중복 가입입니다.');
     } finally {
@@ -160,6 +238,36 @@ export default function WorkspaceSettings() {
           <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">총 {members.length}명</span>
         </div>
 
+        {/* 멤버 검색 및 필터 컨트롤 바 */}
+        <div className="flex flex-col sm:flex-row gap-3 border-b border-luminano-border pb-4 mb-2">
+          <input
+            type="text"
+            placeholder="이름 또는 이메일 검색..."
+            value={memberSearch}
+            onChange={(e) => setMemberSearch(e.target.value)}
+            className="flex-1 px-3 py-1.5 border border-luminano-border rounded-lg text-xs bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-luminano-accent"
+          />
+          <div className="flex gap-1 text-[10px] font-bold">
+            {(['ALL', 'OWNER', 'ADMIN', 'MEMBER'] as const).map((r) => {
+              const active = memberRoleFilter === r;
+              const textMap = { ALL: '전체', OWNER: '소유자', ADMIN: '관리자', MEMBER: '일반' };
+              return (
+                <button
+                  key={r}
+                  onClick={() => setMemberRoleFilter(r)}
+                  className={`px-3 py-1.5 rounded transition cursor-pointer border-0 ${
+                    active 
+                      ? 'bg-luminano-accent text-white dark:text-slate-950 font-bold' 
+                      : 'bg-background hover:bg-slate-800/40 text-slate-500'
+                  }`}
+                >
+                  {textMap[r]}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <div className="flex flex-col divide-y divide-luminano-border">
           {members.map((m) => {
             const isMe = m.userId === user?.id;
@@ -210,6 +318,88 @@ export default function WorkspaceSettings() {
             );
           })}
         </div>
+      </div>
+
+      {/* 보낸 초대장 관리 섹션 (OWNER 전용) */}
+      {isOwner && (
+        <div className="bg-luminano-point border border-luminano-border rounded-xl p-6 shadow-md flex flex-col gap-4">
+          <div className="flex items-center gap-2 border-b border-luminano-border pb-3">
+            <Mail className="w-5 h-5 text-luminano-accent" />
+            <h3 className="font-bold text-base text-slate-800 dark:text-slate-100">보낸 초대 대기 목록</h3>
+          </div>
+          
+          {loadingInvitations ? (
+            <div className="flex justify-center py-4">
+              <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
+            </div>
+          ) : invitations.length === 0 ? (
+            <p className="text-xs text-slate-500 text-center py-4">현재 대기 중인 초대 내역이 없습니다.</p>
+          ) : (
+            <div className="flex flex-col divide-y divide-luminano-border">
+              {invitations.map((inv) => (
+                <div key={inv.id} className="flex justify-between items-center py-3 first:pt-0 last:pb-0">
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold text-slate-805 dark:text-slate-200">{inv.targetEmail}</span>
+                    <span className="text-[10px] text-slate-500">
+                      만료 시간: {new Date(inv.expiresAt).toLocaleString()} | 상태: {inv.status}
+                    </span>
+                  </div>
+                  {inv.status === 'PENDING' && (
+                    <button
+                      onClick={() => handleRevokeInvite(inv.id, inv.targetEmail)}
+                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-350 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer border-0"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                      초대 취소
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 휴지통 섹션 (삭제된 문서 복구) */}
+      <div className="bg-luminano-point border border-luminano-border rounded-xl p-6 shadow-md flex flex-col gap-4">
+        <div className="flex items-center gap-2 border-b border-luminano-border pb-3">
+          <Trash2 className="w-5 h-5 text-luminano-accent" />
+          <h3 className="font-bold text-base text-slate-800 dark:text-slate-100">휴지통 (삭제된 문서 복구)</h3>
+        </div>
+        <p className="text-xs text-slate-650 dark:text-slate-400">
+          삭제된 문서는 30일 동안 휴지통에 보관되며, 언제든지 하위 계층을 포함하여 전체 복구가 가능합니다.
+        </p>
+
+        {loadingDeleted ? (
+          <div className="flex justify-center py-4">
+            <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
+          </div>
+        ) : deletedNanos.length === 0 ? (
+          <p className="text-xs text-slate-500 text-center py-4">휴지통이 비어 있습니다.</p>
+        ) : (
+          <div className="flex flex-col divide-y divide-luminano-border">
+            {deletedNanos.map((doc) => (
+              <div key={doc.id} className="flex justify-between items-center py-3 first:pt-0 last:pb-0">
+                <div className="flex items-center gap-3">
+                  <FileText className="w-4 h-4 text-slate-400 shrink-0" />
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate max-w-xs">{doc.title}</span>
+                    <span className="text-[10px] text-slate-500">
+                      삭제 시각: {new Date(doc.deletedAt).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleRestoreNano(doc.id, doc.title)}
+                  className="px-3 py-1.5 bg-luminano-accent/10 hover:bg-luminano-accent/20 text-luminano-accent border border-luminano-accent/30 rounded-lg text-xs font-semibold flex items-center gap-1 transition cursor-pointer"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  복구
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* 워크스페이스 탈퇴/경고 섹션 */}

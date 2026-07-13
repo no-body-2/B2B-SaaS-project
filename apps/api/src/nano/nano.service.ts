@@ -75,7 +75,22 @@ export class NanoService {
       }
     }
 
-    // 2. ID 및 객체 생성
+    // 2. 최대 position값 조회하여 그 다음 값으로 설정
+    const lastNano = await this.prisma.nano.findFirst({
+      where: {
+        workspaceId,
+        parentNanoId: parentNanoId ?? null,
+        deletedAt: null,
+      },
+      orderBy: [
+        { position: 'desc' },
+        { createdAt: 'desc' },
+      ],
+      select: { position: true },
+    });
+    const nextPosition = lastNano ? lastNano.position + 1.0 : 0.0;
+
+    // 3. ID 및 객체 생성
     const nanoId = `n-${createId()}`;
     const newNano = await this.prisma.nano.create({
       data: {
@@ -86,6 +101,7 @@ export class NanoService {
         title: title ?? null,
         content: content ? content : undefined,
         writerId: userId,
+        position: nextPosition,
       },
     });
 
@@ -138,7 +154,10 @@ export class NanoService {
         where: whereClause,
         skip: (page - 1) * size,
         take: size,
-        orderBy: { createdAt: 'asc' },
+        orderBy: [
+          { position: 'asc' },
+          { createdAt: 'asc' },
+        ],
         select: {
           id: true,
           type: true,
@@ -219,7 +238,10 @@ export class NanoService {
         where: whereClause,
         skip: (page - 1) * size,
         take: size,
-        orderBy: { createdAt: 'asc' },
+        orderBy: [
+          { position: 'asc' },
+          { createdAt: 'asc' },
+        ],
         select: {
           id: true,
           type: true,
@@ -481,30 +503,56 @@ export class NanoService {
       }
     }
 
-    let targetOrderTime = new Date();
+    let targetPosition = 0.0;
 
     if (prevNanoId) {
+      // 이전 형제 조회
       const prevSibling = await this.prisma.nano.findUnique({
         where: { id: prevNanoId },
-        select: { createdAt: true, workspaceId: true },
+        select: { position: true, workspaceId: true },
       });
 
       if (prevSibling && prevSibling.workspaceId === workspaceId) {
-        targetOrderTime = new Date(prevSibling.createdAt.getTime() + 1);
+        // 이전 형제 다음의 형제 조회 (이동 후 다음 형제)
+        const nextSibling = await this.prisma.nano.findFirst({
+          where: {
+            workspaceId,
+            parentNanoId: targetParentNanoId ?? null,
+            deletedAt: null,
+            position: { gt: prevSibling.position },
+          },
+          orderBy: [
+            { position: 'asc' },
+            { createdAt: 'asc' },
+          ],
+          select: { position: true },
+        });
+
+        if (nextSibling) {
+          targetPosition = (prevSibling.position + nextSibling.position) / 2.0;
+        } else {
+          targetPosition = prevSibling.position + 1.0;
+        }
       }
     } else {
+      // 맨 앞으로 이동하는 경우
       const firstSibling = await this.prisma.nano.findFirst({
         where: {
           workspaceId,
           parentNanoId: targetParentNanoId ?? null,
           deletedAt: null,
         },
-        orderBy: { createdAt: 'asc' },
-        select: { createdAt: true },
+        orderBy: [
+          { position: 'asc' },
+          { createdAt: 'asc' },
+        ],
+        select: { position: true },
       });
 
       if (firstSibling) {
-        targetOrderTime = new Date(firstSibling.createdAt.getTime() - 1000);
+        targetPosition = firstSibling.position - 1.0;
+      } else {
+        targetPosition = 0.0;
       }
     }
 
@@ -512,7 +560,7 @@ export class NanoService {
       where: { id: nanoId },
       data: {
         parentNanoId: targetParentNanoId ?? null,
-        createdAt: targetOrderTime,
+        position: targetPosition,
       },
     });
 
@@ -521,7 +569,7 @@ export class NanoService {
       nanoId: movedNano.id,
       parentNanoId: movedNano.parentNanoId,
       workspaceId: movedNano.workspaceId,
-      orderedCreatedAt: movedNano.createdAt,
+      position: movedNano.position,
       movedAt: new Date(),
     };
   }
@@ -595,5 +643,103 @@ export class NanoService {
         deletedAt: new Date(),
       };
     }
+  }
+
+  /**
+   * NANO-CORE-008
+   * Nano 복구 (Soft Delete 복구)
+   * @description
+   * - 워크스페이스의 OWNER 혹은 Nano의 작성자가 삭제된 Nano 및 그 하위 문서들을 복구
+   * @param userId - 사용자 ID (CUID)
+   * @param param - 대상 Nano 정보가 담긴 객체
+   * @returns 복구 성공 메시지
+   */
+  async restoreNano(userId: string, param: TargetNanoParamDto) {
+    const { workspaceId, nanoId } = param;
+
+    const membership = await this.workspaceGuard.validateMembership(
+      userId,
+      workspaceId,
+    );
+
+    const targetNano = await this.prisma.nano.findUnique({
+      where: { id: nanoId },
+    });
+
+    if (!targetNano) {
+      throw new NotFoundException('존재하지 않는 Nano입니다.');
+    }
+
+    if (targetNano.deletedAt === null) {
+      throw new BadRequestException('이미 복구되었거나 삭제되지 않은 Nano입니다.');
+    }
+
+    if (targetNano.workspaceId !== workspaceId) {
+      throw new BadRequestException('해당 Nano에 접근할 수 없습니다.');
+    }
+
+    if (membership.role !== 'OWNER' && targetNano.writerId !== userId) {
+      throw new ForbiddenException('해당 Nano를 복구할 권한이 없습니다.');
+    }
+
+    // 복구할 모든 하위 후손 ID들을 구합니다 (includeDeleted = true).
+    const allDescendants: string[] = [];
+    await this.nanoTreeHelper.getAllDescendants(nanoId, allDescendants, true);
+
+    const targetsToRestore = [nanoId, ...allDescendants];
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.nano.updateMany({
+        where: {
+          id: {
+            in: targetsToRestore,
+          },
+          workspaceId,
+        },
+        data: {
+          deletedAt: null,
+        },
+      });
+    });
+
+    return {
+      message: 'Nano 복구 성공',
+      restoredRootNanoId: nanoId,
+      totalRestored: targetsToRestore.length,
+    };
+  }
+
+  /**
+   * NANO-CORE-009
+   * 삭제된 Nano 목록 조회
+   * @description
+   * - 워크스페이스 내에서 삭제(Soft Delete)된 Nanos 문서들의 목록을 조회
+   * @param userId - 사용자 ID (CUID)
+   * @param param - 워크스페이스 식별자
+   * @returns 삭제된 Nano 문서 목록
+   */
+  async listDeletedNanos(userId: string, param: WorkspaceParamDto) {
+    const { workspaceId } = param;
+
+    await this.workspaceGuard.validateMembership(userId, workspaceId);
+
+    const deletedNanos = await this.prisma.nano.findMany({
+      where: {
+        workspaceId,
+        deletedAt: { not: null },
+      },
+      orderBy: {
+        deletedAt: 'desc',
+      },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        parentNanoId: true,
+        deletedAt: true,
+      },
+    });
+
+    return deletedNanos;
   }
 }

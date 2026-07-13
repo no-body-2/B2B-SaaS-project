@@ -30,7 +30,16 @@ export class JwtRefreshStrategy extends PassportStrategy(
     }
 
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        (req: Request) => {
+          if (req.headers && req.headers.cookie) {
+            const match = req.headers.cookie.match(/(^|;)\s*refreshToken\s*=\s*([^;]+)/);
+            if (match) return decodeURIComponent(match[2]);
+          }
+          return null;
+        },
+      ]),
       ignoreExpiration: false,
       secretOrKey: secret,
       // validate 메서드에서 Client 측에서 전송한 Plain Text를 참조할 수 있게하는 옵션
@@ -49,10 +58,15 @@ export class JwtRefreshStrategy extends PassportStrategy(
    * @returns 'req.user'에 할당되어 컨트롤러로 전달될 세션 데이터 객체
    */
   validate(req: Request, payload: { sub: string; email: string; jti: string }) {
-    const refreshToken = req
+    let refreshToken = req
       .get('Authorization')
       ?.replace('Bearer ', '')
       .trim();
+
+    if (!refreshToken && req.headers && req.headers.cookie) {
+      const match = req.headers.cookie.match(/(^|;)\s*refreshToken\s*=\s*([^;]+)/);
+      if (match) refreshToken = decodeURIComponent(match[2]);
+    }
 
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh Token이 유효하지 않습니다.');
