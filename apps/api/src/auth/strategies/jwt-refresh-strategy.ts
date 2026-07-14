@@ -34,7 +34,9 @@ export class JwtRefreshStrategy extends PassportStrategy(
         ExtractJwt.fromAuthHeaderAsBearerToken(),
         (req: Request) => {
           if (req.headers && req.headers.cookie) {
-            const match = req.headers.cookie.match(/(^|;)\s*refreshToken\s*=\s*([^;]+)/);
+            const match = req.headers.cookie.match(
+              /(^|;)\s*refreshToken\s*=\s*([^;]+)/,
+            );
             if (match) return decodeURIComponent(match[2]);
           }
           return null;
@@ -58,13 +60,12 @@ export class JwtRefreshStrategy extends PassportStrategy(
    * @returns 'req.user'에 할당되어 컨트롤러로 전달될 세션 데이터 객체
    */
   validate(req: Request, payload: { sub: string; email: string; jti: string }) {
-    let refreshToken = req
-      .get('Authorization')
-      ?.replace('Bearer ', '')
-      .trim();
+    let refreshToken = req.get('Authorization')?.replace('Bearer ', '').trim();
 
     if (!refreshToken && req.headers && req.headers.cookie) {
-      const match = req.headers.cookie.match(/(^|;)\s*refreshToken\s*=\s*([^;]+)/);
+      const match = req.headers.cookie.match(
+        /(^|;)\s*refreshToken\s*=\s*([^;]+)/,
+      );
       if (match) refreshToken = decodeURIComponent(match[2]);
     }
 

@@ -4,7 +4,7 @@
 /**
  * Mailer Event Listener
  * @description
- * - 이메일 관련 이벤 제어
+ * - 이메일 관련 이벤트 제어
  *
  * @author <nobody>
  * @date 2026-06-16
@@ -28,8 +28,8 @@ export class MailerListener {
       port: parseInt(process.env.SMTP_PORT || '587', 10),
       secure: process.env.SMTP_SECURE === 'true',
       auth: {
-        user: process.env.SMTP_USER || 'user@example.com',
-        pass: process.env.SMTP_PASSWORD || 'password',
+        user: process.env.SMTP_USER || '4f3b99021172e2',
+        pass: process.env.SMTP_PASSWORD || '7c141adfc4fc89',
       },
     });
   }
@@ -51,12 +51,22 @@ export class MailerListener {
     try {
       const htmlContent = MailTemplateFactory.createHtml(template, context);
 
+      const fromName = process.env.SMTP_FROM_NAME || 'LumiNano';
+      const fromEmail = process.env.SMTP_FROM_EMAIL || 'no-reply@luminano.com';
+
       const info = (await this.transporter.sendMail({
-        from: 'Nano Platform <noreply@nano.com>',
+        from: `"${fromName}" <${fromEmail}>`,
         to,
         subject,
         html: htmlContent,
       })) as SentMessageInfo;
+
+      // const info = (await this.transporter.sendMail({
+      //   from: 'LumiNano Platform <no-reply@luminano.com>',
+      //   to,
+      //   subject,
+      //   html: htmlContent,
+      // })) as SentMessageInfo;
 
       this.logger.log(
         `[Mail 발송 완료] Message ID: ${info.messageId} | 미리보기: ${nodemailer.getTestMessageUrl(info)}`,

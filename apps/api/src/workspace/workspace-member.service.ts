@@ -475,7 +475,7 @@ export class WorkspaceMemberService {
    */
   async listInvitations(userId: string, param: WorkspaceParamDto) {
     const { workspaceId } = param;
-    
+
     // 워크스페이스 멤버 여부 검증
     await this.workspaceGuard.validateMembership(userId, workspaceId);
 
@@ -497,7 +497,11 @@ export class WorkspaceMemberService {
    * @param invitationId - 철회할 초대 ID
    * @returns - 초대 철회 성공 메시지
    */
-  async revokeInvitation(userId: string, workspaceId: string, invitationId: string) {
+  async revokeInvitation(
+    userId: string,
+    workspaceId: string,
+    invitationId: string,
+  ) {
     // OWNER 권한 보유 확인
     await this.workspaceGuard.verifyWorkspaceOwner(userId, workspaceId);
 

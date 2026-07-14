@@ -82,10 +82,7 @@ export class NanoService {
         parentNanoId: parentNanoId ?? null,
         deletedAt: null,
       },
-      orderBy: [
-        { position: 'desc' },
-        { createdAt: 'desc' },
-      ],
+      orderBy: [{ position: 'desc' }, { createdAt: 'desc' }],
       select: { position: true },
     });
     const nextPosition = lastNano ? lastNano.position + 1.0 : 0.0;
@@ -154,10 +151,7 @@ export class NanoService {
         where: whereClause,
         skip: (page - 1) * size,
         take: size,
-        orderBy: [
-          { position: 'asc' },
-          { createdAt: 'asc' },
-        ],
+        orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
         select: {
           id: true,
           type: true,
@@ -238,10 +232,7 @@ export class NanoService {
         where: whereClause,
         skip: (page - 1) * size,
         take: size,
-        orderBy: [
-          { position: 'asc' },
-          { createdAt: 'asc' },
-        ],
+        orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
         select: {
           id: true,
           type: true,
@@ -521,10 +512,7 @@ export class NanoService {
             deletedAt: null,
             position: { gt: prevSibling.position },
           },
-          orderBy: [
-            { position: 'asc' },
-            { createdAt: 'asc' },
-          ],
+          orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
           select: { position: true },
         });
 
@@ -542,10 +530,7 @@ export class NanoService {
           parentNanoId: targetParentNanoId ?? null,
           deletedAt: null,
         },
-        orderBy: [
-          { position: 'asc' },
-          { createdAt: 'asc' },
-        ],
+        orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
         select: { position: true },
       });
 
@@ -671,7 +656,9 @@ export class NanoService {
     }
 
     if (targetNano.deletedAt === null) {
-      throw new BadRequestException('이미 복구되었거나 삭제되지 않은 Nano입니다.');
+      throw new BadRequestException(
+        '이미 복구되었거나 삭제되지 않은 Nano입니다.',
+      );
     }
 
     if (targetNano.workspaceId !== workspaceId) {

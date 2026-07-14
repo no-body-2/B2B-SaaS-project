@@ -169,7 +169,8 @@ export class NanoController {
   @ApiBearerAuth('accessToken')
   @ApiOperation({
     summary: '삭제된 Nano 목록 조회',
-    description: '워크스페이스 내에서 삭제(Soft Delete)된 Nanos 문서들의 목록을 조회',
+    description:
+      '워크스페이스 내에서 삭제(Soft Delete)된 Nanos 문서들의 목록을 조회',
   })
   @ApiResponse({
     status: 200,
@@ -364,7 +365,8 @@ export class NanoController {
   })
   @ApiResponse({
     status: 400,
-    description: '해당 Nano가 타 워크스페이스 소속이거나, 이미 복구된 상태인 경우',
+    description:
+      '해당 Nano가 타 워크스페이스 소속이거나, 이미 복구된 상태인 경우',
   })
   @ApiResponse({
     status: 401,
@@ -372,7 +374,8 @@ export class NanoController {
   })
   @ApiResponse({
     status: 403,
-    description: '복구 요청자가 OWNER 권한이 없거나 해당 Nano의 작성자가 아닌 경우',
+    description:
+      '복구 요청자가 OWNER 권한이 없거나 해당 Nano의 작성자가 아닌 경우',
   })
   @ApiResponse({
     status: 404,

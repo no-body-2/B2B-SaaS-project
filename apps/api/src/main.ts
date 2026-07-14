@@ -55,7 +55,8 @@ async function bootstrap() {
 
         return new BadRequestException({
           statusCode: 400,
-          message: messages.length > 0 ? messages : '입력 데이터 유효성 검증 실패',
+          message:
+            messages.length > 0 ? messages : '입력 데이터 유효성 검증 실패',
           error: 'Bad Request',
         });
       },

@@ -38,8 +38,13 @@ describe('RateLimitGuard', () => {
     const result = await guard.canActivate(context);
 
     expect(result).toBe(true);
-    expect(redisService.incr).toHaveBeenCalledWith('ratelimit:192.168.1.1:/auth/login');
-    expect(redisService.expire).toHaveBeenCalledWith('ratelimit:192.168.1.1:/auth/login', 60);
+    expect(redisService.incr).toHaveBeenCalledWith(
+      'ratelimit:192.168.1.1:/auth/login',
+    );
+    expect(redisService.expire).toHaveBeenCalledWith(
+      'ratelimit:192.168.1.1:/auth/login',
+      60,
+    );
   });
 
   it('should not call expire if count is greater than 1', async () => {
@@ -49,7 +54,9 @@ describe('RateLimitGuard', () => {
     const result = await guard.canActivate(context);
 
     expect(result).toBe(true);
-    expect(redisService.incr).toHaveBeenCalledWith('ratelimit:192.168.1.1:/auth/login');
+    expect(redisService.incr).toHaveBeenCalledWith(
+      'ratelimit:192.168.1.1:/auth/login',
+    );
     expect(redisService.expire).not.toHaveBeenCalled();
   });
 

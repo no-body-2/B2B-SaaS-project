@@ -32,13 +32,20 @@ interface JwtPayload {
 @WebSocketGateway({
   namespace: 'chat',
   cors: {
-    origin: (requestOrigin: string, callback: (err: Error | null, allow?: boolean) => void) => {
+    origin: (
+      requestOrigin: string,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
       const allowedOrigins = [
         process.env.FRONTEND_URL,
         'http://localhost:3000',
-        'http://127.0.0.1:3000'
+        'http://127.0.0.1:3000',
       ].filter(Boolean) as string[];
-      if (!requestOrigin || allowedOrigins.includes(requestOrigin) || allowedOrigins.some(o => requestOrigin.startsWith(o))) {
+      if (
+        !requestOrigin ||
+        allowedOrigins.includes(requestOrigin) ||
+        allowedOrigins.some((o) => requestOrigin.startsWith(o))
+      ) {
         callback(null, true);
       } else {
         callback(new Error('CORS 연결 거부'));
@@ -230,10 +237,13 @@ export class ChannelGateway
     if (!this.server) return;
     try {
       const sockets = this.server.sockets.sockets;
-      for (const [id, socket] of sockets.entries()) {
-        if (socket.data?.userId === userId) {
+      for (const [, socket] of sockets.entries()) {
+        const socketData = socket.data as Record<string, any> | undefined;
+        if (socketData && socketData.userId === userId) {
           socket.disconnect(true);
-          this.logger.log(`[WS 연결 강제 해제] User ID: ${userId} 가 강퇴처리되어 연결이 해제되었습니다.`);
+          this.logger.log(
+            `[WS 연결 강제 해제] User ID: ${userId} 가 강퇴처리되어 연결이 해제되었습니다.`,
+          );
         }
       }
     } catch (err) {

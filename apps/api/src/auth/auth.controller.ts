@@ -170,7 +170,11 @@ export class AuthController {
     @Ip() ip?: string,
     @Headers('user-agent') userAgent?: string,
   ) {
-    const result = await this.authService.googleLogin(googleLoginDto, ip, userAgent);
+    const result = await this.authService.googleLogin(
+      googleLoginDto,
+      ip,
+      userAgent,
+    );
     this.setRefreshTokenCookie(res, result.refreshToken);
     return result;
   }

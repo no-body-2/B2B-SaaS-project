@@ -24,6 +24,8 @@ describe('App & Auth Flow (e2e)', () => {
     get: jest.fn(),
     set: jest.fn(),
     del: jest.fn(),
+    incr: jest.fn().mockResolvedValue(1),
+    expire: jest.fn().mockResolvedValue(true),
   };
 
   beforeAll(async () => {

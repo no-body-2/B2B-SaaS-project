@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { RedisService } from '../../redis/redis.service';
 
 @Injectable()
@@ -12,8 +13,11 @@ export class RateLimitGuard implements CanActivate {
   constructor(private readonly redisService: RedisService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-    const ip = request.ip || request.headers['x-forwarded-for'] || '127.0.0.1';
+    const request = context.switchToHttp().getRequest<Request>();
+    const ip =
+      request.ip ||
+      (request.headers['x-forwarded-for'] as string) ||
+      '127.0.0.1';
     const path = request.path;
 
     // IP와 경로 기준으로 제한 Key 생성 (예: ratelimit:127.0.0.1:/auth/login)
