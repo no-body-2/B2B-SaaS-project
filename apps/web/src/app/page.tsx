@@ -24,6 +24,36 @@ export default function Home() {
     }
   }, [user, loading, router]);
 
+  // URL에서 Google OAuth 인가 코드(code) 파라미터가 유입되었는지 모니터링 및 처리
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      if (code) {
+        // URL 클린업 (code 정보 노출 방지)
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+        const processGoogleLogin = async () => {
+          setErrorMsg('');
+          setSubmitting(true);
+          try {
+            await googleLogin(code);
+            router.push('/dashboard');
+          } catch (err: any) {
+            console.error(err);
+            const rawMsg = err.response?.data?.message;
+            const parsedMsg = Array.isArray(rawMsg) ? rawMsg.join(', ') : rawMsg;
+            setErrorMsg(parsedMsg || 'Google 로그인 처리 도중 에러가 발생했습니다.');
+          } finally {
+            setSubmitting(false);
+          }
+        };
+        
+        processGoogleLogin();
+      }
+    }
+  }, [googleLogin, router]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
@@ -54,20 +84,33 @@ export default function Home() {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    setErrorMsg('');
-    setSubmitting(true);
-    try {
-      await googleLogin('mock-google-authorization-code-1234');
-      router.push('/dashboard');
-    } catch (err: any) {
-      console.error(err);
-      const rawMsg = err.response?.data?.message;
-      const parsedMsg = Array.isArray(rawMsg) ? rawMsg.join(', ') : rawMsg;
-      setErrorMsg(parsedMsg || 'Google 로그인 처리 도중 에러가 발생했습니다.');
-    } finally {
-      setSubmitting(false);
+  const handleGoogleLogin = () => {
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    const redirectUri = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI || 'http://localhost:3000';
+    
+    // 환경 변수가 설정되지 않았다면 모의(Mock) 모드로 진입 시도
+    if (!clientId) {
+      setErrorMsg('');
+      setSubmitting(true);
+      googleLogin('mock-google-authorization-code-1234')
+        .then(() => {
+          router.push('/dashboard');
+        })
+        .catch((err: any) => {
+          console.error(err);
+          const rawMsg = err.response?.data?.message;
+          const parsedMsg = Array.isArray(rawMsg) ? rawMsg.join(', ') : rawMsg;
+          setErrorMsg(parsedMsg || 'Google 로그인 처리 도중 에러가 발생했습니다.');
+        })
+        .finally(() => {
+          setSubmitting(false);
+        });
+      return;
     }
+
+    // 실제 구글 로그인 창으로 리다이렉트
+    const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=openid%20profile%20email&access_type=offline&prompt=consent`;
+    window.location.href = googleAuthUrl;
   };
 
   if (loading) {

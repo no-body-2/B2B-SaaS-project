@@ -34,6 +34,11 @@
 ### 2026-07-01
 - Mock -> Backend Api 호출 구조로 변경
 
+## Project
+### 2026-07-15
+- Google OAuth2 완전 연동
+- MailTrap SMTP (Sandbox) 적용으로 메일 전송 기능 확인 완료
+
 ---
 
 ## TODO
