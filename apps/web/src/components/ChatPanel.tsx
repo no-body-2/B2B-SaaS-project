@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { useAuth } from '../context/AuthContext';
 import { getSocket } from '../lib/socket';
-import { apiClient } from '../lib/api';
+import { apiClient, getAccessToken } from '../lib/api';
 import { 
   MessageSquare, Send, Search, Trash2, Edit2, Check, X, 
   Hash, Lock, LogOut, ArrowLeft, Loader2, Users, Crown
@@ -89,8 +89,8 @@ export default function ChatPanel() {
     };
     loadHistory();
 
-    // 소켓 초기화 및 연결
-    const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') || '' : '';
+    // 소켓 초기화 및 연결 (인메모리 Access Token 우선 참조, Mock 모드 대비 localStorage 폴백)
+    const token = typeof window !== 'undefined' ? getAccessToken() || localStorage.getItem('accessToken') || '' : '';
     const socket = getSocket(token);
     socketRef.current = socket;
 

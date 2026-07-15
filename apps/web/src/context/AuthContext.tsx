@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { apiClient } from '../lib/api';
+import { apiClient, setAccessToken, getAccessToken } from '../lib/api';
 
 interface User {
   id: string;
@@ -39,21 +39,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   };
 
-  // 초기화 시 로컬 세션 또는 백엔드 세션 확인
+  // 초기화 시 로컬 세션 또는 백엔드 세션 확인 (Silent Refresh)
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const at = localStorage.getItem('accessToken');
-        if (at) {
-          const res = await apiClient.user.getMe();
-          setUser(formatUser(res.data));
+        if (IS_MOCK) {
+          const at = localStorage.getItem('accessToken');
+          if (at) {
+            setAccessToken(at);
+            const res = await apiClient.user.getMe();
+            setUser(formatUser(res.data));
+          }
+        } else {
+          // Real 모드: 쿠키(refreshToken)를 활용한 Silent Refresh 호출 시도
+          const refreshRes = await apiClient.auth.refresh();
+          const { accessToken, user: userPayload } = refreshRes.data;
+          setAccessToken(accessToken);
+          setUser(formatUser(userPayload));
         }
       } catch (err) {
         console.error('Failed to restore auth session:', err);
         // 토큰이 유효하지 않으면 정리
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('currentUser');
+        setAccessToken(null);
+        if (IS_MOCK) {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          localStorage.removeItem('currentUser');
+        }
       } finally {
         setLoading(false);
       }
@@ -67,11 +79,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { user: userPayload, accessToken, refreshToken } = res.data;
       
       // 토큰 및 세션 정보 저장
-      localStorage.setItem('accessToken', accessToken);
-      if (IS_MOCK && refreshToken) {
-        localStorage.setItem('refreshToken', refreshToken);
+      setAccessToken(accessToken);
+      if (IS_MOCK) {
+        localStorage.setItem('accessToken', accessToken);
+        if (refreshToken) {
+          localStorage.setItem('refreshToken', refreshToken);
+        }
+        localStorage.setItem('currentUser', JSON.stringify(userPayload));
       }
-      localStorage.setItem('currentUser', JSON.stringify(userPayload));
       
       setUser(formatUser(userPayload));
     } catch (err) {
@@ -131,11 +146,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         refreshToken = res.data.refreshToken;
       }
       
-      localStorage.setItem('accessToken', accessToken);
-      if (IS_MOCK && refreshToken) {
-        localStorage.setItem('refreshToken', refreshToken);
+      setAccessToken(accessToken);
+      if (IS_MOCK) {
+        localStorage.setItem('accessToken', accessToken);
+        if (refreshToken) {
+          localStorage.setItem('refreshToken', refreshToken);
+        }
+        localStorage.setItem('currentUser', JSON.stringify(userPayload));
       }
-      localStorage.setItem('currentUser', JSON.stringify(userPayload));
       
       setUser(formatUser(userPayload));
     } catch (err) {
@@ -150,9 +168,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (err) {
       console.error('Logout error (continuing client clean):', err);
     } finally {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('currentUser');
+      setAccessToken(null);
+      if (IS_MOCK) {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('currentUser');
+      }
       setUser(null);
     }
   };
@@ -164,9 +185,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Account delete error:', err);
       throw err;
     } finally {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('currentUser');
+      setAccessToken(null);
+      if (IS_MOCK) {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('currentUser');
+      }
       setUser(null);
     }
   };

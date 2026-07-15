@@ -13,10 +13,20 @@ const realApi = axios.create({
   },
 });
 
-// 요청 인터셉터: Access Token 자동 주입
+let inMemoryAccessToken: string | null = null;
+
+export const setAccessToken = (token: string | null) => {
+  inMemoryAccessToken = token;
+};
+
+export const getAccessToken = (): string | null => {
+  return inMemoryAccessToken;
+};
+
+// 요청 인터셉터: Access Token 자동 주입 (인메모리 또는 Mock 모드 시 localStorage 폴백 참조)
 realApi.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
-    const at = localStorage.getItem('accessToken');
+    const at = getAccessToken() || (IS_MOCK ? localStorage.getItem('accessToken') : null);
     if (at && config.headers) {
       config.headers.Authorization = `Bearer ${at}`;
     }
@@ -62,9 +72,12 @@ realApi.interceptors.response.use(
         }
 
         const { accessToken, refreshToken } = res.data;
-        localStorage.setItem('accessToken', accessToken);
-        if (IS_MOCK && refreshToken) {
-          localStorage.setItem('refreshToken', refreshToken);
+        setAccessToken(accessToken);
+        if (IS_MOCK) {
+          localStorage.setItem('accessToken', accessToken);
+          if (refreshToken) {
+            localStorage.setItem('refreshToken', refreshToken);
+          }
         }
 
         // 이전 요청 재시도
@@ -72,8 +85,11 @@ realApi.interceptors.response.use(
         return realApi(originalRequest);
       } catch (refreshError) {
         // 토큰 갱신 실패 시 로그아웃 처리
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
+        setAccessToken(null);
+        if (IS_MOCK) {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+        }
         if (typeof window !== 'undefined') {
           window.location.href = '/?error=session_expired';
         }
@@ -257,6 +273,7 @@ const mockApi = {
       }
       const accessToken = `mock_at_${user.id}_${Date.now()}`;
       const refreshToken = `mock_rt_${user.id}_${Date.now()}`;
+      setAccessToken(accessToken);
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('currentUser', JSON.stringify({ userId: user.id, email: user.email, name: user.name }));
@@ -264,6 +281,7 @@ const mockApi = {
     },
 
     logout: async () => {
+      setAccessToken(null);
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('currentUser');
@@ -272,10 +290,22 @@ const mockApi = {
     googleLogin: async (dto: any) => {
       const accessToken = `mock_at_google_${Date.now()}`;
       const refreshToken = `mock_rt_google_${Date.now()}`;
+      setAccessToken(accessToken);
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('currentUser', JSON.stringify({ userId: 'usr-1', email: 'owner@example.com', name: '김대포 (OWNER)' }));
       return { data: { accessToken, refreshToken, user: { id: 'usr-1', email: 'owner@example.com', name: '김대포 (OWNER)' } } };
+    },
+    refresh: async () => {
+      const rt = localStorage.getItem('refreshToken');
+      if (!rt) throw { response: { status: 401 } };
+      const cu = localStorage.getItem('currentUser');
+      if (!cu) throw { response: { status: 401 } };
+      const user = JSON.parse(cu);
+      const accessToken = `mock_at_${user.userId || user.id}_${Date.now()}`;
+      setAccessToken(accessToken);
+      localStorage.setItem('accessToken', accessToken);
+      return { data: { accessToken, user: { id: user.userId || user.id, email: user.email, name: user.name } } };
     },
   },
 
@@ -769,6 +799,7 @@ export const apiClient = IS_MOCK
         login: (dto: any) => realApi.post('/auth/login', dto),
         logout: () => realApi.post('/auth/logout'),
         googleLogin: (dto: any) => realApi.post('/auth/google', dto),
+        refresh: () => realApi.post('/auth/refresh'),
       },
       user: {
         getMe: () => realApi.get('/user/me'),
