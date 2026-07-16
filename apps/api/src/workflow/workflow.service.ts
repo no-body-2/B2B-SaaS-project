@@ -13,6 +13,7 @@
 
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -110,6 +111,7 @@ export class WorkflowService {
           nanoId,
           historyId: newHistory.id,
           status: 'PENDING',
+          targetVersion: targetNano.version ?? 1,
         },
       });
 
@@ -177,15 +179,32 @@ export class WorkflowService {
       }
 
       if (status === ApprovalDecideStatus.APPROVE) {
+        // [낙관적 락] 최신 문서 버전과 상신 당시 버전 비교 검증
+        const currentNano = await tx.nano.findUnique({
+          where: { id: nanoId },
+        });
+
+        if (!currentNano) {
+          throw new NotFoundException('결재 대상 문서를 찾을 수 없습니다.');
+        }
+
+        if (currentNano.version !== approvalRequest.targetVersion) {
+          throw new ConflictException(
+            '결재 대상 문서가 상신 이후 다른 결재 승인 또는 직접 수정으로 인해 이미 업데이트되었습니다. 새로운 상태에서 다시 결재를 요청해 주세요.',
+          );
+        }
+
         await tx.nano.update({
           where: {
             id: nanoId,
+            version: approvalRequest.targetVersion, // Prisma 조건부 안전 더블체크
           },
           data: {
             title: history.title,
             content: history.content
               ? (history.content as Record<string, any>)
               : undefined,
+            version: { increment: 1 },
           },
         });
 

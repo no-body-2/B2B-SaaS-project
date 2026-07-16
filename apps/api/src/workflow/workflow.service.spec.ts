@@ -5,6 +5,7 @@ import { WorkspaceGuardService } from '../common/guard/workspace-guard.service';
 import { dbMock } from '../prisma/__mocks__/prisma.service';
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   NotFoundException,
 } from '@nestjs/common';
@@ -115,6 +116,7 @@ describe('WorkflowService', () => {
         id: approvalRequestId,
         nanoId: 'n-456',
         status: 'PENDING',
+        targetVersion: 1,
         history: {
           title: '스냅샷 타이틀',
           content: { body: '스냅샷 본문' },
@@ -124,6 +126,10 @@ describe('WorkflowService', () => {
       dbMock.approvalRequest.findUnique.mockResolvedValue(
         mockApprovalRequest as any,
       );
+      dbMock.nano.findUnique.mockResolvedValue({
+        id: 'n-456',
+        version: 1,
+      } as any);
       dbMock.$transaction.mockImplementation(async (callback) =>
         callback(dbMock),
       );
@@ -145,12 +151,13 @@ describe('WorkflowService', () => {
         ownerId,
         workspaceId,
       );
-      // 1. 원본 Nano 업데이트 검증 (히스토리 본문 반영 확인)
+      // 1. 원본 Nano 업데이트 검증 (히스토리 본문 및 버전 증분 확인)
       expect(dbMock.nano.update).toHaveBeenCalledWith({
-        where: { id: mockApprovalRequest.nanoId },
+        where: { id: mockApprovalRequest.nanoId, version: 1 },
         data: {
           title: mockApprovalRequest.history.title,
           content: mockApprovalRequest.history.content,
+          version: { increment: 1 },
         },
       });
       // 2. 승인 상태 변경 및 펜딩 삭제 검증
@@ -159,6 +166,39 @@ describe('WorkflowService', () => {
         data: { status: 'PUBLISHED' },
       });
       expect(result.action).toBe('APPROVE');
+    });
+
+    it('실패 - 결재 대상 문서의 버전이 상신 당시 버전과 불일치할 시 ConflictException이 발생한다', async () => {
+      const mockApprovalRequest = {
+        id: approvalRequestId,
+        nanoId: 'n-456',
+        status: 'PENDING',
+        targetVersion: 1,
+        history: {
+          title: '스냅샷 타이틀',
+          content: { body: '스냅샷 본문' },
+        },
+      };
+
+      dbMock.approvalRequest.findUnique.mockResolvedValue(
+        mockApprovalRequest as any,
+      );
+      dbMock.nano.findUnique.mockResolvedValue({
+        id: 'n-456',
+        version: 2, // version mismatch (1 !== 2)
+      } as any);
+      dbMock.$transaction.mockImplementation(async (callback) =>
+        callback(dbMock),
+      );
+
+      await expect(
+        service.decideApprovalRequest(ownerId, workspaceId, approvalRequestId, {
+          status: ApprovalDecideStatus.APPROVE,
+          comment: '승인시도',
+        }),
+      ).rejects.toThrow(ConflictException);
+
+      expect(dbMock.nano.update).not.toHaveBeenCalled();
     });
 
     it('성공 - 결재를 반려(REJECT)하면, 원본 Nano는 수정하지 않고 REJECTED 처리 후 펜딩 삭제한다', async () => {

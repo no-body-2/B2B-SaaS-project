@@ -200,6 +200,7 @@ model Nano {
   content      Json?   @map("content") // JSON 타입 매핑
   writerId     String? @map("writer_id")
   position     Float   @default(0.0) @map("position")
+  version      Int     @default(1) @map("version")
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
@@ -251,7 +252,8 @@ model ApprovalRequest {
   id        String  @id @default(cuid()) @map("id")
   nanoId    String  @map("nano_id")
   historyId String  @map("history_id")
-  status    String? @map("status")
+  status        String? @map("status")
+  targetVersion Int     @default(1) @map("target_version")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

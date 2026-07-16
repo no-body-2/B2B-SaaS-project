@@ -387,6 +387,7 @@ export class NanoService {
           data: {
             title: title ?? undefined,
             content: content ?? undefined,
+            version: { increment: 1 },
           },
         });
 
@@ -409,6 +410,7 @@ export class NanoService {
           nanoId,
           historyId,
           status: 'PENDING',
+          targetVersion: targetNano.version ?? 1,
         },
       });
 
