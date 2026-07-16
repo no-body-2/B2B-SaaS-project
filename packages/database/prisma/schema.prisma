@@ -91,6 +91,7 @@ model WorkspaceInvitation {
 
   @@unique([workspaceId, targetEmail, status])
   @@index([expiresAt])
+  @@index([inviterId])
   @@map("workspace_invitations")
 }
 
@@ -112,6 +113,7 @@ model WorkspaceMember {
 
   // 복합 Primary Key
   @@id([workspaceId, userId])
+  @@index([userId])
   @@map("workspace_members")
 }
 
@@ -135,6 +137,7 @@ model Chatroom {
   members   ChatroomMember[]
   messages  ChatMessage[]
 
+  @@index([workspaceId])
   @@map("chatrooms")
 }
 
@@ -157,6 +160,7 @@ model ChatroomMember {
 
   // 복합 Primary Key
   @@id([chatroomId, userId])
+  @@index([userId])
   @@map("chatroom_members")
 }
 
@@ -178,6 +182,8 @@ model ChatMessage {
   chatroom Chatroom       @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
   sender   ChatroomMember @relation(fields: [chatroomId, senderId], references: [chatroomId, userId], onDelete: Cascade)
 
+  @@index([chatroomId, createdAt])
+  @@index([senderId])
   @@map("chat_messages")
 }
 
@@ -209,6 +215,9 @@ model Nano {
   histories    NanoHistory[]
   pendingNanos PendingNano[]
 
+  @@index([workspaceId, deletedAt, position])
+  @@index([parentNanoId, deletedAt, position])
+  @@index([writerId])
   @@map("nanos")
 }
 
@@ -231,6 +240,8 @@ model NanoHistory {
   approvalRequest ApprovalRequest[]
   writer          User?             @relation(fields: [writerId], references: [id], onDelete: SetNull)
 
+  @@index([nanoId])
+  @@index([writerId])
   @@map("nano_histories")
 }
 
@@ -249,6 +260,8 @@ model ApprovalRequest {
   history     NanoHistory  @relation(fields: [historyId], references: [id], onDelete: Cascade)
   pendingNano PendingNano?
 
+  @@index([historyId])
+  @@index([nanoId])
   @@map("approval_requests")
 }
 
@@ -264,6 +277,7 @@ model PendingNano {
   approval ApprovalRequest @relation(fields: [approvalId], references: [id], onDelete: Cascade)
   nano     Nano?           @relation(fields: [nanoId], references: [id], onDelete: Cascade)
 
+  @@index([nanoId])
   @@map("pending_nanos")
 }
 
@@ -285,5 +299,6 @@ model RefreshToken {
   // Foreign Key 설정
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
   @@map("refresh_tokens")
 }
