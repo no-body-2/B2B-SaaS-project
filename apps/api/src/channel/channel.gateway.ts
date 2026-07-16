@@ -122,7 +122,9 @@ export class ChannelGateway
       // 4. 로깅
       this.logger.log(
         `[WebSocket 연결 성공] Client ID: ${client.id} 가 실시간 채팅 채널에 연결되었습니다. (인증 방식: ${
-          isCookieAuth ? 'HttpOnly Cookie - Refresh Token' : 'Authorization Header - Access Token'
+          isCookieAuth
+            ? 'HttpOnly Cookie - Refresh Token'
+            : 'Authorization Header - Access Token'
         })`,
       );
     } catch (err) {

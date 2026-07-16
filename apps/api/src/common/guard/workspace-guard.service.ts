@@ -15,11 +15,14 @@ import {
   NotFoundException,
   Scope,
 } from '@nestjs/common';
+import { WorkspaceMember, User } from '@b2b/database';
 import { PrismaService } from '../../prisma/prisma.service';
+
+export type WorkspaceMemberWithUser = WorkspaceMember & { user: User };
 
 @Injectable({ scope: Scope.REQUEST })
 export class WorkspaceGuardService {
-  private cachedMembership: any = null;
+  private cachedMembership: WorkspaceMemberWithUser | null = null;
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -33,7 +36,10 @@ export class WorkspaceGuardService {
    * @throws
    * - {NotFoundException}: 해당 워크스페이스에 소속되지 않은 경우
    */
-  async validateMembership(userId: string, workspaceId: string) {
+  async validateMembership(
+    userId: string,
+    workspaceId: string,
+  ): Promise<WorkspaceMemberWithUser> {
     if (
       this.cachedMembership &&
       this.cachedMembership.userId === userId &&
@@ -71,7 +77,10 @@ export class WorkspaceGuardService {
    * @throws
    * - {ForbiddenException}: 워크스페이스 소유자 권한이 없는 경우
    */
-  async verifyWorkspaceOwner(userId: string, workspaceId: string) {
+  async verifyWorkspaceOwner(
+    userId: string,
+    workspaceId: string,
+  ): Promise<WorkspaceMemberWithUser> {
     const membership = await this.validateMembership(userId, workspaceId);
 
     if (membership.role !== 'OWNER') {
@@ -91,7 +100,10 @@ export class WorkspaceGuardService {
    * @throws
    * - {ForbiddenException}: 워크스페이스 소유자 혹은 관리자 권한이 없는 경우
    */
-  async verifyWorkspaceAdmin(userId: string, workspaceId: string) {
+  async verifyWorkspaceAdmin(
+    userId: string,
+    workspaceId: string,
+  ): Promise<WorkspaceMemberWithUser> {
     const membership = await this.validateMembership(userId, workspaceId);
 
     if (membership.role !== 'OWNER' && membership.role !== 'ADMIN') {

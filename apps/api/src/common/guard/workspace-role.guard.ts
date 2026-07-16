@@ -6,7 +6,11 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { WorkspaceGuardService } from './workspace-guard.service';
+import { Request } from 'express';
+import {
+  WorkspaceGuardService,
+  WorkspaceMemberWithUser,
+} from './workspace-guard.service';
 import { WORKSPACE_ROLES_KEY } from '../decorators/workspace-role.decorator';
 
 @Injectable()
@@ -27,7 +31,18 @@ export class WorkspaceRoleGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<
+      Request<
+        Record<string, string>,
+        any,
+        Record<string, string>,
+        Record<string, string>
+      > & {
+        user?: { userId: string };
+        workspaceMember?: WorkspaceMemberWithUser;
+      }
+    >();
+
     const userId = request.user?.userId;
 
     if (!userId) {
@@ -41,7 +56,9 @@ export class WorkspaceRoleGuard implements CanActivate {
       request.body?.workspaceId;
 
     if (!workspaceId) {
-      throw new BadRequestException('워크스페이스 식별자(workspaceId)가 필요합니다.');
+      throw new BadRequestException(
+        '워크스페이스 식별자(workspaceId)가 필요합니다.',
+      );
     }
 
     // 멤버십 유효성 및 권한 검증
@@ -52,9 +69,11 @@ export class WorkspaceRoleGuard implements CanActivate {
 
     // 요구되는 권한 제한이 존재하는 경우 체크
     if (requiredRoles.length > 0) {
-      const hasRole = requiredRoles.includes(membership.role);
+      const hasRole = requiredRoles.includes(membership.role ?? 'MEMBER');
       if (!hasRole) {
-        throw new ForbiddenException('해당 워크스페이스에 대한 접근 권한이 부족합니다.');
+        throw new ForbiddenException(
+          '해당 워크스페이스에 대한 접근 권한이 부족합니다.',
+        );
       }
     }
 

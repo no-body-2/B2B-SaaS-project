@@ -116,14 +116,12 @@ export class SchedulerService {
         }
 
         // --- 4. Expired/Abandoned Workspace Invitations Cleanup ---
-        const deletedInvitationsResult = await tx.workspaceInvitation.deleteMany({
-          where: {
-            OR: [
-              { expiresAt: { lt: now } },
-              { status: 'EXPIRED' },
-            ],
-          },
-        });
+        const deletedInvitationsResult =
+          await tx.workspaceInvitation.deleteMany({
+            where: {
+              OR: [{ expiresAt: { lt: now } }, { status: 'EXPIRED' }],
+            },
+          });
         if (deletedInvitationsResult.count > 0) {
           this.logger.log(
             `[Daily Cleanup] Permanently deleted ${deletedInvitationsResult.count} expired/abandoned workspace invitations.`,

@@ -274,7 +274,7 @@ export class UserService {
     let isCooldown = null;
     try {
       isCooldown = await this.redisService.get(cooldownKey);
-    } catch (err) {
+    } catch (_err) {
       throw new ServiceUnavailableException(
         '이메일 변경 서비스가 일시적으로 거부되었습니다. 관리자에게 문의하거나 잠시 후 다시 시도해 주세요. (Redis 장애)',
       );
@@ -300,7 +300,7 @@ export class UserService {
         ),
         this.redisService.set(cooldownKey, 'active', 60), // 1분 쿨다운 설정
       ]);
-    } catch (err) {
+    } catch (_err) {
       throw new ServiceUnavailableException(
         '이메일 변경 서비스가 일시적으로 거부되었습니다. 관리자에게 문의하거나 잠시 후 다시 시도해 주세요. (Redis 장애)',
       );
@@ -337,7 +337,7 @@ export class UserService {
     let tokenSession = null;
     try {
       tokenSession = await this.redisService.get(tokenKey);
-    } catch (err) {
+    } catch (_err) {
       throw new ServiceUnavailableException(
         '이메일 인증 서비스가 일시적으로 거부되었습니다. 관리자에게 문의하거나 잠시 후 다시 시도해 주세요. (Redis 장애)',
       );
@@ -375,7 +375,9 @@ export class UserService {
     try {
       await this.redisService.del(tokenKey);
     } catch (err) {
-      console.warn(`[verifyEmailChange Warning] Failed to delete tokenKey from Redis: ${err instanceof Error ? err.message : err}`);
+      console.warn(
+        `[verifyEmailChange Warning] Failed to delete tokenKey from Redis: ${err instanceof Error ? err.message : err}`,
+      );
     }
 
     await this.prisma.refreshToken.deleteMany({

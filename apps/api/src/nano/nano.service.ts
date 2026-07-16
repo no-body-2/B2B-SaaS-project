@@ -606,7 +606,11 @@ export class NanoService {
     if (membership.role === 'OWNER' || targetNano.writerId === userId) {
       const activeDescendants: string[] = [];
       // 활성 상태(deletedAt: null)인 하위 후손들만 조회 (루트인 nanoId 포함)
-      await this.nanoTreeHelper.getAllDescendants(nanoId, activeDescendants, false);
+      await this.nanoTreeHelper.getAllDescendants(
+        nanoId,
+        activeDescendants,
+        false,
+      );
 
       const deleteTime = new Date();
 

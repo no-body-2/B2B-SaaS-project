@@ -1,7 +1,11 @@
 import { WorkspaceRoleGuard } from './workspace-role.guard';
 import { WorkspaceGuardService } from './workspace-guard.service';
 import { Reflector } from '@nestjs/core';
-import { ExecutionContext, ForbiddenException, BadRequestException } from '@nestjs/common';
+import {
+  ExecutionContext,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 
 describe('WorkspaceRoleGuard', () => {
   let guard: WorkspaceRoleGuard;
@@ -55,7 +59,9 @@ describe('WorkspaceRoleGuard', () => {
     reflector.getAllAndOverride.mockReturnValue(['OWNER']);
 
     const context = createMockContext('user-1', {});
-    await expect(guard.canActivate(context)).rejects.toThrow(BadRequestException);
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('should throw ForbiddenException if user does not have required role', async () => {
@@ -67,7 +73,9 @@ describe('WorkspaceRoleGuard', () => {
     } as any);
 
     const context = createMockContext('user-1', { workspaceId: 'ws-1' });
-    await expect(guard.canActivate(context)).rejects.toThrow(ForbiddenException);
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      ForbiddenException,
+    );
   });
 
   it('should pass and attach member details if user has correct role', async () => {
@@ -77,7 +85,9 @@ describe('WorkspaceRoleGuard', () => {
       workspaceId: 'ws-1',
       role: 'ADMIN',
     };
-    workspaceGuardService.validateMembership.mockResolvedValue(mockMembership as any);
+    workspaceGuardService.validateMembership.mockResolvedValue(
+      mockMembership as any,
+    );
 
     const context = createMockContext('user-1', { workspaceId: 'ws-1' });
     const result = await guard.canActivate(context);
