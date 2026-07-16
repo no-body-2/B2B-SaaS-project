@@ -604,30 +604,43 @@ export class NanoService {
     }
 
     if (membership.role === 'OWNER' || targetNano.writerId === userId) {
-      const allDescendants: string[] = [];
-      await this.nanoTreeHelper.getAllDescendants(nanoId, allDescendants);
+      const activeDescendants: string[] = [];
+      // 활성 상태(deletedAt: null)인 하위 후손들만 조회 (루트인 nanoId 포함)
+      await this.nanoTreeHelper.getAllDescendants(nanoId, activeDescendants, false);
 
-      const targetsToDelete = [nanoId, ...allDescendants];
+      const deleteTime = new Date();
 
       await this.prisma.$transaction(async (tx) => {
-        await tx.nano.updateMany({
-          where: {
-            id: {
-              in: targetsToDelete,
-            },
-            workspaceId,
-          },
+        // 1. 루트 Nano 단독 업데이트 (parentDeletedAt = null)
+        await tx.nano.update({
+          where: { id: nanoId, workspaceId },
           data: {
-            deletedAt: new Date(),
+            deletedAt: deleteTime,
+            parentDeletedAt: null,
           },
         });
+
+        // 2. 나머지 활성 자식 후손들 업데이트 (parentDeletedAt = deleteTime)
+        const childTargets = activeDescendants.filter((id) => id !== nanoId);
+        if (childTargets.length > 0) {
+          await tx.nano.updateMany({
+            where: {
+              id: { in: childTargets },
+              workspaceId,
+            },
+            data: {
+              deletedAt: deleteTime,
+              parentDeletedAt: deleteTime,
+            },
+          });
+        }
       });
 
       return {
         message: 'Nano 삭제 성공 (30일 후 영구 삭제)',
         deletedRootNanoId: nanoId,
-        totalDeleted: targetsToDelete.length,
-        deletedAt: new Date(),
+        totalDeleted: activeDescendants.length,
+        deletedAt: deleteTime,
       };
     }
   }
@@ -675,26 +688,38 @@ export class NanoService {
     const allDescendants: string[] = [];
     await this.nanoTreeHelper.getAllDescendants(nanoId, allDescendants, true);
 
-    const targetsToRestore = [nanoId, ...allDescendants];
+    const childTargets = allDescendants.filter((id) => id !== nanoId);
 
     await this.prisma.$transaction(async (tx) => {
-      await tx.nano.updateMany({
-        where: {
-          id: {
-            in: targetsToRestore,
-          },
-          workspaceId,
-        },
+      // 1. 루트 Nano 복구 (parentDeletedAt 및 deletedAt 초기화)
+      await tx.nano.update({
+        where: { id: nanoId, workspaceId },
         data: {
           deletedAt: null,
+          parentDeletedAt: null,
         },
       });
+
+      // 2. 부모 연동으로 함께 삭제되었던 자식 Nano만 선택적 일괄 복구 (parentDeletedAt과 targetNano.deletedAt이 일치하는 레코드만)
+      if (childTargets.length > 0) {
+        await tx.nano.updateMany({
+          where: {
+            id: { in: childTargets },
+            workspaceId,
+            parentDeletedAt: targetNano.deletedAt,
+          },
+          data: {
+            deletedAt: null,
+            parentDeletedAt: null,
+          },
+        });
+      }
     });
 
     return {
       message: 'Nano 복구 성공',
       restoredRootNanoId: nanoId,
-      totalRestored: targetsToRestore.length,
+      totalRestored: allDescendants.length,
     };
   }
 
