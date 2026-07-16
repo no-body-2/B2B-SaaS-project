@@ -21,6 +21,7 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -37,9 +38,13 @@ import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UpdateLastReadDto } from './dto/update-last-read.dto';
 import { SearchChatMessageDto } from './dto/search-chat-message.dto';
+import { WorkspaceRole } from '../common/decorators/workspace-role.decorator';
+import { WorkspaceRoleGuard } from '../common/guard/workspace-role.guard';
 
 @ApiTags('ChatRoom (워크스페이스 내부의 채팅방)')
 @Controller('workspace')
+@WorkspaceRole()
+@UseGuards(WorkspaceRoleGuard)
 export class ChannelController {
   constructor(private readonly channelService: ChannelService) {}
 
@@ -50,6 +55,7 @@ export class ChannelController {
    * @url POST /:workspaceId/chatrooms
    */
   @Post(':workspaceId/chatrooms')
+  @WorkspaceRole('OWNER', 'ADMIN')
   @HttpCode(HttpStatus.CREATED)
   @ApiBearerAuth('accessToken')
   @ApiOperation({

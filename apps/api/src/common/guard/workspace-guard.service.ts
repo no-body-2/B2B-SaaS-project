@@ -13,11 +13,14 @@ import {
   Injectable,
   ForbiddenException,
   NotFoundException,
+  Scope,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class WorkspaceGuardService {
+  private cachedMembership: any = null;
+
   constructor(private readonly prisma: PrismaService) {}
 
   /**
@@ -31,6 +34,14 @@ export class WorkspaceGuardService {
    * - {NotFoundException}: 해당 워크스페이스에 소속되지 않은 경우
    */
   async validateMembership(userId: string, workspaceId: string) {
+    if (
+      this.cachedMembership &&
+      this.cachedMembership.userId === userId &&
+      this.cachedMembership.workspaceId === workspaceId
+    ) {
+      return this.cachedMembership;
+    }
+
     const membership = await this.prisma.workspaceMember.findUnique({
       where: {
         workspaceId_userId: { workspaceId, userId },
@@ -46,6 +57,7 @@ export class WorkspaceGuardService {
       );
     }
 
+    this.cachedMembership = membership;
     return membership;
   }
 

@@ -20,6 +20,7 @@ import {
   HttpCode,
   HttpStatus,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -33,9 +34,13 @@ import { CreateApprovalRequestDto } from './dto/create-approval-request.dto';
 import { DecideApprovalRequestDto } from './dto/decide-approval-request.dto';
 import { GetApprovalRequestListDto } from './dto/get-approval-request-list.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { WorkspaceRole } from '../common/decorators/workspace-role.decorator';
+import { WorkspaceRoleGuard } from '../common/guard/workspace-role.guard';
 
 @ApiTags('Nano-Workflow')
 @Controller('workspace')
+@WorkspaceRole()
+@UseGuards(WorkspaceRoleGuard)
 export class WorkflowController {
   constructor(private readonly workflowService: WorkflowService) {}
 
@@ -91,6 +96,7 @@ export class WorkflowController {
    * @url POST /workspace/approvals/:approvalRequestId/decide
    */
   @Patch(':workspaceId/approvals/:approvalRequestId/decide')
+  @WorkspaceRole('OWNER')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth('accessToken')
   @ApiOperation({
@@ -139,6 +145,7 @@ export class WorkflowController {
    * @url GET :/workspaceId/approvals
    */
   @Get(':workspaceId/approvals')
+  @WorkspaceRole('OWNER')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth('accessToken')
   @ApiOperation({

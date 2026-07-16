@@ -21,6 +21,7 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { WorkspaceMemberService } from './workspace-member.service';
 import { WorkspaceParamDto } from '../common/dto/workspace-param.dto';
@@ -30,6 +31,8 @@ import { WorkspaceMemberQueryDto } from './dto/member/workspace-member-query.dto
 import { TargetMemberDto } from './dto/member/target-member.dto';
 import { UpdateMemberRoleDto } from './dto/member/update-role.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { WorkspaceRole } from '../common/decorators/workspace-role.decorator';
+import { WorkspaceRoleGuard } from '../common/guard/workspace-role.guard';
 import {
   ApiTags,
   ApiOperation,
@@ -51,6 +54,8 @@ export class WorkspaceMemberController {
    * @url POST /workspace/:workspaceId/invite
    */
   @Post(':workspaceId/invite')
+  @WorkspaceRole('OWNER', 'ADMIN')
+  @UseGuards(WorkspaceRoleGuard)
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth('accessToken')
   @ApiOperation({
@@ -132,6 +137,8 @@ export class WorkspaceMemberController {
    * @url GET workspace/:workspaceId/members
    */
   @Get(':workspaceId/members')
+  @WorkspaceRole()
+  @UseGuards(WorkspaceRoleGuard)
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth('accessToken')
   @ApiOperation({
@@ -175,6 +182,8 @@ export class WorkspaceMemberController {
    * @url PATCH workspace/:workspaceId/members/:targetUserId/role
    */
   @Patch(':workspaceId/members/:targetUserId/role')
+  @WorkspaceRole('OWNER')
+  @UseGuards(WorkspaceRoleGuard)
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth('accessToken')
   @ApiOperation({
@@ -222,6 +231,8 @@ export class WorkspaceMemberController {
    * @url DELETE workspace/:workspaceId/members/:targetUserId
    */
   @Delete(':workspaceId/members/:targetUserId')
+  @WorkspaceRole('OWNER')
+  @UseGuards(WorkspaceRoleGuard)
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth('accessToken')
   @ApiOperation({
@@ -263,6 +274,8 @@ export class WorkspaceMemberController {
    * @url DELETE workspace/:workspaceId/leave
    */
   @Delete(':workspaceId/leave')
+  @WorkspaceRole()
+  @UseGuards(WorkspaceRoleGuard)
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth('accessToken')
   @ApiOperation({
@@ -300,6 +313,8 @@ export class WorkspaceMemberController {
    * @url GET /workspace/:workspaceId/invitations
    */
   @Get(':workspaceId/invitations')
+  @WorkspaceRole()
+  @UseGuards(WorkspaceRoleGuard)
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth('accessToken')
   @ApiOperation({
@@ -324,6 +339,8 @@ export class WorkspaceMemberController {
    * @url DELETE /workspace/:workspaceId/invitations/:invitationId
    */
   @Delete(':workspaceId/invitations/:invitationId')
+  @WorkspaceRole('OWNER')
+  @UseGuards(WorkspaceRoleGuard)
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth('accessToken')
   @ApiOperation({

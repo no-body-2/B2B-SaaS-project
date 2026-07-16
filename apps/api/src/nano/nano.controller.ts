@@ -21,6 +21,7 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -37,9 +38,13 @@ import { NanoChildParamDto } from './dto/child-nano-param.dto';
 import { TargetNanoParamDto } from '../common/dto/target-nano-param.dto';
 import { UpdateNanoDto } from './dto/update-nano.dto';
 import { MoveNanoDto } from './dto/move-nano.dto';
+import { WorkspaceRole } from '../common/decorators/workspace-role.decorator';
+import { WorkspaceRoleGuard } from '../common/guard/workspace-role.guard';
 
 @ApiTags('Nano')
 @Controller('workspace')
+@WorkspaceRole()
+@UseGuards(WorkspaceRoleGuard)
 export class NanoController {
   constructor(private readonly nanoService: NanoService) {}
 
