@@ -114,6 +114,21 @@ export class SchedulerService {
             `[Daily Cleanup] Cleaned up ${deletedTokensResult.count} expired refresh tokens.`,
           );
         }
+
+        // --- 4. Expired/Abandoned Workspace Invitations Cleanup ---
+        const deletedInvitationsResult = await tx.workspaceInvitation.deleteMany({
+          where: {
+            OR: [
+              { expiresAt: { lt: now } },
+              { status: 'EXPIRED' },
+            ],
+          },
+        });
+        if (deletedInvitationsResult.count > 0) {
+          this.logger.log(
+            `[Daily Cleanup] Permanently deleted ${deletedInvitationsResult.count} expired/abandoned workspace invitations.`,
+          );
+        }
       });
 
       this.logger.log(
