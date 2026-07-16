@@ -121,5 +121,6 @@ export const getSocket = (token?: string) => {
     },
     transports: ['websocket'],
     autoConnect: false,
+    withCredentials: true, // 브라우저가 HttpOnly 쿠키(refreshToken)를 함께 실어서 보낼 수 있게 허용
   });
 };

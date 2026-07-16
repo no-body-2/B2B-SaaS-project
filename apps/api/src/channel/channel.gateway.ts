@@ -75,38 +75,60 @@ export class ChannelGateway
    */
   async handleConnection(client: Socket) {
     try {
-      const authHeader = (client.handshake.auth?.token ||
-        client.handshake.headers?.authorization) as string | undefined;
+      let token: string | null = null;
+      let isCookieAuth = false;
 
-      if (!authHeader) {
+      // 1-1. 핸드셰이크 헤더의 쿠키에서 refreshToken 추출 시도
+      if (client.handshake.headers?.cookie) {
+        const match = client.handshake.headers.cookie.match(
+          /(^|;)\s*refreshToken\s*=\s*([^;]+)/,
+        );
+        if (match) {
+          token = decodeURIComponent(match[2]);
+          isCookieAuth = true;
+        }
+      }
+
+      // 1-2. 쿠키에 없거나 매칭 실패한 경우, auth 또는 headers의 Bearer 토큰(accessToken) 추출 시도
+      if (!token) {
+        const authHeader = (client.handshake.auth?.token ||
+          client.handshake.headers?.authorization) as string | undefined;
+        if (authHeader) {
+          token = authHeader.replace('Bearer ', '');
+        }
+      }
+
+      if (!token) {
         this.logger.warn(
-          `[WebSocket 연결 거부] Client ID: ${client.id} - 인증 토큰이 누락되었습니다.`,
+          `[WebSocket 연결 거부] Client ID: ${client.id} - 인증 정보가 누락되었습니다.`,
         );
         client.disconnect(true);
         return;
       }
 
-      // 2. Bearer 접두사 제거
-      const token = authHeader.replace('Bearer ', '');
-
-      // 3. 토큰 검증 및 복호화
+      // 2. 토큰 검증 및 복호화
+      // 쿠키 인증(refreshToken)인 경우 JWT_REFRESH_SECRET로, 헤더 인증(accessToken)인 경우 JWT_ACCESS_SECRET로 검증합니다.
       const payload = (await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_ACCESS_SECRET,
+        secret: isCookieAuth
+          ? process.env.JWT_REFRESH_SECRET
+          : process.env.JWT_ACCESS_SECRET,
       })) as unknown as JwtPayload;
 
-      // 4. 소켓 세션에 사용자 식별자 바인딩
+      // 3. 소켓 세션에 사용자 식별자 바인딩
       const socketData = client.data as { userId?: string; email?: string };
       socketData.userId = payload.sub;
       socketData.email = payload.email;
 
-      // 5. 로깅
+      // 4. 로깅
       this.logger.log(
-        `[WebSocket 연결 성공] Client ID: ${client.id} 가 실시간 채팅 채널에 연결되었습니다.`,
+        `[WebSocket 연결 성공] Client ID: ${client.id} 가 실시간 채팅 채널에 연결되었습니다. (인증 방식: ${
+          isCookieAuth ? 'HttpOnly Cookie - Refresh Token' : 'Authorization Header - Access Token'
+        })`,
       );
     } catch (err) {
       this.logger.warn(
         `[WebSocket 인증 실패] Client ID: ${client.id} 연결 차단 | 차단 사유: ${
-          err instanceof Error ? err.message : '유효하지 않은 Access Token'
+          err instanceof Error ? err.message : '유효하지 않은 토큰'
         }`,
       );
       client.disconnect(true);
