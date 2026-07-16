@@ -19,6 +19,7 @@ import {
   UnauthorizedException,
   HttpException,
   HttpStatus,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import { createId } from '@paralleldrive/cuid2';
@@ -270,7 +271,15 @@ export class UserService {
 
     // 3. 429 (Too Many Requests) 에러 방어
     const cooldownKey = `email-change:cooldown:${userId}`;
-    const isCooldown = await this.redisService.get(cooldownKey);
+    let isCooldown = null;
+    try {
+      isCooldown = await this.redisService.get(cooldownKey);
+    } catch (err) {
+      throw new ServiceUnavailableException(
+        '이메일 변경 서비스가 일시적으로 거부되었습니다. 관리자에게 문의하거나 잠시 후 다시 시도해 주세요. (Redis 장애)',
+      );
+    }
+
     if (isCooldown) {
       throw new HttpException(
         '이메일 변경 요청은 1분에 한 번만 가능합니다. 잠시 후 다시 시도해주세요.',
@@ -282,14 +291,20 @@ export class UserService {
     const token = createId(); // cuid2의 기능 사용
     const tokenKey = `email-change:token:${token}`;
 
-    await Promise.all([
-      this.redisService.set(
-        tokenKey,
-        JSON.stringify({ userId, newEmail: dto.newEmail }),
-        1800,
-      ),
-      this.redisService.set(cooldownKey, 'active', 60), // 1분 쿨다운 설정
-    ]);
+    try {
+      await Promise.all([
+        this.redisService.set(
+          tokenKey,
+          JSON.stringify({ userId, newEmail: dto.newEmail }),
+          1800,
+        ),
+        this.redisService.set(cooldownKey, 'active', 60), // 1분 쿨다운 설정
+      ]);
+    } catch (err) {
+      throw new ServiceUnavailableException(
+        '이메일 변경 서비스가 일시적으로 거부되었습니다. 관리자에게 문의하거나 잠시 후 다시 시도해 주세요. (Redis 장애)',
+      );
+    }
 
     // 5. 인증 링크 생성
     const baseUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000';
@@ -319,7 +334,15 @@ export class UserService {
     const tokenKey = `email-change:token:${dto.token}`;
 
     // 1. Redis에서 Token Session 정보 추출
-    const tokenSession = await this.redisService.get(tokenKey);
+    let tokenSession = null;
+    try {
+      tokenSession = await this.redisService.get(tokenKey);
+    } catch (err) {
+      throw new ServiceUnavailableException(
+        '이메일 인증 서비스가 일시적으로 거부되었습니다. 관리자에게 문의하거나 잠시 후 다시 시도해 주세요. (Redis 장애)',
+      );
+    }
+
     if (!tokenSession) {
       throw new BadRequestException(
         '인증 토큰이 유효하지 않거나 만료되었습니다.',
@@ -349,7 +372,11 @@ export class UserService {
     });
 
     // 4. 보안을 위해 Redis에서 Token 즉시 삭제 및 모든 세션 로그아웃
-    await this.redisService.del(tokenKey);
+    try {
+      await this.redisService.del(tokenKey);
+    } catch (err) {
+      console.warn(`[verifyEmailChange Warning] Failed to delete tokenKey from Redis: ${err instanceof Error ? err.message : err}`);
+    }
 
     await this.prisma.refreshToken.deleteMany({
       where: { userId },

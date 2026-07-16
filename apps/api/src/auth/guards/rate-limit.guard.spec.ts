@@ -72,4 +72,13 @@ describe('RateLimitGuard', () => {
       ),
     );
   });
+
+  it('should allow requests (Fail-Open) if Redis throws an error', async () => {
+    redisService.incr.mockRejectedValue(new Error('Redis connection lost'));
+
+    const context = createMockContext('192.168.1.1', '/auth/login');
+    const result = await guard.canActivate(context);
+
+    expect(result).toBe(true);
+  });
 });

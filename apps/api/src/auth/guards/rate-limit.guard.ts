@@ -23,12 +23,23 @@ export class RateLimitGuard implements CanActivate {
     // IP와 경로 기준으로 제한 Key 생성 (예: ratelimit:127.0.0.1:/auth/login)
     const key = `ratelimit:${ip}:${path}`;
 
-    // Redis INCR 수행하여 요청 횟수 증가
-    const currentCount = await this.redisService.incr(key);
+    let currentCount = 0;
+    try {
+      // Redis INCR 수행하여 요청 횟수 증가
+      currentCount = await this.redisService.incr(key);
 
-    // 처음 요청 시 TTL 60초 설정
-    if (currentCount === 1) {
-      await this.redisService.expire(key, 60);
+      // 처음 요청 시 TTL 60초 설정
+      if (currentCount === 1) {
+        await this.redisService.expire(key, 60);
+      }
+    } catch (err) {
+      // Fail-Open: Redis 장애 발생 시 가드 통과시킴
+      console.warn(
+        `[RateLimitGuard Warning] Redis connection failed, skipping limit check. Error: ${
+          err instanceof Error ? err.message : err
+        }`,
+      );
+      return true;
     }
 
     // 분당 최대 15회 요청으로 제한
