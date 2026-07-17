@@ -23,7 +23,7 @@ type Tab = 'doc' | 'approval' | 'chat' | 'settings' | 'profile';
 export default function WorkspaceDetailView() {
   const params = useParams();
   const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, logout } = useAuth();
   const { 
     activeWorkspace, 
     nanos, 
@@ -42,6 +42,7 @@ export default function WorkspaceDetailView() {
   const [currentTab, setCurrentTab] = useState<Tab>('doc');
   const [newDocTitle, setNewDocTitle] = useState('');
   const [isCreatingDoc, setIsCreatingDoc] = useState(false);
+  const [isSettingsDropdownOpen, setIsSettingsDropdownOpen] = useState(false);
 
   const [newChannelName, setNewChannelName] = useState('');
   const [isPrivateChannel, setIsPrivateChannel] = useState(false);
@@ -165,24 +166,83 @@ export default function WorkspaceDetailView() {
       <aside className="w-64 flex flex-col border-r border-luminano-border bg-luminano-point overflow-y-auto h-full max-h-screen">
         
         {/* 상단 로고 및 정보 */}
-        <div className="p-4 border-b border-luminano-border flex items-center gap-2">
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="p-1 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-800/40 rounded-md transition cursor-pointer bg-transparent border-0"
-            title="대시보드로 돌아가기"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <div className="w-7 h-7 rounded-md flex items-center justify-center overflow-hidden shrink-0">
-            <LumiNanoIcon size={28} />
+        <div className="p-4 border-b border-luminano-border flex items-center justify-between gap-2 relative">
+          <div className="flex items-center gap-2 min-w-0">
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="p-1 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-800/40 rounded-md transition cursor-pointer bg-transparent border-0"
+              title="대시보드로 돌아가기"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <div className="w-7 h-7 rounded-md flex items-center justify-center overflow-hidden shrink-0">
+              <LumiNanoIcon size={28} />
+            </div>
+            <div className="flex flex-col min-w-0">
+              <span className="font-bold text-sm tracking-tight text-slate-800 dark:text-slate-150 truncate">
+                {activeWorkspace.name}
+              </span>
+              <span className="text-[10px] text-slate-500 dark:text-slate-450 truncate">
+                {user?.name} ({activeWorkspace.role})
+              </span>
+            </div>
           </div>
-          <div className="flex flex-col min-w-0">
-            <span className="font-bold text-sm tracking-tight text-slate-800 dark:text-slate-150 truncate">
-              {activeWorkspace.name}
-            </span>
-            <span className="text-[10px] text-slate-500 dark:text-slate-450 truncate">
-              {user?.name} ({activeWorkspace.role})
-            </span>
+
+          <div className="relative shrink-0">
+            <button
+              onClick={() => setIsSettingsDropdownOpen(!isSettingsDropdownOpen)}
+              className="p-1 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-850 rounded-md transition cursor-pointer bg-transparent border-0"
+              title="설정 메뉴"
+            >
+              <Settings className="w-4 h-4 animate-hover-spin" />
+            </button>
+
+            {isSettingsDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-lg z-50 py-1 text-xs">
+                <button
+                  onClick={() => {
+                    setCurrentTab('profile');
+                    setIsSettingsDropdownOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-350 font-medium cursor-pointer border-0 bg-transparent flex items-center gap-2"
+                >
+                  <User className="w-3.5 h-3.5" />
+                  내 설정 & 프로필
+                </button>
+                {(activeWorkspace.role === 'OWNER' || activeWorkspace.role === 'ADMIN') && (
+                  <button
+                    onClick={() => {
+                      setCurrentTab('settings');
+                      setIsSettingsDropdownOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-350 font-medium cursor-pointer border-0 bg-transparent flex items-center gap-2"
+                  >
+                    <Settings className="w-3.5 h-3.5" />
+                    멤버 및 초대 관리
+                  </button>
+                )}
+                <div className="border-t border-slate-100 dark:border-slate-800 my-1" />
+                <button
+                  onClick={() => {
+                    router.push('/dashboard');
+                    setIsSettingsDropdownOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-350 font-medium cursor-pointer border-0 bg-transparent flex items-center gap-2"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                  대시보드 이동
+                </button>
+                <button
+                  onClick={() => {
+                    logout();
+                    setIsSettingsDropdownOpen(false);
+                  }}
+                  className="w-full text-left px-4 py-2 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-650 dark:text-red-400 font-medium cursor-pointer border-0 bg-transparent flex items-center gap-2"
+                >
+                  로그아웃
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -346,29 +406,7 @@ export default function WorkspaceDetailView() {
               )}
             </button>
 
-            <button
-              onClick={() => setCurrentTab('settings')}
-              className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition cursor-pointer border ${
-                currentTab === 'settings' 
-                  ? 'bg-luminano-accent/10 text-luminano-accent border-luminano-accent/30' 
-                  : 'text-slate-700 hover:bg-slate-800/40 dark:text-slate-350 bg-transparent border-transparent'
-              }`}
-            >
-              <Settings className="w-4 h-4" />
-              멤버 및 초대 관리
-            </button>
-
-            <button
-              onClick={() => setCurrentTab('profile')}
-              className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition cursor-pointer border ${
-                currentTab === 'profile' 
-                  ? 'bg-luminano-accent/10 text-luminano-accent border-luminano-accent/30' 
-                  : 'text-slate-700 hover:bg-slate-800/40 dark:text-slate-350 bg-transparent border-transparent'
-              }`}
-            >
-              <User className="w-4 h-4" />
-              내 설정 & 프로필
-            </button>
+            {/* Settings & Profile options are now moved to the header settings gear dropdown menu to provide a clean Notion-like experience */}
           </div>
 
         </div>
