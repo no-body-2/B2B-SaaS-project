@@ -108,7 +108,7 @@ export default function Dashboard() {
           <span className="font-bold text-lg tracking-tight text-foreground">LumiNano SaaS</span>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-350">
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
             {user.name}님 환영합니다
           </span>
           <button
@@ -159,7 +159,7 @@ export default function Dashboard() {
           <div className="flex flex-col items-center justify-center border-2 border-dashed border-luminano-border rounded-2xl p-16 text-center bg-luminano-point">
             <Building2 className="w-12 h-12 text-slate-500 mb-4" />
             <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">소속된 워크스페이스가 없습니다</h3>
-            <p className="text-slate-600 dark:text-slate-455 text-sm max-w-sm mt-1.5 mb-6">
+            <p className="text-slate-600 dark:text-slate-300 text-sm max-w-sm mt-1.5 mb-6">
               새로운 워크스페이스를 만들거나, 동료에게 초대 링크를 받아 합류할 수 있습니다.
             </p>
             <button
@@ -167,7 +167,7 @@ export default function Dashboard() {
                 setErrorMsg('');
                 setIsModalOpen(true);
               }}
-              className="px-4 py-2 border border-luminano-border hover:bg-slate-800/40 text-slate-700 dark:text-slate-355 rounded-lg text-sm font-semibold transition cursor-pointer bg-transparent"
+              className="px-4 py-2 border border-luminano-border hover:bg-slate-800/40 text-slate-700 dark:text-slate-200 rounded-lg text-sm font-semibold transition cursor-pointer bg-transparent"
             >
               워크스페이스 만들기
             </button>
@@ -217,7 +217,7 @@ export default function Dashboard() {
                 <Trash2 className="w-5 h-5" />
                 삭제 대기 중인 워크스페이스 (보관함)
               </h2>
-              <p className="text-xs text-slate-600 dark:text-slate-450 mt-1">
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
                 삭제 후 30일 이내인 경우 복구가 가능합니다. 최고 관리자(OWNER)만 복구를 수행할 수 있습니다.
               </p>
             </div>
@@ -284,7 +284,7 @@ export default function Dashboard() {
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-350 bg-transparent border-0 cursor-pointer text-lg font-bold"
+                className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 bg-transparent border-0 cursor-pointer text-lg font-bold"
               >
                 ✕
               </button>
@@ -298,7 +298,7 @@ export default function Dashboard() {
 
             <form onSubmit={handleCreate} className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-350">회사/조직 이름</label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-200">회사/조직 이름</label>
                 <input
                   type="text"
                   placeholder="예: 구글 코리아"
@@ -309,7 +309,7 @@ export default function Dashboard() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-350">접속 도메인 (영문식별자)</label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-200">접속 도메인 (영문식별자)</label>
                 <div className="flex items-center">
                   <input
                     type="text"

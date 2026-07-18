@@ -4,29 +4,29 @@
 :root {
   --background: #F1F5F9;
   --foreground: #0F172A;
-  
+
   --luminano-point: #F8FAFC;
   --luminano-accent: #0284C7;
   --luminano-border: #E2E8F0;
 }
 
 .dark {
-  --background: #0B0F19;
+  --background: #2E2E2E;
   --foreground: #E2E8F0;
-  
-  --luminano-point: #161F30;
-  --luminano-accent: #00F0FF;
-  --luminano-border: #1E293B;
+
+  --luminano-point: #383838;
+  --luminano-accent: #10B981;
+  --luminano-border: #444444;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  
+
   --color-luminano-point: var(--luminano-point);
   --color-luminano-accent: var(--luminano-accent);
   --color-luminano-border: var(--luminano-border);
-  
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -46,35 +46,42 @@ body {
   border-bottom: 1px solid var(--luminano-border);
   padding-bottom: 0.25rem;
 }
+
 .markdown-body h2 {
   font-size: 1.25rem;
   font-weight: 700;
   margin-top: 1.25rem;
   margin-bottom: 0.5rem;
 }
+
 .markdown-body h3 {
   font-size: 1.1rem;
   font-weight: 700;
   margin-top: 1rem;
   margin-bottom: 0.5rem;
 }
+
 .markdown-body p {
   margin-bottom: 0.75rem;
   line-height: 1.625;
 }
+
 .markdown-body ul {
   list-style-type: disc;
   margin-left: 1.5rem;
   margin-bottom: 0.75rem;
 }
+
 .markdown-body ol {
   list-style-type: decimal;
   margin-left: 1.5rem;
   margin-bottom: 0.75rem;
 }
+
 .markdown-body li {
   margin-bottom: 0.25rem;
 }
+
 .markdown-body code {
   font-family: var(--font-geist-mono), monospace;
   background-color: var(--luminano-border);
@@ -83,6 +90,7 @@ body {
   border-radius: 0.25rem;
   font-size: 0.85em;
 }
+
 .markdown-body pre {
   background-color: var(--luminano-border);
   opacity: 0.9;
@@ -91,24 +99,30 @@ body {
   overflow-x: auto;
   margin-bottom: 0.75rem;
 }
+
 .markdown-body pre code {
   background-color: transparent;
   padding: 0;
   border-radius: 0;
   font-size: inherit;
 }
+
 .markdown-body table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 0.75rem;
 }
-.markdown-body th, .markdown-body td {
+
+.markdown-body th,
+.markdown-body td {
   border: 1px solid var(--luminano-border);
   padding: 0.5rem 0.75rem;
 }
+
 .markdown-body th {
   background-color: var(--luminano-border);
 }
+
 .markdown-body blockquote {
   border-left: 4px solid var(--luminano-accent);
   padding-left: 1rem;

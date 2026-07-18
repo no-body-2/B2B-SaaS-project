@@ -174,8 +174,8 @@ export default function WorkflowPanel() {
               <div className="flex flex-col gap-1">
                 <span className="text-[10px] font-bold text-luminano-accent uppercase">결재 상세 정보</span>
                 <h2 className="text-xl font-extrabold text-slate-800 dark:text-slate-100">{selectedAppr.title}</h2>
-                <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-450 font-medium mt-1">
-                  <span>기안자: <strong className="text-slate-700 dark:text-slate-350">{selectedAppr.requesterName}</strong></span>
+                <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-300 font-medium mt-1">
+                  <span>기안자: <strong className="text-slate-700 dark:text-slate-200">{selectedAppr.requesterName}</strong></span>
                   <span>기안일: {new Date(selectedAppr.createdAt).toLocaleString()}</span>
                 </div>
               </div>
@@ -185,7 +185,7 @@ export default function WorkflowPanel() {
             {/* 변경 요청 상세 본문 */}
             <div className="flex flex-col gap-2">
               <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wide">문서 변경 제안서 (수정 내용)</h4>
-              <div className="bg-background border border-luminano-border rounded-xl p-6 font-mono text-xs text-slate-800 dark:text-slate-355 whitespace-pre-wrap leading-relaxed shadow-2xs">
+              <div className="bg-background border border-luminano-border rounded-xl p-6 font-mono text-xs text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-relaxed shadow-2xs">
                 {selectedAppr.content}
               </div>
             </div>
@@ -194,7 +194,7 @@ export default function WorkflowPanel() {
             {selectedAppr.opinion && selectedAppr.status !== 'PENDING' && (
               <div className="flex flex-col gap-2">
                 <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wide">최종 결정 결재 의견</h4>
-                <div className="bg-luminano-point rounded-xl p-4 text-xs text-slate-800 dark:text-slate-350 border border-luminano-border">
+                <div className="bg-luminano-point rounded-xl p-4 text-xs text-slate-800 dark:text-slate-200 border border-luminano-border">
                   {selectedAppr.opinion}
                 </div>
               </div>

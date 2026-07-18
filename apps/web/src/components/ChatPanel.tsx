@@ -404,7 +404,7 @@ export default function ChatPanel() {
               return (
                 <div key={msg.id} className={`flex gap-3 ${isMe ? 'flex-row-reverse' : ''}`}>
                   {!isMe && (
-                    <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-350 font-extrabold text-xs flex items-center justify-center shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-extrabold text-xs flex items-center justify-center shrink-0">
                       {msg.senderName.charAt(0)}
                     </div>
                   )}
@@ -413,7 +413,7 @@ export default function ChatPanel() {
                   <div className="flex flex-col gap-1">
                     
                     {/* 발송 정보 */}
-                    <div className={`flex items-center gap-2 text-[10px] text-slate-655 dark:text-slate-500 ${isMe ? 'justify-end' : ''}`}>
+                    <div className={`flex items-center gap-2 text-[10px] text-slate-600 dark:text-slate-500 ${isMe ? 'justify-end' : ''}`}>
                       <span className="font-bold text-slate-700 dark:text-slate-400">{msg.senderName}</span>
                       <span>{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                       {msg.isEdited && <span className="text-slate-600 dark:text-slate-500 font-semibold">(수정됨)</span>}
@@ -437,7 +437,7 @@ export default function ChatPanel() {
                           <div className="flex justify-end gap-1.5">
                             <button
                               onClick={() => setEditingMsgId(null)}
-                              className="p-1 hover:bg-slate-800/40 rounded text-[10px] text-slate-600 dark:text-slate-450 font-bold bg-transparent border-0 cursor-pointer"
+                              className="p-1 hover:bg-slate-800/40 rounded text-[10px] text-slate-600 dark:text-slate-300 font-bold bg-transparent border-0 cursor-pointer"
                             >
                               <X className="w-3 h-3" />
                             </button>

@@ -182,7 +182,7 @@ export default function WorkspaceDetailView() {
               <span className="font-bold text-sm tracking-tight text-slate-800 dark:text-slate-150 truncate">
                 {activeWorkspace.name}
               </span>
-              <span className="text-[10px] text-slate-500 dark:text-slate-450 truncate">
+              <span className="text-[10px] text-slate-500 dark:text-slate-300 truncate">
                 {user?.name} ({activeWorkspace.role})
               </span>
             </div>
@@ -204,7 +204,7 @@ export default function WorkspaceDetailView() {
                     setCurrentTab('profile');
                     setIsSettingsDropdownOpen(false);
                   }}
-                  className="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-350 font-medium cursor-pointer border-0 bg-transparent flex items-center gap-2"
+                  className="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium cursor-pointer border-0 bg-transparent flex items-center gap-2"
                 >
                   <User className="w-3.5 h-3.5" />
                   내 설정 & 프로필
@@ -215,7 +215,7 @@ export default function WorkspaceDetailView() {
                       setCurrentTab('settings');
                       setIsSettingsDropdownOpen(false);
                     }}
-                    className="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-350 font-medium cursor-pointer border-0 bg-transparent flex items-center gap-2"
+                    className="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium cursor-pointer border-0 bg-transparent flex items-center gap-2"
                   >
                     <Settings className="w-3.5 h-3.5" />
                     멤버 및 초대 관리
@@ -227,7 +227,7 @@ export default function WorkspaceDetailView() {
                     router.push('/dashboard');
                     setIsSettingsDropdownOpen(false);
                   }}
-                  className="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-350 font-medium cursor-pointer border-0 bg-transparent flex items-center gap-2"
+                  className="w-full text-left px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-medium cursor-pointer border-0 bg-transparent flex items-center gap-2"
                 >
                   <ChevronLeft className="w-3.5 h-3.5" />
                   대시보드 이동
@@ -392,7 +392,7 @@ export default function WorkspaceDetailView() {
               className={`w-full flex justify-between items-center px-3 py-2 rounded-lg text-xs font-semibold transition cursor-pointer border ${
                 currentTab === 'approval' 
                   ? 'bg-luminano-accent/10 text-luminano-accent border-luminano-accent/30' 
-                  : 'text-slate-700 hover:bg-slate-800/40 dark:text-slate-350 bg-transparent border-transparent'
+                  : 'text-slate-700 hover:bg-slate-800/40 dark:text-slate-200 bg-transparent border-transparent'
               }`}
             >
               <span className="flex items-center gap-2">

@@ -170,7 +170,7 @@ export default function UserProfileSettings() {
 
         <form onSubmit={handleUpdateProfile} className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5 col-span-1">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-350">성 (Family Name)</label>
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">성 (Family Name)</label>
             <input
               type="text"
               placeholder="김"
@@ -180,7 +180,7 @@ export default function UserProfileSettings() {
             />
           </div>
           <div className="flex flex-col gap-1.5 col-span-1">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-350">이름 (Given Name)</label>
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">이름 (Given Name)</label>
             <input
               type="text"
               placeholder="대포"
@@ -220,7 +220,7 @@ export default function UserProfileSettings() {
 
         <form onSubmit={handleUpdatePassword} className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-350">현재 비밀번호</label>
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">현재 비밀번호</label>
             <input
               type="password"
               placeholder="현재 계정 암호"
@@ -230,7 +230,7 @@ export default function UserProfileSettings() {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-350">새 비밀번호</label>
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">새 비밀번호</label>
             <input
               type="password"
               placeholder="최소 8자 이상의 새 비밀번호"
@@ -240,7 +240,7 @@ export default function UserProfileSettings() {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-350">새 비밀번호 확인</label>
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">새 비밀번호 확인</label>
             <input
               type="password"
               placeholder="새 비밀번호 다시 입력"
@@ -317,7 +317,7 @@ export default function UserProfileSettings() {
           <form onSubmit={handleUpdatePreference} className="flex flex-col gap-4">
             <div className="grid grid-cols-3 gap-4">
               <div className="flex flex-col gap-1.5 col-span-1">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-350">기본 테마</label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">기본 테마</label>
                 <select
                   value={theme}
                   onChange={(e) => setTheme(e.target.value)}
@@ -329,7 +329,7 @@ export default function UserProfileSettings() {
               </div>
 
               <div className="flex flex-col gap-1.5 col-span-1">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-350">언어 (Language)</label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">언어 (Language)</label>
                 <select
                   value={language}
                   onChange={(e) => setLanguage(e.target.value)}
@@ -341,7 +341,7 @@ export default function UserProfileSettings() {
               </div>
 
               <div className="flex flex-col gap-1.5 col-span-1">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-350">타임존 (Timezone)</label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">타임존 (Timezone)</label>
                 <select
                   value={timezone}
                   onChange={(e) => setTimezone(e.target.value)}

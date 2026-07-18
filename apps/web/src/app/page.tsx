@@ -155,7 +155,7 @@ export default function Home() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {!isLogin && (
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-350">이름</label>
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">이름</label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">
                   <User className="w-4 h-4" />
@@ -172,7 +172,7 @@ export default function Home() {
           )}
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-350">이메일 주소</label>
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">이메일 주소</label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">
                 <Mail className="w-4 h-4" />
@@ -188,7 +188,7 @@ export default function Home() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-350">비밀번호</label>
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">비밀번호</label>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">
                 <Lock className="w-4 h-4" />

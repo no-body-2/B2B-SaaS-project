@@ -274,14 +274,14 @@ export default function WorkspaceSettings() {
             return (
               <div key={m.userId} className="flex justify-between items-center py-4 first:pt-0 last:pb-0">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-background rounded-full flex items-center justify-center text-slate-700 dark:text-slate-350 font-bold text-sm">
+                  <div className="w-9 h-9 bg-background rounded-full flex items-center justify-center text-slate-700 dark:text-slate-200 font-bold text-sm">
                     {m.user.name.charAt(0)}
                   </div>
                   <div className="flex flex-col">
                     <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
                       {m.user.name} {isMe && <span className="text-xs text-luminano-accent font-semibold">(나)</span>}
                     </span>
-                    <span className="text-xs text-slate-500 dark:text-slate-450 font-mono">{m.user.email}</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-300 font-mono">{m.user.email}</span>
                   </div>
                 </div>
 
@@ -339,7 +339,7 @@ export default function WorkspaceSettings() {
               {invitations.map((inv) => (
                 <div key={inv.id} className="flex justify-between items-center py-3 first:pt-0 last:pb-0">
                   <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-slate-805 dark:text-slate-200">{inv.targetEmail}</span>
+                    <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">{inv.targetEmail}</span>
                     <span className="text-[10px] text-slate-500">
                       만료 시간: {new Date(inv.expiresAt).toLocaleString()} | 상태: {inv.status}
                     </span>
@@ -347,7 +347,7 @@ export default function WorkspaceSettings() {
                   {inv.status === 'PENDING' && (
                     <button
                       onClick={() => handleRevokeInvite(inv.id, inv.targetEmail)}
-                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-350 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer border-0"
+                      className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold flex items-center gap-1 transition cursor-pointer border-0"
                     >
                       <X className="w-3.5 h-3.5" />
                       초대 취소

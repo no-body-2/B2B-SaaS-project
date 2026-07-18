@@ -25,7 +25,7 @@ export default function ThemeToggle() {
 
         {/* 라이트 테마 버튼 구역 */}
         <div className={`flex-1 flex items-center justify-center gap-1.5 text-[10px] font-bold z-10 transition-colors duration-300 ${
-          theme === 'light' ? 'text-white' : 'text-slate-450 hover:text-slate-300'
+          theme === 'light' ? 'text-white' : 'text-slate-400 hover:text-slate-300'
         }`}>
           <Sun className="w-3.5 h-3.5" />
           <span>Light</span>
