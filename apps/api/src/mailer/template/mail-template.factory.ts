@@ -33,7 +33,7 @@ export class MailTemplateFactory {
     return `
       <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; max-width: 600px; margin: 0 auto; border-radius: 8px;">
         <h2 style="color: #1e3a8a; border-bottom: 2px solid #f3f4f6; padding-bottom: 10px;">워크스페이스 초대장이 도착했습니다.</h2>
-        <p style="font-size: 15px; color: #334155; line-height: 1.6;">Nano B2B 플랫폼의 새로운 협업 공간에서 귀하를 초대했습니다.</p>
+        <p style="font-size: 15px; color: #334155; line-height: 1.6;">LumiNano 플랫폼의 새로운 협업 공간에서 귀하를 초대했습니다.</p>
         <div style="margin: 35px 0; text-align: center;">
           <a href="${context.inviteLink}" style="background: #2563eb; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);">초대 수락하고 입장하기</a>
         </div>
@@ -48,7 +48,7 @@ export class MailTemplateFactory {
     return `
       <div style="font-family: sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
         <h2>회원가입을 진심으로 환영합니다!</h2>
-        <p>${context.nickname}님, Nano 플랫폼의 다양한 기능을 이용해보세요!</p>
+        <p>${context.nickname}님, LumiNano 플랫폼의 다양한 기능을 이용해보세요!</p>
       </div>
     `;
   }
