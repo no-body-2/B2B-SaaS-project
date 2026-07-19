@@ -213,7 +213,7 @@ export default function NanoEditor() {
               {isOwner && (
                 <button
                   onClick={handleDelete}
-                  className="p-2 text-slate-655 dark:text-slate-400 hover:text-red-400 rounded-lg hover:bg-slate-800/40 transition cursor-pointer border border-transparent bg-transparent"
+                  className="p-2 text-slate-500 dark:text-slate-400 hover:text-red-400 rounded-lg hover:bg-slate-800/40 transition cursor-pointer border border-transparent bg-transparent"
                   title="문서 삭제"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -228,7 +228,7 @@ export default function NanoEditor() {
       <div className="flex-1 overflow-y-auto p-8 max-w-4xl w-full mx-auto flex flex-col gap-6 h-[calc(100vh-60px)] max-h-[calc(100vh-60px)] min-h-0">
         
         {/* 문서 정보 뱃지 메타데이터 */}
-        <div className="flex gap-4 text-xs text-slate-655 dark:text-slate-400 border-b border-luminano-border pb-4">
+        <div className="flex gap-4 text-xs text-slate-500 dark:text-slate-400 border-b border-luminano-border pb-4">
           <span className="flex items-center gap-1">
             <Calendar className="w-3.5 h-3.5 text-luminano-accent" />
             작성일: {new Date(activeNano.createdAt).toLocaleString()}

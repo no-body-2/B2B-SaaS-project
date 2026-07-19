@@ -403,7 +403,7 @@ export default function WorkspaceSettings() {
       </div>
 
       {/* 워크스페이스 탈퇴/경고 섹션 */}
-      <div className="bg-red-100 dark:bg-red-955/10 border border-red-200 dark:border-red-900/30 rounded-xl p-6 shadow-md flex flex-col gap-4">
+      <div className="bg-red-100 dark:bg-red-950/10 border border-red-200 dark:border-red-900/30 rounded-xl p-6 shadow-md flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <ShieldAlert className="w-5 h-5 text-red-500" />
           <h3 className="font-bold text-base text-red-700 dark:text-red-400">위험 구역</h3>
@@ -421,7 +421,7 @@ export default function WorkspaceSettings() {
                 placeholder="워크스페이스 이름 입력..."
                 value={confirmWsName}
                 onChange={(e) => setConfirmWsName(e.target.value)}
-                className="flex-1 max-w-xs px-3 py-2 border border-red-300 dark:border-red-900/50 rounded-lg text-sm bg-background text-slate-800 dark:text-slate-105 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+                className="flex-1 max-w-xs px-3 py-2 border border-red-300 dark:border-red-900/50 rounded-lg text-sm bg-background text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
               />
               <button
                 onClick={handleDeleteWorkspace}

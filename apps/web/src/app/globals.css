@@ -2,21 +2,21 @@
 @variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #F1F5F9;
+  --background: #FFFFFF;
   --foreground: #0F172A;
 
   --luminano-point: #F8FAFC;
-  --luminano-accent: #0284C7;
+  --luminano-accent: #10B981;
   --luminano-border: #E2E8F0;
 }
 
 .dark {
-  --background: #2E2E2E;
-  --foreground: #E2E8F0;
+  --background: #0B0F19;
+  --foreground: #F1F5F9;
 
-  --luminano-point: #383838;
-  --luminano-accent: #10B981;
-  --luminano-border: #444444;
+  --luminano-point: #111827;
+  --luminano-accent: #34D399;
+  --luminano-border: #1F2937;
 }
 
 @theme inline {

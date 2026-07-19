@@ -233,7 +233,7 @@ export default function Dashboard() {
                       <div className="w-10 h-10 bg-red-500/10 rounded-lg flex items-center justify-center text-red-500">
                         <Building2 className="w-5 h-5" />
                       </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-105 dark:bg-red-955/35 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900/50">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-950/35 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900/50">
                         보관 중
                       </span>
                     </div>
@@ -278,7 +278,7 @@ export default function Dashboard() {
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex justify-center items-center p-4">
           <div className="w-full max-w-md bg-luminano-point rounded-xl border border-luminano-border shadow-2xl p-6 flex flex-col gap-4">
             <div className="flex justify-between items-center border-b border-luminano-border pb-3">
-              <div className="flex items-center gap-1.5 text-slate-800 dark:text-slate-150">
+              <div className="flex items-center gap-1.5 text-slate-800 dark:text-slate-100">
                 <Sparkles className="w-5 h-5 text-luminano-accent" />
                 <h3 className="font-bold text-lg">워크스페이스 생성</h3>
               </div>
@@ -291,7 +291,7 @@ export default function Dashboard() {
             </div>
 
             {errorMsg && (
-              <div className="p-3 bg-red-955/20 text-red-400 border border-red-900/50 rounded-lg text-xs font-medium">
+              <div className="p-3 bg-red-950/20 text-red-400 border border-red-900/50 rounded-lg text-xs font-medium">
                 {errorMsg}
               </div>
             )}

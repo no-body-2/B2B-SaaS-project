@@ -71,7 +71,7 @@ export default function WorkflowPanel() {
         );
       case 'REJECTED':
         return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-955/20 text-red-750 dark:text-red-400 border border-red-200 dark:border-red-900/50">
+          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-950/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900/50">
             <XCircle className="w-3 h-3" />
             반려됨
           </span>
@@ -220,7 +220,7 @@ export default function WorkflowPanel() {
                       <button
                         onClick={() => handleDecision('REJECTED')}
                         disabled={processing}
-                        className="px-4 py-2 bg-red-100 dark:bg-red-955/20 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-955/40 border border-red-200 dark:border-red-900/50 font-bold rounded-lg text-xs transition cursor-pointer disabled:bg-red-950/10"
+                        className="px-4 py-2 bg-red-100 dark:bg-red-950/20 text-red-700 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-950/40 border border-red-200 dark:border-red-900/50 font-bold rounded-lg text-xs transition cursor-pointer disabled:bg-red-950/10"
                       >
                         {processing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : '반려 처리'}
                       </button>

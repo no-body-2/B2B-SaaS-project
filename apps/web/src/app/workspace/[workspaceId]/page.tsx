@@ -179,7 +179,7 @@ export default function WorkspaceDetailView() {
               <LumiNanoIcon size={28} />
             </div>
             <div className="flex flex-col min-w-0">
-              <span className="font-bold text-sm tracking-tight text-slate-800 dark:text-slate-150 truncate">
+              <span className="font-bold text-sm tracking-tight text-slate-800 dark:text-slate-100 truncate">
                 {activeWorkspace.name}
               </span>
               <span className="text-[10px] text-slate-500 dark:text-slate-300 truncate">
@@ -191,7 +191,7 @@ export default function WorkspaceDetailView() {
           <div className="relative shrink-0">
             <button
               onClick={() => setIsSettingsDropdownOpen(!isSettingsDropdownOpen)}
-              className="p-1 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-850 rounded-md transition cursor-pointer bg-transparent border-0"
+              className="p-1 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-800/40 rounded-md transition cursor-pointer bg-transparent border-0"
               title="설정 메뉴"
             >
               <Settings className="w-4 h-4 animate-hover-spin" />
@@ -377,7 +377,7 @@ export default function WorkspaceDetailView() {
                   {ch.isPrivate ? (
                     <Lock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                   ) : (
-                    <Hash className="w-3.5 h-3.5 text-slate-505 shrink-0" />
+                    <Hash className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                   )}
                   <span className="truncate">{ch.name}</span>
                 </button>
