@@ -251,7 +251,7 @@ export default function WorkspaceDetailView() {
           
           {/* 가. 문서 관리 영역 (Nano) */}
           <div className="flex flex-col gap-1.5">
-            <div className="flex justify-between items-center px-2 text-slate-500 font-semibold text-[10px] uppercase tracking-wider">
+            <div className="flex justify-between items-center px-2 text-slate-500 dark:text-slate-400 font-semibold text-[10px] uppercase tracking-wider">
               <span className="flex items-center gap-1">
                 <Folder className="w-3.5 h-3.5" />
                 협업 문서 (Nanos)
@@ -326,7 +326,7 @@ export default function WorkspaceDetailView() {
 
           {/* 실시간 채팅 영역 (Channels) */}
           <div className="flex flex-col gap-1.5">
-            <div className="flex justify-between items-center px-2 text-slate-500 font-semibold text-[10px] uppercase tracking-wider">
+            <div className="flex justify-between items-center px-2 text-slate-500 dark:text-slate-400 font-semibold text-[10px] uppercase tracking-wider">
               <span className="flex items-center gap-1">
                 <MessageSquare className="w-3.5 h-3.5" />
                 실시간 채널

@@ -131,7 +131,7 @@ export default function WorkflowPanel() {
         {approvals.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
             <FileCheck2 className="w-10 h-10 text-slate-700 mb-2" />
-            <span className="text-xs font-semibold text-slate-600 dark:text-slate-500">결재 요청 내역이 없습니다.</span>
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400">결재 요청 내역이 없습니다.</span>
           </div>
         ) : (
           <div className="flex flex-col divide-y divide-luminano-border">
@@ -153,7 +153,7 @@ export default function WorkflowPanel() {
                     </span>
                     {getStatusBadge(appr.status)}
                   </div>
-                  <div className="flex justify-between items-center text-[10px] text-slate-600 dark:text-slate-500">
+                  <div className="flex justify-between items-center text-[10px] text-slate-600 dark:text-slate-400">
                     <span>기안: {appr.requesterName}</span>
                     <span>{new Date(appr.createdAt).toLocaleDateString()}</span>
                   </div>
@@ -254,7 +254,7 @@ export default function WorkflowPanel() {
           <div className="flex-1 flex flex-col items-center justify-center p-8">
             <ShieldCheck className="w-12 h-12 text-slate-500 mb-3" />
             <h3 className="text-slate-800 dark:text-slate-300 font-bold text-base">결재 항목을 선택해주세요</h3>
-            <p className="text-slate-600 dark:text-slate-500 text-xs mt-1">좌측 리스트에서 상세 내역을 조회할 결재 요청을 클릭하십시오.</p>
+            <p className="text-slate-600 dark:text-slate-400 text-xs mt-1">좌측 리스트에서 상세 내역을 조회할 결재 요청을 클릭하십시오.</p>
           </div>
         )}
       </div>

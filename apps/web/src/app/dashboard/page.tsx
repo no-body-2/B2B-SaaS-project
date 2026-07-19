@@ -262,7 +262,7 @@ export default function Dashboard() {
                       복구하기
                     </button>
                   ) : (
-                    <span className="text-[10px] text-slate-600 dark:text-slate-500 text-center italic mt-4 block">
+                    <span className="text-[10px] text-slate-600 dark:text-slate-400 text-center italic mt-4 block">
                       복구 권한 없음 (소유자 전용)
                     </span>
                   )}

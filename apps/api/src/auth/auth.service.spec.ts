@@ -3,9 +3,25 @@ import { AuthService } from './auth.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { TokenHelper } from './utils/token.helper';
 import { MailerService } from '../mailer/mailer.service';
+import { RedisService } from '../redis/redis.service';
 import { dbMock } from '../prisma/__mocks__/prisma.service';
-import { ConflictException, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
 import * as argon2 from 'argon2';
+
+jest.mock('argon2', () => ({
+  hash: jest
+    .fn()
+    .mockImplementation((pwd: string) => Promise.resolve(`hashed-${pwd}`)),
+  verify: jest
+    .fn()
+    .mockImplementation((hash: string, pwd: string) =>
+      Promise.resolve(hash === `hashed-${pwd}`),
+    ),
+}));
 
 describe('AuthService (Unit/Integration Test)', () => {
   let service: AuthService;
@@ -25,13 +41,23 @@ describe('AuthService (Unit/Integration Test)', () => {
     }),
   };
 
+  // 가상 레디스 서비스
+  const mockRedisService = {
+    get: jest.fn(),
+    set: jest.fn(),
+    del: jest.fn(),
+  };
+
   beforeEach(async () => {
+    jest.clearAllMocks();
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
         { provide: PrismaService, useValue: dbMock },
         { provide: TokenHelper, useValue: mockTokenHelper },
         { provide: MailerService, useValue: mockMailerService },
+        { provide: RedisService, useValue: mockRedisService },
       ],
     }).compile();
 
@@ -154,6 +180,86 @@ describe('AuthService (Unit/Integration Test)', () => {
       await expect(
         service.refreshTokens(mockUser.id, mockJti, 'some-token'),
       ).rejects.toThrow(UnauthorizedException);
+    });
+  });
+
+  describe('loginUser (로그인 실패 수 잠금 처리)', () => {
+    const loginDto = {
+      email: 'login-test@example.com',
+      password: 'wrong-password',
+    };
+    const mockUser = {
+      id: 'user-2',
+      email: 'login-test@example.com',
+      password: 'hashed-password',
+      provider: 'local',
+      deletedAt: null,
+    } as any;
+
+    it('정상 로그인 시, 실패 횟수가 del 처리되어 초기화되어야 한다', async () => {
+      dbMock.user.findUnique.mockResolvedValue(mockUser);
+      (argon2.verify as jest.Mock).mockResolvedValue(true);
+      mockRedisService.get.mockResolvedValue(null); // 잠금 및 실패 기록 없음
+
+      await service.loginUser({
+        email: 'login-test@example.com',
+        password: 'correct-password',
+      });
+
+      expect(mockRedisService.del).toHaveBeenCalledWith(
+        'login:fail-count:login-test@example.com',
+      );
+    });
+
+    it('로그인 실패 5회 도달 시 1분 동안 잠금 상태를 활성화하고 BadRequestException을 던져야 한다', async () => {
+      dbMock.user.findUnique.mockResolvedValue(mockUser);
+      (argon2.verify as jest.Mock).mockResolvedValue(false); // 패스워드 불일치
+      mockRedisService.get.mockImplementation((key: string) => {
+        if (key.includes('lock')) return Promise.resolve(null);
+        if (key.includes('fail-count')) return Promise.resolve('4'); // 이미 4회 실패 상태
+        return Promise.resolve(null);
+      });
+
+      await expect(service.loginUser(loginDto)).rejects.toThrow(
+        BadRequestException,
+      );
+
+      // 1분(60초) 잠금 유도 확인
+      expect(mockRedisService.set).toHaveBeenCalledWith(
+        'login:lock:login-test@example.com',
+        'locked',
+        60,
+      );
+    });
+
+    it('로그인 실패 시, 실패 횟수가 메시지에 포함된 UnauthorizedException을 던져야 한다 (예: 1/5회)', async () => {
+      dbMock.user.findUnique.mockResolvedValue(mockUser);
+      (argon2.verify as jest.Mock).mockResolvedValue(false); // 패스워드 불일치
+      mockRedisService.get.mockImplementation((key: string) => {
+        if (key.includes('lock')) return Promise.resolve(null);
+        if (key.includes('fail-count')) return Promise.resolve('2'); // 이미 2회 실패 상태
+        return Promise.resolve(null);
+      });
+
+      await expect(service.loginUser(loginDto)).rejects.toThrow(
+        new UnauthorizedException(
+          '이메일 또는 비밀번호가 올바르지 않습니다. (3/5회)',
+        ),
+      );
+    });
+
+    it('이미 계정이 잠금된 상태이면 즉시 BadRequestException을 던져야 한다', async () => {
+      mockRedisService.get.mockImplementation((key: string) => {
+        if (key.includes('lock')) return Promise.resolve('locked'); // 잠금 상태
+        return Promise.resolve(null);
+      });
+
+      await expect(service.loginUser(loginDto)).rejects.toThrow(
+        BadRequestException,
+      );
+
+      // DB 접근 전에 사전 차단해야 함
+      expect(dbMock.user.findUnique).not.toHaveBeenCalled();
     });
   });
 });

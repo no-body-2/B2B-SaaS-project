@@ -25,6 +25,7 @@ import { OAuth2Client } from 'google-auth-library';
 import { GoogleLoginDto } from './dto/google-login.dto';
 import { TokenHelper } from './utils/token.helper';
 import { MailerService } from '../mailer/mailer.service';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class AuthService {
@@ -36,6 +37,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly tokenHelper: TokenHelper,
     private readonly mailerService: MailerService,
+    private readonly redisService: RedisService,
   ) {
     this.googleClient = new OAuth2Client(
       process.env.GOOGLE_CLIENT_ID,
@@ -104,6 +106,58 @@ export class AuthService {
    * - {ForbiddenException} - 현재 탈퇴 대기 중인 계정인 경우
    */
   async loginUser(dto: LoginDto, ipAddress?: string, userAgent?: string) {
+    const failCountKey = `login:fail-count:${dto.email}`;
+    const lockKey = `login:lock:${dto.email}`;
+
+    // 0. 잠금 여부 확인
+    let isLocked = false;
+    try {
+      isLocked = !!(await this.redisService.get(lockKey));
+    } catch (_err) {
+      console.warn(
+        '[AuthService] Redis error during lock check, bypassing lockout.',
+      );
+    }
+
+    if (isLocked) {
+      throw new BadRequestException(
+        '로그인 실패 횟수가 초과되어 1분 동안 로그인이 제한됩니다.',
+      );
+    }
+
+    // 로그인 실패 시 횟수 갱신 공통 헬퍼
+    const getLoginFailureException = async () => {
+      let currentFailCount = 1;
+      try {
+        const countStr = await this.redisService.get(failCountKey);
+        currentFailCount = (countStr ? parseInt(countStr, 10) : 0) + 1;
+
+        if (currentFailCount >= 5) {
+          await Promise.all([
+            this.redisService.set(lockKey, 'locked', 60),
+            this.redisService.del(failCountKey),
+          ]);
+          return new BadRequestException(
+            '로그인 실패 횟수가 초과되어 1분 동안 로그인이 제한됩니다.',
+          );
+        } else {
+          await this.redisService.set(
+            failCountKey,
+            String(currentFailCount),
+            600,
+          ); // 10분 수명
+        }
+      } catch (redisErr) {
+        console.warn(
+          '[AuthService] Redis error during fail count increment.',
+          redisErr,
+        );
+      }
+      return new UnauthorizedException(
+        `이메일 또는 비밀번호가 올바르지 않습니다. (${currentFailCount}/5회)`,
+      );
+    };
+
     // 1. 이메일로 사용자 찾기
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -111,9 +165,7 @@ export class AuthService {
 
     // 소프트웨어의 보안을 위하여 이메일, 패스워드 중 잘못된 부분을 알려주지 않음
     if (!user) {
-      throw new UnauthorizedException(
-        '이메일 또는 비밀번호가 올바르지 않습니다.',
-      );
+      throw await getLoginFailureException();
     }
 
     // 2. 사용자의 계정 활성 상태 확인
@@ -130,9 +182,14 @@ export class AuthService {
     // 3. Argon2로 비밀번호 검증
     const isPasswordValid = await argon2.verify(user.password, dto.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException(
-        '이메일 또는 비밀번호가 올바르지 않습니다.',
-      );
+      throw await getLoginFailureException();
+    }
+
+    // 로그인 성공 시 실패 횟수 리셋
+    try {
+      await this.redisService.del(failCountKey);
+    } catch (_err) {
+      console.warn('[AuthService] Redis error during clearing fail count.');
     }
 
     return this.tokenHelper.generateAndSaveTokens(user, ipAddress, userAgent);

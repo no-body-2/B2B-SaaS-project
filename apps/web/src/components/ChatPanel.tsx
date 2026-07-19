@@ -272,7 +272,7 @@ export default function ChatPanel() {
       <div className="flex-1 flex flex-col items-center justify-center p-8 bg-background">
         <MessageSquare className="w-12 h-12 text-slate-500 mb-3" />
         <h3 className="text-slate-800 dark:text-slate-300 font-bold text-base">선택된 채널이 없습니다</h3>
-        <p className="text-slate-600 dark:text-slate-500 text-xs mt-1">좌측 사이드바에서 실시간 채팅방을 선택해 참가하세요.</p>
+        <p className="text-slate-600 dark:text-slate-400 text-xs mt-1">좌측 사이드바에서 실시간 채팅방을 선택해 참가하세요.</p>
       </div>
     );
   }
@@ -394,7 +394,7 @@ export default function ChatPanel() {
           ) : messages.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center">
               <MessageSquare className="w-10 h-10 text-slate-500 mb-2" />
-              <span className="text-xs text-slate-600 dark:text-slate-500">대화방에 참여했습니다. 첫 메시지를 보내보세요!</span>
+              <span className="text-xs text-slate-600 dark:text-slate-400">대화방에 참여했습니다. 첫 메시지를 보내보세요!</span>
             </div>
           ) : (
             messages.map((msg) => {
@@ -413,10 +413,10 @@ export default function ChatPanel() {
                   <div className="flex flex-col gap-1">
                     
                     {/* 발송 정보 */}
-                    <div className={`flex items-center gap-2 text-[10px] text-slate-600 dark:text-slate-500 ${isMe ? 'justify-end' : ''}`}>
+                    <div className={`flex items-center gap-2 text-[10px] text-slate-600 dark:text-slate-400 ${isMe ? 'justify-end' : ''}`}>
                       <span className="font-bold text-slate-700 dark:text-slate-400">{msg.senderName}</span>
                       <span>{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                      {msg.isEdited && <span className="text-slate-600 dark:text-slate-500 font-semibold">(수정됨)</span>}
+                      {msg.isEdited && <span className="text-slate-600 dark:text-slate-400 font-semibold">(수정됨)</span>}
                     </div>
 
                     {/* 대화 내용 풍선 */}

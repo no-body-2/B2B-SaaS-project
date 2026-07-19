@@ -157,7 +157,7 @@ export default function NanoEditor() {
       <div className="flex-1 flex flex-col items-center justify-center p-8 bg-background">
         <FileText className="w-12 h-12 text-slate-500 mb-3" />
         <h3 className="text-slate-800 dark:text-slate-200 font-bold text-base">선택된 문서가 없습니다</h3>
-        <p className="text-slate-600 dark:text-slate-500 text-xs mt-1">좌측 사이드바에서 편집하거나 조회할 협업 문서를 골라보세요.</p>
+        <p className="text-slate-600 dark:text-slate-400 text-xs mt-1">좌측 사이드바에서 편집하거나 조회할 협업 문서를 골라보세요.</p>
       </div>
     );
   }
