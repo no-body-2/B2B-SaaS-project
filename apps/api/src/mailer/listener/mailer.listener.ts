@@ -29,7 +29,10 @@ export class MailerListener {
       secure: process.env.SMTP_SECURE === 'true',
       auth: {
         user: process.env.SMTP_USER || '4f3b99021172e2',
-        pass: process.env.SMTP_PASSWORD || '7c141adfc4fc89',
+        pass:
+          process.env.SMTP_PASSWORD ||
+          process.env.SMTP_PASS ||
+          '7c141adfc4fc89',
       },
     });
   }

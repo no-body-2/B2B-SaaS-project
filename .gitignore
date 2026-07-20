@@ -41,3 +41,8 @@ yarn-error.log
 
 # Idea
 .idea/
+
+
+# Docker
+Dockerfile
+.dockerignore
