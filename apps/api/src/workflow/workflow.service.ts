@@ -31,7 +31,7 @@ import {
   ApprovalStatus,
   GetApprovalRequestListDto,
 } from './dto/get-approval-request-list.dto';
-import { Prisma } from '@b2b/database';
+import { Prisma } from '@luminano/database';
 
 @Injectable()
 export class WorkflowService {

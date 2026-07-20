@@ -15,7 +15,7 @@ import {
   NotFoundException,
   Scope,
 } from '@nestjs/common';
-import { WorkspaceMember, User } from '@b2b/database';
+import { WorkspaceMember, User } from '@luminano/database';
 import { PrismaService } from '../../prisma/prisma.service';
 
 export type WorkspaceMemberWithUser = WorkspaceMember & { user: User };

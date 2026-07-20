@@ -1,5 +1,5 @@
 {
-  "name": "@b2b/database",
+  "name": "@luminano/database",
   "version": "1.0.0",
   "main": "./index.ts",
   "types": "./index.ts",
@@ -14,7 +14,7 @@
     "dotenv": "^17.4.2"
   },
   "devDependencies": {
-    "@b2b/typescript-config": "workspace:*",
+    "@luminano/typescript-config": "workspace:*",
     "@prisma/config": "^7.8.0",
     "@types/node": "^25.6.2",
     "prisma": "^7.8.0"

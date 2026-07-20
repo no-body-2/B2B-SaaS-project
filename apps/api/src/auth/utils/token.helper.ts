@@ -10,7 +10,7 @@
  */
 
 import { Injectable } from '@nestjs/common';
-import { User } from '@b2b/database';
+import { User } from '@luminano/database';
 import { PrismaService } from '../../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';

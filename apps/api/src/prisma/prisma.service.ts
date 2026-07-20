@@ -11,7 +11,7 @@
  */
 
 import { Injectable } from '@nestjs/common';
-import { PrismaClient } from '@b2b/database';
+import { PrismaClient } from '@luminano/database';
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import 'dotenv/config';

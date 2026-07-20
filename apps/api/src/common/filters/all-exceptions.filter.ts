@@ -19,7 +19,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { Prisma } from '@b2b/database';
+import { Prisma } from '@luminano/database';
 
 interface CustomRequest extends Request {
   user?: {

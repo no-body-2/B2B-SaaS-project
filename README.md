@@ -8,7 +8,7 @@
 
 ### Who make this?
 - 이 프로젝트는 1인 개발 프로젝트입니다.
-- Gemini를 도구로서 사용하지만 바이브코딩과는 거리가 멀게 작업합니다.
+- Gemini를 도구로서 사용하지만 바이브코딩과는 거리가 멀게 작업한 프로젝트입니다.
 
 ### How to make this?
 - Backend 부분은 **NestJS**, Frontend 부분은 **Next.js**를 사용합니다.

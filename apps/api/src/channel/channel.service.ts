@@ -26,7 +26,7 @@ import { SendMessageDto } from './dto/send-message.dto';
 import { GetChatMessageListDto } from './dto/get-chat-message-list.dto';
 import { UpdateChatMessageDto } from './dto/update-chat-message.dto';
 import { createId } from '@paralleldrive/cuid2';
-import { Prisma } from '@b2b/database';
+import { Prisma } from '@luminano/database';
 import { UpdateLastReadDto } from './dto/update-last-read.dto';
 import { SearchChatMessageDto } from './dto/search-chat-message.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';

@@ -25,7 +25,7 @@ import { WorkspaceGuardService } from '../common/guard/workspace-guard.service';
 import { createId } from '@paralleldrive/cuid2';
 import { AcceptInvitationDto } from './dto/member/accept-invitation.dto';
 import { WorkspaceMemberQueryDto } from './dto/member/workspace-member-query.dto';
-import { Prisma } from '@b2b/database';
+import { Prisma } from '@luminano/database';
 import { TargetMemberDto } from './dto/member/target-member.dto';
 import { UpdateMemberRoleDto } from './dto/member/update-role.dto';
 import { MailerService } from '../mailer/mailer.service';

@@ -1,5 +1,5 @@
 {
-  "name": "b2b-saas-workspace",
+  "name": "luminano-workspace",
   "private": true,
   "scripts": {
     "build": "turbo run build",

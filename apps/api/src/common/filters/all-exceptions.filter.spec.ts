@@ -13,7 +13,7 @@
 import { AllExceptionsFilter } from './all-exceptions.filter';
 import { ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { Prisma } from '@b2b/database';
+import { Prisma } from '@luminano/database';
 
 describe('AllExceptionsFilter', () => {
   let filter: AllExceptionsFilter;
