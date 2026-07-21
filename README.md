@@ -39,9 +39,13 @@
 - Google OAuth2 완전 연동
 - MailTrap SMTP (Sandbox) 적용으로 메일 전송 기능 확인 완료
 
+### 2026-07-21
+- Dockerfile을 통한 Backend 컨테이너화 성공
+
 ---
 
 ## TODO
 |구역|버전|모듈|할 일|시기|비고| 완료 여부 |
 |:-:|:-:|:-:|:-:|:-:|:-----:|:-:|
 |Backend|api/v2|ChatRoom|chatRoom.title 이름 변경|2026.06.12|chatRoom.name으로 변경하여 의미 전달을 더 확실하게|X|
+|Backend|api/v2|Workspace|워크스페이스 속성 추가|2026.07.21|워크스페이스에 기본적으로 [public | private] 속성을 추가하여 dashboard에서 새로운 워크스페이스 찾기 등의 기능을 통해 Lite User 층 확보를 위한 서비스 작업 추가|X|
