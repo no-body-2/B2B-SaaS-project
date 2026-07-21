@@ -1,5 +1,7 @@
 {
   "name": "@luminano/typescript-config",
   "version": "1.0.0",
+  "description": "B2B Luminano Service's TS-config Package",
+  "author": "no-body-2",
   "private": true
 }

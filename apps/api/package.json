@@ -1,8 +1,8 @@
 {
-  "name": "api",
-  "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "name": "@luminano/api",
+  "version": "1.0.0",
+  "description": "B2B Luminano Service's API Package",
+  "author": "no-body-2",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {

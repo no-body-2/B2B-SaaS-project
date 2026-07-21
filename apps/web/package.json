@@ -1,6 +1,8 @@
 {
-  "name": "web",
-  "version": "0.1.0",
+  "name": "@luminano/web",
+  "version": "1.0.0",
+  "description": "B2B Luminano Service's Web Package",
+  "author": "no-body-2",
   "private": true,
   "scripts": {
     "dev": "next dev",
