@@ -1,26 +1,23 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
+  "_comment0": "주석: js & Bundler 최적화",
+  "_comment1": "주석: Strict 타입 검사",
+  "_comment2": "주석: 모노레포 & 컴파일러 최적화",
+  "_comment3": "주석: 라이브러리 & 패키지 배포용 설정",
   "compilerOptions": {
-    "_comment0": "주석: js & Bundler 최적화",
     "target": "ESNext",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
-
-    "_comment1": "주석: Strict 타입 검사",
     "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "exactOptionalPropertyTypes": true,
-
-    "_comment2": "주석: 모노레포 & 컴파일러 최적화",
     "skipLibCheck": true,
-    "isoLatedModules": true,
+    "isolatedModules": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
-
-    "_comment3": "주석: 라이브러리 & 패키지 배포용 설정",
     "declaration": true,
     "declarationMap": true
   }

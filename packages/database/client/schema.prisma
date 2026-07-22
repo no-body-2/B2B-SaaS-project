@@ -1,0 +1,308 @@
+// packages/database/prisma/schema/prisma
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../client"
+}
+
+datasource db {
+  provider = "postgresql"
+  // Prisma 7+ 에서는 연결 URL을 prisma.config.ts 파일에서만 관리
+}
+
+/// Domain: AUTH
+
+/// 사용자 핵심 정보
+/// @namespace Auth
+model User {
+  id        String  @id @default(cuid()) @map("id")
+  email     String? @unique @map("email")
+  password  String? @map("password")
+  firstName String  @map("firstname")
+  lastName  String? @map("lastname")
+  provider  String  @default("local") @map("provider")
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at") // Soft Delete 방식을 사용하기에 사용
+
+  // Relations
+  preference           UserPreference?
+  workspaceMembers     WorkspaceMember[]
+  WorkspaceInvitations WorkspaceInvitation[] @relation("InviterRelation")
+  refreshTokens        RefreshToken[]
+  nanoHistorys         NanoHistory[]
+
+  @@map("users")
+}
+
+/// 사용자 개인 설정
+/// @namespace Auth
+model UserPreference {
+  userId   String  @id @map("user_id")
+  language String? @map("language")
+  theme    String? @map("theme")
+  timezone String? @map("timezone")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_preference")
+}
+
+/// Domain: WORKSPACE
+
+/// 워크스페이스 핵심 정보
+/// @namespace Workspace
+model Workspace {
+  id          String  @id @default(cuid()) @map("id")
+  name        String  @map("name")
+  logoUrl     String? @map("logo_url")
+  description String? @map("description")
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at") // Soft Delete 방식을 사용하기에 사용
+
+  // Relations
+  members     WorkspaceMember[]
+  invitations WorkspaceInvitation[]
+  chatrooms   Chatroom[]
+
+  @@map("workspaces")
+}
+
+/// 워크스페이스 초대 정보
+/// @namespace Workspace
+model WorkspaceInvitation {
+  id          String  @id @default(cuid()) @map("id")
+  workspaceId String  @map("workspace_id")
+  inviterId   String  @map("inviter_id")
+  targetEmail String? @map("target_email")
+  invitation  String? @map("invitation")
+  token       String  @unique @map("token")
+  status      String? @map("status")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  expiresAt DateTime @map("expires_at")
+
+  // Relations
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  inviter   User      @relation("InviterRelation", fields: [inviterId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, targetEmail, status])
+  @@index([expiresAt])
+  @@index([inviterId])
+  @@map("workspace_invitations")
+}
+
+/// 사용자 - 워크스페이스 매핑
+/// @namespace Workspace
+model WorkspaceMember {
+  workspaceId String   @map("workspace_id")
+  userId      String   @map("user_id")
+  role        String?  @map("role")
+  joinedAt    DateTime @default(now()) @map("joined_at")
+
+  // Relations
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Relations - 하위 연결 관리
+  chatroomMembers ChatroomMember[]
+  nanos           Nano[]
+
+  // 복합 Primary Key
+  @@id([workspaceId, userId])
+  @@index([userId])
+  @@map("workspace_members")
+}
+
+/// Domain: CHAT
+
+/// 워크스페이스 내부의 채팅방
+/// @namespace Chat
+model Chatroom {
+  id          String  @id @default(cuid()) @map("id")
+  workspaceId String  @map("workspace_id")
+  title       String? @map("title")
+  description String? @map("description")
+  isPrivate   Boolean @default(false) @map("is_private")
+
+  // Chatroom 에는 Soft Delete 방식을 적용하지 않을 예정이기에 deletedAt 존재하지 않음
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  workspace Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  members   ChatroomMember[]
+  messages  ChatMessage[]
+
+  @@index([workspaceId])
+  @@map("chatrooms")
+}
+
+/// 채팅방 참여자 정보
+/// @namespace Chat
+model ChatroomMember {
+  chatroomId        String    @map("chatroom_id")
+  userId            String    @map("user_id")
+  workspaceId       String    @map("workspace_id")
+  role              String?   @map("role")
+  lastReadMessageId String?   @map("last_read_message_id")
+  lastReadAt        DateTime? @map("last_read_at")
+  joinedAt          DateTime  @default(now()) @map("joined_at")
+
+  // Relations
+  chatroom        Chatroom        @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
+  workspaceMember WorkspaceMember @relation(fields: [workspaceId, userId], references: [workspaceId, userId], onDelete: Cascade)
+
+  messages ChatMessage[]
+
+  // 복합 Primary Key
+  @@id([chatroomId, userId])
+  @@index([userId])
+  @@map("chatroom_members")
+}
+
+/// 채팅 메시지
+/// @namespace Chat
+model ChatMessage {
+  id         String   @id @default(cuid()) @map("id")
+  chatroomId String   @map("chatroom_id")
+  senderId   String   @map("sender_id")
+  content    String   @map("content")
+  type       String   @map("type")
+  isEdited   Boolean? @default(false) @map("is_edited")
+  isDeleted  Boolean? @default(false) @map("is_deleted")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  chatroom Chatroom       @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
+  sender   ChatroomMember @relation(fields: [chatroomId, senderId], references: [chatroomId, userId], onDelete: Cascade)
+
+  @@index([chatroomId, createdAt])
+  @@index([senderId])
+  @@map("chat_messages")
+}
+
+/// Domain: NANO
+
+/// Nano 정보
+/// @namespace Nano
+model Nano {
+  id           String  @id @default(cuid()) @map("id")
+  workspaceId  String  @map("workspace_id")
+  parentNanoId String? @map("parent_nano_id")
+  type         String? @map("type")
+  title        String? @map("title")
+  content      Json?   @map("content") // JSON 타입 매핑
+  writerId     String? @map("writer_id")
+  position     Float   @default(0.0) @map("position")
+  version      Int     @default(1) @map("version")
+
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  deletedAt       DateTime? @map("deleted_at") // Soft Delete 방식을 사용하기에 사용
+  parentDeletedAt DateTime? @map("parent_deleted_at")
+
+  // Relations
+  // Tree 구조를 위한 Nano와 Nano 참조
+  parent   Nano?  @relation("NanoHierarchy", fields: [parentNanoId], references: [id], onDelete: Cascade)
+  children Nano[] @relation("NanoHierarchy")
+
+  writerMember WorkspaceMember? @relation(fields: [workspaceId, writerId], references: [workspaceId, userId], onDelete: Cascade)
+
+  histories    NanoHistory[]
+  pendingNanos PendingNano[]
+
+  @@index([workspaceId, deletedAt, position])
+  @@index([parentNanoId, deletedAt, position])
+  @@index([writerId])
+  @@map("nanos")
+}
+
+/// Nano 이력 관리
+/// @namespace Nano
+model NanoHistory {
+  id          String  @id @default(cuid()) @map("id")
+  nanoId      String  @map("nano_id")
+  version     String? @map("version")
+  title       String? @map("title")
+  content     Json?   @map("content")
+  writerId    String? @map("writer_id")
+  workspaceId String  @map("workspace_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  nano            Nano              @relation(fields: [nanoId], references: [id], onDelete: Cascade)
+  approvalRequest ApprovalRequest[]
+  writer          User?             @relation(fields: [writerId], references: [id], onDelete: SetNull)
+
+  @@index([nanoId])
+  @@index([writerId])
+  @@map("nano_histories")
+}
+
+/// 문서 결재 요청
+/// @namespace Nano
+model ApprovalRequest {
+  id            String  @id @default(cuid()) @map("id")
+  nanoId        String  @map("nano_id")
+  historyId     String  @map("history_id")
+  status        String? @map("status")
+  targetVersion Int     @default(1) @map("target_version")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  history     NanoHistory  @relation(fields: [historyId], references: [id], onDelete: Cascade)
+  pendingNano PendingNano?
+
+  @@index([historyId])
+  @@index([nanoId])
+  @@map("approval_requests")
+}
+
+/// 결재 대기 중인 Nano
+/// @namespace Nano
+model PendingNano {
+  approvalId String  @id @map("approval_id")
+  nanoId     String? @map("nano_id")
+  comment    String? @map("comment")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  approval ApprovalRequest @relation(fields: [approvalId], references: [id], onDelete: Cascade)
+  nano     Nano?           @relation(fields: [nanoId], references: [id], onDelete: Cascade)
+
+  @@index([nanoId])
+  @@map("pending_nanos")
+}
+
+/// Refresh Token
+/// @namespace Token
+model RefreshToken {
+  id          String @id @default(cuid())
+  userId      String @map("user_id")
+  hashedToken String @map("hashed_token")
+  jti         String @unique @map("jti")
+
+  // 어느 기기에서 접속했는 지 정보를 얻기 위한 속성
+  userAgent String? @map("user_agent")
+  ipAddress String? @map("ip_address")
+
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Foreign Key 설정
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}

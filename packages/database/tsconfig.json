@@ -4,7 +4,8 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "./dist",
-    "types": ["node"]
+    "types": ["node"],
+    "ignoreDeprecations": "6.0"
   },
   "include": ["prisma.config.ts", "index.ts"]
 }
