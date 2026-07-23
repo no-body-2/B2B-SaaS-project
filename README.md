@@ -42,6 +42,13 @@
 ### 2026-07-21
 - Dockerfile을 통한 Backend 컨테이너화 성공
 
+### 2026-07-22
+- Backend run (with Docker) Error 수정
+- Frontend Docker 컨테이너화 및 실행 성공
+
+### 2026-07-23
+- AWS VPC, Subnet, Internet Gateway, Routing Table 설정 완료
+
 ---
 
 ## TODO
