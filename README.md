@@ -48,6 +48,7 @@
 
 ### 2026-07-23
 - AWS VPC, Subnet, Internet Gateway, Routing Table 설정 완료
+- AWS EC2, 및 구매한 도메인 [luminano.xyz] 연결 완료
 
 ---
 
