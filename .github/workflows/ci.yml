@@ -96,6 +96,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            export KUBECONFIG=$HOME/.kube/config
             kubectl rollout restart deployment/luminano-api
             kubectl rollout restart deployment/luminano-web
             kubectl rollout status deployment/luminano-api
