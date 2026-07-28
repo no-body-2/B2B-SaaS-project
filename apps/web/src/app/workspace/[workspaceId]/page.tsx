@@ -14,7 +14,7 @@ import WorkflowPanel from '../../../components/WorkflowPanel';
 import ChatPanel from '../../../components/ChatPanel';
 
 import { 
-  Building2, FileText, MessageSquare, ShieldCheck, Settings, 
+  FileText, MessageSquare, ShieldCheck, Settings, 
   ChevronLeft, Plus, Folder, Hash, Lock, Loader2, User, ArrowUp, ArrowDown
 } from 'lucide-react';
 
@@ -63,7 +63,7 @@ export default function WorkspaceDetailView() {
     if (workspaceId && user) {
       selectWorkspace(workspaceId);
     }
-  }, [workspaceId, user]);
+  }, [workspaceId, user, selectWorkspace]);
 
   const handleCreateRootDoc = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,6 +73,7 @@ export default function WorkspaceDetailView() {
       setNewDocTitle('');
       setIsCreatingDoc(false);
     } catch (err) {
+      console.error(err);
       alert('문서 생성에 실패했습니다.');
     }
   };

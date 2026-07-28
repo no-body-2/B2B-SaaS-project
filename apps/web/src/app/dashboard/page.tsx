@@ -15,7 +15,6 @@ export default function Dashboard() {
     fetchWorkspaces, 
     selectWorkspace, 
     createWorkspace, 
-    loadingWorkspace,
     restoreWorkspace
   } = useWorkspace();
 
@@ -83,6 +82,7 @@ export default function Dashboard() {
         await deleteAccount();
         router.push('/');
       } catch (err) {
+        console.error(err);
         alert('회원 탈퇴에 실패했습니다.');
       }
     }

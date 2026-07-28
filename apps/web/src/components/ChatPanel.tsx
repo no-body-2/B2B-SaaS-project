@@ -7,7 +7,7 @@ import { getSocket } from '../lib/socket';
 import { apiClient, getAccessToken } from '../lib/api';
 import { 
   MessageSquare, Send, Search, Trash2, Edit2, Check, X, 
-  Hash, Lock, LogOut, ArrowLeft, Loader2, Users, Crown
+  Hash, Lock, LogOut, ArrowLeft, Loader2, Crown
 } from 'lucide-react';
 
 interface ChatMessage {

@@ -70,7 +70,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: apps/api/Dockerfile
+          file: ./apps/api/Dockerfile
           platforms: linux/arm64
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/luminano-api:latest
@@ -80,7 +80,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: apps/web/Dockerfile
+          file: ./apps/web/Dockerfile
           platforms: linux/arm64
           build-args: |
             NEXT_PUBLIC_API_MOCK=false
