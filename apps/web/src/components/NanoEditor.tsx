@@ -1,15 +1,14 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../lib/api';
-import { FileText, Save, Trash2, Calendar, User, Eye, Edit3, ShieldAlert, Sparkles, Loader2, Plus, ChevronRight, CornerDownRight } from 'lucide-react';
+import { FileText, Save, Trash2, Calendar, Edit3, ShieldAlert, Sparkles, Loader2, Plus, ChevronRight, CornerDownRight } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 export default function NanoEditor() {
-  const { user } = useAuth();
   const { 
     activeWorkspace, 
     activeNano, 
@@ -38,7 +37,7 @@ export default function NanoEditor() {
 
   const isOwner = activeWorkspace?.role === 'OWNER';
 
-  const fetchChildren = async () => {
+  const fetchChildren = useCallback(async () => {
     if (!activeWorkspace || !activeNano) return;
     setLoadingChildren(true);
     try {
@@ -57,7 +56,7 @@ export default function NanoEditor() {
     } finally {
       setLoadingChildren(false);
     }
-  };
+  }, [activeWorkspace, activeNano]);
 
   useEffect(() => {
     if (activeNano) {
@@ -72,7 +71,7 @@ export default function NanoEditor() {
     } else {
       setChildNanos([]);
     }
-  }, [activeNano, activeWorkspace]);
+  }, [activeNano, activeWorkspace, fetchChildren]);
 
   const handleCreateChild = async (e: React.FormEvent) => {
     e.preventDefault();

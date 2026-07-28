@@ -9,6 +9,7 @@ interface LumiNanoIconProps extends React.ImgHTMLAttributes<HTMLImageElement> {
 
 export default function LumiNanoIcon({ className, size = 24, ...props }: LumiNanoIconProps) {
   return (
+    /* eslint-disable-next-line @next/next/no-img-element */
     <img 
       src="/icon.svg" 
       alt="LumiNano Icon"
