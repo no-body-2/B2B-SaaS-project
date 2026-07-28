@@ -89,24 +89,24 @@ export default function Home() {
       const parsedMsg = Array.isArray(rawMsg) ? rawMsg.join(', ') : rawMsg;
 
       if (!err.response) {
-        setErrorMsg('서버와 연결할 수 없습니다. 인터넷 상태 또는 서버 구동 상황을 확인해 주세요.');
+        setErrorMsg('[네트워크 오류] API 서버에 연결할 수 없습니다. 서버 구동 상태 또는 네트워크 연결을 확인해 주세요.');
       } else if (isLogin) {
         if (status === 401) {
-          setErrorMsg(parsedMsg || '이메일 또는 비밀번호가 일치하지 않습니다.');
+          setErrorMsg(parsedMsg ? `[로그인 오류] ${parsedMsg}` : '[로그인 오류] 이메일 또는 비밀번호가 일치하지 않습니다.');
         } else if (status === 403) {
-          setErrorMsg(parsedMsg || '현재 탈퇴 대기 중인 계정입니다.');
+          setErrorMsg(parsedMsg ? `[로그인 제한] ${parsedMsg}` : '[로그인 제한] 현재 탈퇴 대기 중이거나 비활성화된 계정입니다.');
         } else if (status === 429 || (parsedMsg && parsedMsg.includes('실패 횟수'))) {
-          setErrorMsg(parsedMsg || '로그인 실패 횟수 초과로 계정이 임시 잠금 처리되었습니다. 잠시 후 다시 시도해 주세요.');
+          setErrorMsg(parsedMsg ? `[계정 잠금] ${parsedMsg}` : '[계정 잠금] 로그인 실패 횟수 초과로 인해 1분 동안 로그인이 제한됩니다.');
         } else {
-          setErrorMsg(parsedMsg || '로그인 처리 도중 오류가 발생했습니다. 입력값을 확인해 주세요.');
+          setErrorMsg(parsedMsg ? `[로그인 오류] ${parsedMsg}` : '[로그인 오류] 처리 도중 예기치 않은 에러가 발생했습니다.');
         }
       } else {
         if (status === 409) {
-          setErrorMsg(parsedMsg || '이미 사용 중인 이메일입니다. 다른 이메일 주소를 입력해 주세요.');
+          setErrorMsg(parsedMsg ? `[회원가입 실패] ${parsedMsg}` : '[회원가입 실패] 이미 사용 중인 이메일 주소입니다.');
         } else if (status === 400) {
-          setErrorMsg(parsedMsg || '입력값이 유효하지 않습니다. 입력 양식을 다시 확인해 주세요.');
+          setErrorMsg(parsedMsg ? `[입력 형식 오류] ${parsedMsg}` : '[입력 형식 오류] 입력값이 규칙에 맞지 않습니다. 양식을 확인해 주세요.');
         } else {
-          setErrorMsg(parsedMsg || '회원가입 처리 도중 오류가 발생했습니다. 입력값을 확인해 주세요.');
+          setErrorMsg(parsedMsg ? `[회원가입 오류] ${parsedMsg}` : '[회원가입 오류] 처리 도중 예기치 않은 에러가 발생했습니다.');
         }
       }
     } finally {
