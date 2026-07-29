@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  // Prisma 7+ 에서는 연결 URL을 prisma.config.ts 파일에서만 관리
 }
 
 /// Domain: AUTH
