@@ -429,7 +429,38 @@ const mockApi = {
       if (idx === -1) throw { response: { status: 404 } };
       workspaces[idx].deletedAt = null;
       setMockStorage('b2b_mock_workspaces', workspaces);
-      return { data: { message: '워크스페이스 복구 성공' } };
+      return { data: { message: '복구 완료' } };
+    },
+
+    listPublic: async () => {
+      const workspaces = getMockStorage('b2b_mock_workspaces', [] as any[]);
+      const publicList = workspaces.filter((w) => w.isPrivate === false && !w.deletedAt);
+      return { data: publicList };
+    },
+
+    requestJoin: async (workspaceId: string, message?: string) => {
+      const requests = getMockStorage('b2b_mock_join_requests', [] as any[]);
+      const cu = JSON.parse(localStorage.getItem('currentUser') || '{}');
+      const req = { id: `req-${Date.now()}`, workspaceId, userId: cu.userId, message, status: 'PENDING' };
+      requests.push(req);
+      setMockStorage('b2b_mock_join_requests', requests);
+      return { data: req };
+    },
+
+    getJoinRequests: async (workspaceId: string) => {
+      const requests = getMockStorage('b2b_mock_join_requests', [] as any[]);
+      const filtered = requests.filter((r: any) => r.workspaceId === workspaceId);
+      return { data: filtered };
+    },
+
+    processJoinRequest: async (workspaceId: string, requestId: string, action: 'APPROVE' | 'REJECT') => {
+      const requests = getMockStorage('b2b_mock_join_requests', [] as any[]);
+      const idx = requests.findIndex((r: any) => r.id === requestId);
+      if (idx !== -1) {
+        requests[idx].status = action === 'APPROVE' ? 'APPROVED' : 'REJECTED';
+        setMockStorage('b2b_mock_join_requests', requests);
+      }
+      return { data: { message: '처리 완료' } };
     },
   },
 
@@ -819,6 +850,11 @@ export const apiClient = IS_MOCK
         delete: (workspaceId: string, confirmName: string) => 
           realApi.delete(`/workspace/${workspaceId}`, { data: { confirmName } }),
         restore: (workspaceId: string) => realApi.patch(`/workspace/restore/${workspaceId}`),
+        listPublic: () => realApi.get('/workspace/public/list'),
+        requestJoin: (workspaceId: string, message?: string) => realApi.post(`/workspace/${workspaceId}/join-request`, { message }),
+        getJoinRequests: (workspaceId: string) => realApi.get(`/workspace/${workspaceId}/join-requests`),
+        processJoinRequest: (workspaceId: string, requestId: string, action: 'APPROVE' | 'REJECT') =>
+          realApi.patch(`/workspace/${workspaceId}/join-requests/${requestId}`, { action }),
       },
       members: {
         list: (workspaceId: string, params?: any) => realApi.get(`/workspace/${workspaceId}/members`, { params }),

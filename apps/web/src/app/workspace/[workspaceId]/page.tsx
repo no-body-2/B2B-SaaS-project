@@ -13,12 +13,13 @@ import NanoEditor from '../../../components/NanoEditor';
 import WorkflowPanel from '../../../components/WorkflowPanel';
 import ChatPanel from '../../../components/ChatPanel';
 
+import MemberManagement from '../../../components/MemberManagement';
 import { 
   FileText, MessageSquare, ShieldCheck, Settings, 
-  ChevronLeft, Plus, Folder, Hash, Lock, Loader2, User, ArrowUp, ArrowDown
+  ChevronLeft, Plus, Folder, Hash, Lock, Loader2, User, ArrowUp, ArrowDown, Users, GripVertical, CheckCircle
 } from 'lucide-react';
 
-type Tab = 'doc' | 'approval' | 'chat' | 'settings' | 'profile';
+type Tab = 'doc' | 'approval' | 'chat' | 'settings' | 'profile' | 'members';
 
 export default function WorkspaceDetailView() {
   const params = useParams();
@@ -48,6 +49,18 @@ export default function WorkspaceDetailView() {
   const [isPrivateChannel, setIsPrivateChannel] = useState(false);
   const [isCreatingChannel, setIsCreatingChannel] = useState(false);
 
+  // Drag & Drop Nanos 상태
+  const [draggedNanoId, setDraggedNanoId] = useState<string | null>(null);
+  const [orderedNanos, setOrderedNanos] = useState<any[]>([]);
+  const [hasUnsavedNanoOrder, setHasUnsavedNanoOrder] = useState(false);
+  const [savingOrder, setSavingOrder] = useState(false);
+
+  // nanos 동기화
+  useEffect(() => {
+    setOrderedNanos(nanos);
+    setHasUnsavedNanoOrder(false);
+  }, [nanos]);
+
   // 미승인 결재 건수 카운트
   const pendingApprovalsCount = approvals.filter((a) => a.status === 'PENDING').length;
 
@@ -64,6 +77,55 @@ export default function WorkspaceDetailView() {
       selectWorkspace(workspaceId);
     }
   }, [workspaceId, user, activeWorkspace?.id, selectWorkspace]);
+
+  // Drag & Drop 핸들러
+  const handleDragStart = (e: React.DragEvent, id: string) => {
+    setDraggedNanoId(id);
+    e.dataTransfer.setData('text/plain', id);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    if (!draggedNanoId || draggedNanoId === targetId) return;
+
+    const list = [...orderedNanos];
+    const dragIdx = list.findIndex((n) => n.id === draggedNanoId);
+    const dropIdx = list.findIndex((n) => n.id === targetId);
+
+    if (dragIdx !== -1 && dropIdx !== -1) {
+      const [removed] = list.splice(dragIdx, 1);
+      list.splice(dropIdx, 0, removed);
+      setOrderedNanos(list);
+      setHasUnsavedNanoOrder(true);
+    }
+    setDraggedNanoId(null);
+  };
+
+  const handleApplyNanoOrder = async () => {
+    setSavingOrder(true);
+    try {
+      for (let i = 0; i < orderedNanos.length; i++) {
+        const doc = orderedNanos[i];
+        const prevNanoId = i > 0 ? orderedNanos[i - 1].id : undefined;
+        await apiClient.nanos.movePosition(workspaceId, doc.id, {
+          targetParentNanoId: doc.parentNanoId || undefined,
+          prevNanoId,
+        });
+      }
+      alert('문서 순서 변경이 저장되었습니다.');
+      setHasUnsavedNanoOrder(false);
+      await selectWorkspace(workspaceId);
+    } catch (err) {
+      console.error(err);
+      alert('문서 순서 저장에 실패했습니다.');
+    } finally {
+      setSavingOrder(false);
+    }
+  };
 
   const handleCreateRootDoc = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -266,6 +328,18 @@ export default function WorkspaceDetailView() {
               </button>
             </div>
 
+            {/* Drag & Drop 변경사항 적용 버튼 */}
+            {hasUnsavedNanoOrder && (
+              <button
+                onClick={handleApplyNanoOrder}
+                disabled={savingOrder}
+                className="mx-2 my-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer border-0 shadow-sm"
+              >
+                {savingOrder ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
+                변경사항 적용
+              </button>
+            )}
+
             {isCreatingDoc && (
               <form onSubmit={handleCreateRootDoc} className="flex gap-1.5 px-2 mt-1">
                 <input
@@ -286,42 +360,34 @@ export default function WorkspaceDetailView() {
             )}
 
             <div className="flex flex-col gap-0.5 mt-1.5">
-              {nanos.map((doc) => (
-                <div
-                  key={doc.id}
-                  className="w-full flex items-center justify-between px-2.5 py-1 rounded-lg text-xs font-semibold tracking-wide text-left transition hover:bg-slate-800/40 text-slate-600 dark:text-slate-400 group"
-                >
-                  <button
-                    onClick={() => clickNano(doc.id)}
-                    className="flex items-center gap-2 flex-1 text-left bg-transparent border-0 cursor-pointer text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-50 font-semibold"
+              {orderedNanos.map((doc) => {
+                const canDrag = activeWorkspace.role === 'OWNER' || activeWorkspace.role === 'ADMIN';
+                return (
+                  <div
+                    key={doc.id}
+                    draggable={canDrag}
+                    onDragStart={(e) => canDrag && handleDragStart(e, doc.id)}
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => canDrag && handleDrop(e, doc.id)}
+                    className={`w-full flex items-center justify-between px-2.5 py-1 rounded-lg text-xs font-semibold tracking-wide text-left transition hover:bg-slate-800/40 text-slate-600 dark:text-slate-400 group ${
+                      draggedNanoId === doc.id ? 'opacity-40 border border-dashed border-luminano-accent' : ''
+                    }`}
                   >
-                    <FileText className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                    <span className="truncate">{doc.title}</span>
-                  </button>
-                  <div className="hidden group-hover:flex items-center gap-1">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleMoveNano(doc.id, 'up');
-                      }}
-                      className="p-0.5 hover:bg-slate-700/50 rounded text-slate-500 hover:text-luminano-accent bg-transparent border-0 cursor-pointer"
-                      title="위로 이동"
-                    >
-                      <ArrowUp className="w-3 h-3" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleMoveNano(doc.id, 'down');
-                      }}
-                      className="p-0.5 hover:bg-slate-700/50 rounded text-slate-500 hover:text-luminano-accent bg-transparent border-0 cursor-pointer"
-                      title="아래로 이동"
-                    >
-                      <ArrowDown className="w-3 h-3" />
-                    </button>
+                    <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                      {canDrag && (
+                        <GripVertical className="w-3 h-3 text-slate-400 opacity-40 group-hover:opacity-100 cursor-grab shrink-0" />
+                      )}
+                      <button
+                        onClick={() => clickNano(doc.id)}
+                        className="flex items-center gap-1.5 flex-1 text-left bg-transparent border-0 cursor-pointer text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-50 font-semibold truncate"
+                      >
+                        <FileText className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                        <span className="truncate">{doc.title}</span>
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -386,7 +452,7 @@ export default function WorkspaceDetailView() {
             </div>
           </div>
 
-          {/* 결재 프로세스 및 설정 단추 */}
+          {/* 결재 프로세스 및 멤버 관리 단추 */}
           <div className="flex flex-col gap-1 border-t border-luminano-border pt-4">
             <button
               onClick={() => setCurrentTab('approval')}
@@ -407,7 +473,22 @@ export default function WorkspaceDetailView() {
               )}
             </button>
 
-            {/* Settings & Profile options are now moved to the header settings gear dropdown menu to provide a clean Notion-like experience */}
+            {/* OWNER 및 ADMIN 전용 멤버 관리 버튼 (요구사항 5번) */}
+            {(activeWorkspace.role === 'OWNER' || activeWorkspace.role === 'ADMIN') && (
+              <button
+                onClick={() => setCurrentTab('members')}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition cursor-pointer border ${
+                  currentTab === 'members'
+                    ? 'bg-luminano-accent/10 text-luminano-accent border-luminano-accent/30'
+                    : 'text-slate-700 hover:bg-slate-800/40 dark:text-slate-200 bg-transparent border-transparent'
+                }`}
+              >
+                <span className="flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  멤버 및 가입 관리
+                </span>
+              </button>
+            )}
           </div>
 
         </div>
@@ -429,6 +510,10 @@ export default function WorkspaceDetailView() {
 
         {currentTab === 'chat' && (
           <ChatPanel />
+        )}
+
+        {currentTab === 'members' && (
+          <MemberManagement workspaceId={workspaceId} userRole={activeWorkspace.role || 'MEMBER'} />
         )}
 
         {currentTab === 'settings' && (

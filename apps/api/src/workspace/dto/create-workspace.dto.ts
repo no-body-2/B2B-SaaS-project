@@ -47,4 +47,19 @@ export class CreateWorkspaceDto {
   @IsString()
   @IsUrl({}, { message: '유효한 URL 형식이어야 합니다.' })
   logoUrl?: string;
+
+  @ApiPropertyOptional({
+    description: '접속 도메인 (영문 식별자)',
+    example: 'my-team',
+  })
+  @IsOptional()
+  @IsString()
+  domain?: string;
+
+  @ApiPropertyOptional({
+    description: '비공개 여부 (true: 비공개, false: 공개)',
+    example: true,
+  })
+  @IsOptional()
+  isPrivate?: boolean;
 }

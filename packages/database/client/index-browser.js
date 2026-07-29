@@ -144,6 +144,8 @@ exports.Prisma.WorkspaceScalarFieldEnum = {
   name: 'name',
   logoUrl: 'logoUrl',
   description: 'description',
+  domain: 'domain',
+  isPrivate: 'isPrivate',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
@@ -159,6 +161,16 @@ exports.Prisma.WorkspaceInvitationScalarFieldEnum = {
   status: 'status',
   createdAt: 'createdAt',
   expiresAt: 'expiresAt'
+};
+
+exports.Prisma.WorkspaceJoinRequestScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  userId: 'userId',
+  status: 'status',
+  message: 'message',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.WorkspaceMemberScalarFieldEnum = {
@@ -288,6 +300,7 @@ exports.Prisma.ModelName = {
   UserPreference: 'UserPreference',
   Workspace: 'Workspace',
   WorkspaceInvitation: 'WorkspaceInvitation',
+  WorkspaceJoinRequest: 'WorkspaceJoinRequest',
   WorkspaceMember: 'WorkspaceMember',
   Chatroom: 'Chatroom',
   ChatroomMember: 'ChatroomMember',

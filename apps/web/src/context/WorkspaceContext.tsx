@@ -65,7 +65,7 @@ interface WorkspaceContextType {
 
   fetchWorkspaces: () => Promise<void>;
   selectWorkspace: (workspaceId: string) => Promise<void>;
-  createWorkspace: (name: string, domain: string) => Promise<void>;
+  createWorkspace: (name: string, domain: string, isPrivate?: boolean) => Promise<void>;
   updateWorkspaceInfo: (name: string, domain: string) => Promise<void>;
   deleteWorkspace: (confirmName: string) => Promise<void>;
   restoreWorkspace: (workspaceId: string) => Promise<void>;
@@ -109,7 +109,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const formatMembers = useCallback((memberList: any[]): Member[] => {
     return memberList.map((m: any) => {
       const nameCombined = m.user?.name || 
-        `${m.firstname || m.user?.firstName || ''} ${m.lastname || m.user?.lastName || ''}`.trim() || 
+        `${m.lastname || m.user?.lastName || ''}${m.firstname || m.user?.firstName || ''}`.trim() || 
         m.email || 
         'Unknown Member';
       return {
@@ -226,9 +226,9 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   }, [formatMembers]);
 
-  const createWorkspace = async (name: string, domain: string) => {
+  const createWorkspace = async (name: string, domain: string, isPrivate: boolean = true) => {
     try {
-      await apiClient.workspace.create({ name, description: domain });
+      await apiClient.workspace.create({ name, domain, isPrivate });
       await fetchWorkspaces();
     } catch (err) {
       console.error('Create workspace failed:', err);

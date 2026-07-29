@@ -278,4 +278,48 @@ export class WorkspaceController {
   ) {
     return this.workspaceService.restoreWorkspace(reqUser.userId, param);
   }
+
+  @Get('public/list')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({ summary: '공개 워크스페이스 추천 목록 조회' })
+  async listPublicWorkspaces(@CurrentUser() reqUser: { userId: string }) {
+    return this.workspaceService.listPublicWorkspaces(reqUser.userId);
+  }
+
+  @Post(':workspaceId/join-request')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({ summary: '공개 워크스페이스 가입 신청' })
+  async requestJoinWorkspace(
+    @CurrentUser() reqUser: { userId: string },
+    @Param('workspaceId') workspaceId: string,
+    @Body('message') message?: string,
+  ) {
+    return this.workspaceService.requestJoinWorkspace(reqUser.userId, workspaceId, message);
+  }
+
+  @Get(':workspaceId/join-requests')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({ summary: '워크스페이스 가입 신청 목록 조회 (OWNER/ADMIN 전용)' })
+  async getJoinRequests(
+    @CurrentUser() reqUser: { userId: string },
+    @Param('workspaceId') workspaceId: string,
+  ) {
+    return this.workspaceService.getJoinRequests(reqUser.userId, workspaceId);
+  }
+
+  @Patch(':workspaceId/join-requests/:requestId')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('accessToken')
+  @ApiOperation({ summary: '가입 신청 승인 또는 거절 (OWNER/ADMIN 전용)' })
+  async processJoinRequest(
+    @CurrentUser() reqUser: { userId: string },
+    @Param('workspaceId') workspaceId: string,
+    @Param('requestId') requestId: string,
+    @Body('action') action: 'APPROVE' | 'REJECT',
+  ) {
+    return this.workspaceService.processJoinRequest(reqUser.userId, workspaceId, requestId, action);
+  }
 }

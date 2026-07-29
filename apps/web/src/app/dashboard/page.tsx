@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import LumiNanoIcon from '../../components/LumiNanoIcon';
+import { apiClient } from '../../lib/api';
 import { Building2, Plus, LogOut, Trash2, ArrowRight, Loader2, Sparkles } from 'lucide-react';
 
 export default function Dashboard() {
@@ -24,8 +25,13 @@ export default function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [wsName, setWsName] = useState('');
   const [wsDomain, setWsDomain] = useState('');
+  const [wsIsPrivate, setWsIsPrivate] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
   const [creating, setCreating] = useState(false);
+
+  // 추천 공개 워크스페이스 상태
+  const [publicWorkspaces, setPublicWorkspaces] = useState<any[]>([]);
+  const [loadingPublic, setLoadingPublic] = useState(false);
 
   // 세션이 없으면 로그인 페이지로 튕겨냄
   useEffect(() => {
@@ -34,12 +40,25 @@ export default function Dashboard() {
     }
   }, [user, authLoading, router]);
 
-  // 마운트 시 워크스페이스 목록 동기화
+  // 마운트 시 워크스페이스 목록 및 공개 추천 워크스페이스 동기화
   useEffect(() => {
     if (user) {
       fetchWorkspaces();
+      loadPublicWorkspaces();
     }
   }, [user, fetchWorkspaces]);
+
+  const loadPublicWorkspaces = async () => {
+    setLoadingPublic(true);
+    try {
+      const res = await apiClient.workspace.listPublic();
+      setPublicWorkspaces(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      console.error('Failed to load public workspaces:', err);
+    } finally {
+      setLoadingPublic(false);
+    }
+  };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,29 +69,38 @@ export default function Dashboard() {
       return;
     }
 
-    setWsName(wsName.trim());
-    setWsDomain(wsDomain.trim());
-
     setCreating(true);
     try {
-      await createWorkspace(wsName, wsDomain);
+      await createWorkspace(wsName.trim(), wsDomain.trim(), wsIsPrivate);
       setWsName('');
       setWsDomain('');
       setIsModalOpen(false);
+      await fetchWorkspaces();
     } catch (err: any) {
       console.error(err);
-      setErrorMsg(err.response?.data?.message || '생성에 실패했습니다. 한도를 초과했거나 중복 도메인입니다.');
+      setErrorMsg(err.response?.data?.message || '생성에 실패했습니다. 한도를 초과했거나 이미 사용 중인 도메인입니다.');
     } finally {
       setCreating(false);
     }
   };
 
-  const handleSelect = async (wsId: string) => {
+  const handleSelect = async (ws: any) => {
     try {
-      await selectWorkspace(wsId);
-      router.push(`/workspace/${wsId}`);
+      const targetSlug = ws.domain || ws.id;
+      await selectWorkspace(ws.id);
+      router.push(`/workspace/${targetSlug}`);
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleRequestJoin = async (workspaceId: string) => {
+    try {
+      await apiClient.workspace.requestJoin(workspaceId, '가입을 요청합니다.');
+      alert('가입 신청이 성공적으로 제출되었습니다.');
+      loadPublicWorkspaces();
+    } catch (err: any) {
+      alert(err.response?.data?.message || '가입 신청 제출 실패');
     }
   };
 
@@ -177,7 +205,7 @@ export default function Dashboard() {
             {activeWorkspaces.map((ws) => (
               <div
                 key={ws.id}
-                onClick={() => handleSelect(ws.id)}
+                onClick={() => handleSelect(ws)}
                 className="group relative bg-luminano-point border border-luminano-border rounded-xl p-6 shadow-md hover:shadow-lg transition cursor-pointer flex flex-col justify-between min-h-[160px] hover:border-luminano-accent"
               >
                 <div className="flex flex-col gap-2">
@@ -198,7 +226,7 @@ export default function Dashboard() {
                   <h3 className="font-bold text-lg text-foreground group-hover:text-luminano-accent transition mt-2">
                     {ws.name}
                   </h3>
-                  <span className="text-xs text-slate-600 dark:text-slate-400 font-mono">@{ws.domain}.luminano.com</span>
+                  <span className="text-xs text-slate-600 dark:text-slate-400 font-mono">@{ws.domain || ws.id}.luminano.xyz</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-xs font-bold text-luminano-accent mt-4 group-hover:translate-x-1 transition duration-200">
                   입장하기
@@ -208,6 +236,71 @@ export default function Dashboard() {
             ))}
           </div>
         )}
+
+        {/* 🌐 추천 공개 워크스페이스 탐색 섹션 (요구사항 6번) */}
+        <div className="mt-8 border-t border-luminano-border pt-8 flex flex-col gap-4">
+          <div>
+            <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
+              🌐 추천 공개 워크스페이스 탐색
+            </h2>
+            <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+              공개(Public)로 설정된 오픈 워크스페이스를 탐색하고 가입 신청을 보낼 수 있습니다.
+            </p>
+          </div>
+
+          {publicWorkspaces.length === 0 ? (
+            <div className="p-8 text-center text-xs text-slate-500 bg-luminano-point/50 rounded-xl border border-luminano-border">
+              현재 가입 가능한 추천 공개 워크스페이스가 없습니다.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {publicWorkspaces.map((pWs) => (
+                <div
+                  key={pWs.id}
+                  className="bg-luminano-point border border-luminano-border rounded-xl p-6 shadow-sm flex flex-col justify-between min-h-[170px]"
+                >
+                  <div className="flex flex-col gap-2">
+                    <div className="flex justify-between items-start">
+                      <div className="w-9 h-9 bg-luminano-accent/10 text-luminano-accent rounded-lg flex items-center justify-center font-bold text-sm">
+                        🌐
+                      </div>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-900/50">
+                        Public
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-base text-foreground mt-1">
+                      {pWs.name}
+                    </h3>
+                    <span className="text-xs text-slate-500 font-mono">@{pWs.domain || pWs.id}.luminano.xyz</span>
+                    {pWs.description && (
+                      <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 mt-1">
+                        {pWs.description}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-luminano-border flex justify-between items-center">
+                    <span className="text-[11px] text-slate-500 font-medium">
+                      멤버 {pWs.memberCount || 1}명
+                    </span>
+                    {pWs.hasRequested ? (
+                      <span className="text-xs font-bold text-amber-500 bg-amber-500/10 px-3 py-1 rounded-lg">
+                        신청 대기 중
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => handleRequestJoin(pWs.id)}
+                        className="px-3 py-1.5 bg-luminano-accent hover:bg-luminano-accent/90 text-white dark:text-slate-950 rounded-lg text-xs font-bold transition cursor-pointer border-0"
+                      >
+                        가입 신청
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* 삭제 보관함 섹션 */}
         {deletedWorkspaces.length > 0 && (
@@ -240,7 +333,7 @@ export default function Dashboard() {
                     <h3 className="font-bold text-lg text-slate-800 dark:text-slate-200 mt-2">
                       {ws.name}
                     </h3>
-                    <span className="text-xs text-slate-500 font-mono">@{ws.domain}.luminano.com</span>
+                    <span className="text-xs text-slate-500 font-mono">@{ws.domain || ws.id}.luminano.xyz</span>
                   </div>
                   
                   {ws.role === 'OWNER' ? (
@@ -319,9 +412,43 @@ export default function Dashboard() {
                     className="flex-1 px-3 py-2 border border-luminano-border rounded-l-lg text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-luminano-accent/20 focus:border-luminano-accent"
                   />
                   <span className="px-3 py-2 border border-l-0 border-luminano-border bg-background rounded-r-lg text-xs font-mono text-slate-600 dark:text-slate-400">
-                    .luminano.com
+                    .luminano.xyz
                   </span>
                 </div>
+              </div>
+
+              {/* Public / Private 설정 선택지 */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-200">공개 설정</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setWsIsPrivate(true)}
+                    className={`py-2 px-3 rounded-lg border text-xs font-bold cursor-pointer transition ${
+                      wsIsPrivate
+                        ? 'bg-luminano-accent/10 border-luminano-accent text-luminano-accent'
+                        : 'border-luminano-border text-slate-500 bg-transparent'
+                    }`}
+                  >
+                    🔒 비공개 (Private)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setWsIsPrivate(false)}
+                    className={`py-2 px-3 rounded-lg border text-xs font-bold cursor-pointer transition ${
+                      !wsIsPrivate
+                        ? 'bg-luminano-accent/10 border-luminano-accent text-luminano-accent'
+                        : 'border-luminano-border text-slate-500 bg-transparent'
+                    }`}
+                  >
+                    🌐 공개 (Public)
+                  </button>
+                </div>
+                <p className="text-[11px] text-slate-500">
+                  {wsIsPrivate
+                    ? '초대받은 사용자만 접근 가능합니다.'
+                    : '메인 대시보드 추천 목록에 노출되어 가입 신청을 받을 수 있습니다.'}
+                </p>
               </div>
 
               <div className="flex justify-end gap-3 mt-2 border-t border-luminano-border pt-3">

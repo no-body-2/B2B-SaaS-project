@@ -29,8 +29,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // 유저 정보에 name 필드가 누락되었거나 firstName/lastName이 분리되었을 경우 보정하는 헬퍼
   const formatUser = (rawUser: any): User | null => {
     if (!rawUser) return null;
-    const nameCombined = (rawUser.firstName || rawUser.lastName)
-      ? `${rawUser.firstName || ''} ${rawUser.lastName || ''}`.trim()
+    const nameCombined = (rawUser.lastName || rawUser.firstName)
+      ? `${rawUser.lastName || ''}${rawUser.firstName || ''}`.trim()
       : (rawUser.name || rawUser.email);
     return {
       id: rawUser.id || rawUser.userId,

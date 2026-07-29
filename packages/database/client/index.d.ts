@@ -38,6 +38,12 @@ export type Workspace = $Result.DefaultSelection<Prisma.$WorkspacePayload>
  */
 export type WorkspaceInvitation = $Result.DefaultSelection<Prisma.$WorkspaceInvitationPayload>
 /**
+ * Model WorkspaceJoinRequest
+ * 워크스페이스 가입 신청 정보
+ * @namespace Workspace
+ */
+export type WorkspaceJoinRequest = $Result.DefaultSelection<Prisma.$WorkspaceJoinRequestPayload>
+/**
  * Model WorkspaceMember
  * 사용자 - 워크스페이스 매핑
  * @namespace Workspace
@@ -252,6 +258,16 @@ export class PrismaClient<
     * ```
     */
   get workspaceInvitation(): Prisma.WorkspaceInvitationDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.workspaceJoinRequest`: Exposes CRUD operations for the **WorkspaceJoinRequest** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more WorkspaceJoinRequests
+    * const workspaceJoinRequests = await prisma.workspaceJoinRequest.findMany()
+    * ```
+    */
+  get workspaceJoinRequest(): Prisma.WorkspaceJoinRequestDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.workspaceMember`: Exposes CRUD operations for the **WorkspaceMember** model.
@@ -780,6 +796,7 @@ export namespace Prisma {
     UserPreference: 'UserPreference',
     Workspace: 'Workspace',
     WorkspaceInvitation: 'WorkspaceInvitation',
+    WorkspaceJoinRequest: 'WorkspaceJoinRequest',
     WorkspaceMember: 'WorkspaceMember',
     Chatroom: 'Chatroom',
     ChatroomMember: 'ChatroomMember',
@@ -804,7 +821,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "userPreference" | "workspace" | "workspaceInvitation" | "workspaceMember" | "chatroom" | "chatroomMember" | "chatMessage" | "nano" | "nanoHistory" | "approvalRequest" | "pendingNano" | "refreshToken"
+      modelProps: "user" | "userPreference" | "workspace" | "workspaceInvitation" | "workspaceJoinRequest" | "workspaceMember" | "chatroom" | "chatroomMember" | "chatMessage" | "nano" | "nanoHistory" | "approvalRequest" | "pendingNano" | "refreshToken"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1101,6 +1118,80 @@ export namespace Prisma {
           count: {
             args: Prisma.WorkspaceInvitationCountArgs<ExtArgs>
             result: $Utils.Optional<WorkspaceInvitationCountAggregateOutputType> | number
+          }
+        }
+      }
+      WorkspaceJoinRequest: {
+        payload: Prisma.$WorkspaceJoinRequestPayload<ExtArgs>
+        fields: Prisma.WorkspaceJoinRequestFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.WorkspaceJoinRequestFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceJoinRequestPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.WorkspaceJoinRequestFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceJoinRequestPayload>
+          }
+          findFirst: {
+            args: Prisma.WorkspaceJoinRequestFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceJoinRequestPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.WorkspaceJoinRequestFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceJoinRequestPayload>
+          }
+          findMany: {
+            args: Prisma.WorkspaceJoinRequestFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceJoinRequestPayload>[]
+          }
+          create: {
+            args: Prisma.WorkspaceJoinRequestCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceJoinRequestPayload>
+          }
+          createMany: {
+            args: Prisma.WorkspaceJoinRequestCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.WorkspaceJoinRequestCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceJoinRequestPayload>[]
+          }
+          delete: {
+            args: Prisma.WorkspaceJoinRequestDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceJoinRequestPayload>
+          }
+          update: {
+            args: Prisma.WorkspaceJoinRequestUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceJoinRequestPayload>
+          }
+          deleteMany: {
+            args: Prisma.WorkspaceJoinRequestDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.WorkspaceJoinRequestUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.WorkspaceJoinRequestUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceJoinRequestPayload>[]
+          }
+          upsert: {
+            args: Prisma.WorkspaceJoinRequestUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceJoinRequestPayload>
+          }
+          aggregate: {
+            args: Prisma.WorkspaceJoinRequestAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWorkspaceJoinRequest>
+          }
+          groupBy: {
+            args: Prisma.WorkspaceJoinRequestGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WorkspaceJoinRequestGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.WorkspaceJoinRequestCountArgs<ExtArgs>
+            result: $Utils.Optional<WorkspaceJoinRequestCountAggregateOutputType> | number
           }
         }
       }
@@ -1882,6 +1973,7 @@ export namespace Prisma {
     userPreference?: UserPreferenceOmit
     workspace?: WorkspaceOmit
     workspaceInvitation?: WorkspaceInvitationOmit
+    workspaceJoinRequest?: WorkspaceJoinRequestOmit
     workspaceMember?: WorkspaceMemberOmit
     chatroom?: ChatroomOmit
     chatroomMember?: ChatroomMemberOmit
@@ -1975,6 +2067,7 @@ export namespace Prisma {
     WorkspaceInvitations: number
     refreshTokens: number
     nanoHistorys: number
+    joinRequests: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1982,6 +2075,7 @@ export namespace Prisma {
     WorkspaceInvitations?: boolean | UserCountOutputTypeCountWorkspaceInvitationsArgs
     refreshTokens?: boolean | UserCountOutputTypeCountRefreshTokensArgs
     nanoHistorys?: boolean | UserCountOutputTypeCountNanoHistorysArgs
+    joinRequests?: boolean | UserCountOutputTypeCountJoinRequestsArgs
   }
 
   // Custom InputTypes
@@ -2023,6 +2117,13 @@ export namespace Prisma {
     where?: NanoHistoryWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountJoinRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WorkspaceJoinRequestWhereInput
+  }
+
 
   /**
    * Count Type WorkspaceCountOutputType
@@ -2032,12 +2133,14 @@ export namespace Prisma {
     members: number
     invitations: number
     chatrooms: number
+    joinRequests: number
   }
 
   export type WorkspaceCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     members?: boolean | WorkspaceCountOutputTypeCountMembersArgs
     invitations?: boolean | WorkspaceCountOutputTypeCountInvitationsArgs
     chatrooms?: boolean | WorkspaceCountOutputTypeCountChatroomsArgs
+    joinRequests?: boolean | WorkspaceCountOutputTypeCountJoinRequestsArgs
   }
 
   // Custom InputTypes
@@ -2070,6 +2173,13 @@ export namespace Prisma {
    */
   export type WorkspaceCountOutputTypeCountChatroomsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ChatroomWhereInput
+  }
+
+  /**
+   * WorkspaceCountOutputType without action
+   */
+  export type WorkspaceCountOutputTypeCountJoinRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WorkspaceJoinRequestWhereInput
   }
 
 
@@ -2469,6 +2579,7 @@ export namespace Prisma {
     WorkspaceInvitations?: boolean | User$WorkspaceInvitationsArgs<ExtArgs>
     refreshTokens?: boolean | User$refreshTokensArgs<ExtArgs>
     nanoHistorys?: boolean | User$nanoHistorysArgs<ExtArgs>
+    joinRequests?: boolean | User$joinRequestsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -2515,6 +2626,7 @@ export namespace Prisma {
     WorkspaceInvitations?: boolean | User$WorkspaceInvitationsArgs<ExtArgs>
     refreshTokens?: boolean | User$refreshTokensArgs<ExtArgs>
     nanoHistorys?: boolean | User$nanoHistorysArgs<ExtArgs>
+    joinRequests?: boolean | User$joinRequestsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -2528,6 +2640,7 @@ export namespace Prisma {
       WorkspaceInvitations: Prisma.$WorkspaceInvitationPayload<ExtArgs>[]
       refreshTokens: Prisma.$RefreshTokenPayload<ExtArgs>[]
       nanoHistorys: Prisma.$NanoHistoryPayload<ExtArgs>[]
+      joinRequests: Prisma.$WorkspaceJoinRequestPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2938,6 +3051,7 @@ export namespace Prisma {
     WorkspaceInvitations<T extends User$WorkspaceInvitationsArgs<ExtArgs> = {}>(args?: Subset<T, User$WorkspaceInvitationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     refreshTokens<T extends User$refreshTokensArgs<ExtArgs> = {}>(args?: Subset<T, User$refreshTokensArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     nanoHistorys<T extends User$nanoHistorysArgs<ExtArgs> = {}>(args?: Subset<T, User$nanoHistorysArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NanoHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    joinRequests<T extends User$joinRequestsArgs<ExtArgs> = {}>(args?: Subset<T, User$joinRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceJoinRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3481,6 +3595,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: NanoHistoryScalarFieldEnum | NanoHistoryScalarFieldEnum[]
+  }
+
+  /**
+   * User.joinRequests
+   */
+  export type User$joinRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceJoinRequest
+     */
+    select?: WorkspaceJoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceJoinRequest
+     */
+    omit?: WorkspaceJoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceJoinRequestInclude<ExtArgs> | null
+    where?: WorkspaceJoinRequestWhereInput
+    orderBy?: WorkspaceJoinRequestOrderByWithRelationInput | WorkspaceJoinRequestOrderByWithRelationInput[]
+    cursor?: WorkspaceJoinRequestWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: WorkspaceJoinRequestScalarFieldEnum | WorkspaceJoinRequestScalarFieldEnum[]
   }
 
   /**
@@ -4567,6 +4705,8 @@ export namespace Prisma {
     name: string | null
     logoUrl: string | null
     description: string | null
+    domain: string | null
+    isPrivate: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
     deletedAt: Date | null
@@ -4577,6 +4717,8 @@ export namespace Prisma {
     name: string | null
     logoUrl: string | null
     description: string | null
+    domain: string | null
+    isPrivate: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
     deletedAt: Date | null
@@ -4587,6 +4729,8 @@ export namespace Prisma {
     name: number
     logoUrl: number
     description: number
+    domain: number
+    isPrivate: number
     createdAt: number
     updatedAt: number
     deletedAt: number
@@ -4599,6 +4743,8 @@ export namespace Prisma {
     name?: true
     logoUrl?: true
     description?: true
+    domain?: true
+    isPrivate?: true
     createdAt?: true
     updatedAt?: true
     deletedAt?: true
@@ -4609,6 +4755,8 @@ export namespace Prisma {
     name?: true
     logoUrl?: true
     description?: true
+    domain?: true
+    isPrivate?: true
     createdAt?: true
     updatedAt?: true
     deletedAt?: true
@@ -4619,6 +4767,8 @@ export namespace Prisma {
     name?: true
     logoUrl?: true
     description?: true
+    domain?: true
+    isPrivate?: true
     createdAt?: true
     updatedAt?: true
     deletedAt?: true
@@ -4702,6 +4852,8 @@ export namespace Prisma {
     name: string
     logoUrl: string | null
     description: string | null
+    domain: string | null
+    isPrivate: boolean
     createdAt: Date
     updatedAt: Date
     deletedAt: Date | null
@@ -4729,12 +4881,15 @@ export namespace Prisma {
     name?: boolean
     logoUrl?: boolean
     description?: boolean
+    domain?: boolean
+    isPrivate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     deletedAt?: boolean
     members?: boolean | Workspace$membersArgs<ExtArgs>
     invitations?: boolean | Workspace$invitationsArgs<ExtArgs>
     chatrooms?: boolean | Workspace$chatroomsArgs<ExtArgs>
+    joinRequests?: boolean | Workspace$joinRequestsArgs<ExtArgs>
     _count?: boolean | WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["workspace"]>
 
@@ -4743,6 +4898,8 @@ export namespace Prisma {
     name?: boolean
     logoUrl?: boolean
     description?: boolean
+    domain?: boolean
+    isPrivate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     deletedAt?: boolean
@@ -4753,6 +4910,8 @@ export namespace Prisma {
     name?: boolean
     logoUrl?: boolean
     description?: boolean
+    domain?: boolean
+    isPrivate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     deletedAt?: boolean
@@ -4763,16 +4922,19 @@ export namespace Prisma {
     name?: boolean
     logoUrl?: boolean
     description?: boolean
+    domain?: boolean
+    isPrivate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     deletedAt?: boolean
   }
 
-  export type WorkspaceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "logoUrl" | "description" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["workspace"]>
+  export type WorkspaceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "logoUrl" | "description" | "domain" | "isPrivate" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["workspace"]>
   export type WorkspaceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     members?: boolean | Workspace$membersArgs<ExtArgs>
     invitations?: boolean | Workspace$invitationsArgs<ExtArgs>
     chatrooms?: boolean | Workspace$chatroomsArgs<ExtArgs>
+    joinRequests?: boolean | Workspace$joinRequestsArgs<ExtArgs>
     _count?: boolean | WorkspaceCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type WorkspaceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -4784,12 +4946,15 @@ export namespace Prisma {
       members: Prisma.$WorkspaceMemberPayload<ExtArgs>[]
       invitations: Prisma.$WorkspaceInvitationPayload<ExtArgs>[]
       chatrooms: Prisma.$ChatroomPayload<ExtArgs>[]
+      joinRequests: Prisma.$WorkspaceJoinRequestPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       name: string
       logoUrl: string | null
       description: string | null
+      domain: string | null
+      isPrivate: boolean
       createdAt: Date
       updatedAt: Date
       deletedAt: Date | null
@@ -5190,6 +5355,7 @@ export namespace Prisma {
     members<T extends Workspace$membersArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$membersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     invitations<T extends Workspace$invitationsArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$invitationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceInvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     chatrooms<T extends Workspace$chatroomsArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$chatroomsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ChatroomPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    joinRequests<T extends Workspace$joinRequestsArgs<ExtArgs> = {}>(args?: Subset<T, Workspace$joinRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceJoinRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5223,6 +5389,8 @@ export namespace Prisma {
     readonly name: FieldRef<"Workspace", 'String'>
     readonly logoUrl: FieldRef<"Workspace", 'String'>
     readonly description: FieldRef<"Workspace", 'String'>
+    readonly domain: FieldRef<"Workspace", 'String'>
+    readonly isPrivate: FieldRef<"Workspace", 'Boolean'>
     readonly createdAt: FieldRef<"Workspace", 'DateTime'>
     readonly updatedAt: FieldRef<"Workspace", 'DateTime'>
     readonly deletedAt: FieldRef<"Workspace", 'DateTime'>
@@ -5688,6 +5856,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: ChatroomScalarFieldEnum | ChatroomScalarFieldEnum[]
+  }
+
+  /**
+   * Workspace.joinRequests
+   */
+  export type Workspace$joinRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceJoinRequest
+     */
+    select?: WorkspaceJoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceJoinRequest
+     */
+    omit?: WorkspaceJoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceJoinRequestInclude<ExtArgs> | null
+    where?: WorkspaceJoinRequestWhereInput
+    orderBy?: WorkspaceJoinRequestOrderByWithRelationInput | WorkspaceJoinRequestOrderByWithRelationInput[]
+    cursor?: WorkspaceJoinRequestWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: WorkspaceJoinRequestScalarFieldEnum | WorkspaceJoinRequestScalarFieldEnum[]
   }
 
   /**
@@ -6829,6 +7021,1103 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: WorkspaceInvitationInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model WorkspaceJoinRequest
+   */
+
+  export type AggregateWorkspaceJoinRequest = {
+    _count: WorkspaceJoinRequestCountAggregateOutputType | null
+    _min: WorkspaceJoinRequestMinAggregateOutputType | null
+    _max: WorkspaceJoinRequestMaxAggregateOutputType | null
+  }
+
+  export type WorkspaceJoinRequestMinAggregateOutputType = {
+    id: string | null
+    workspaceId: string | null
+    userId: string | null
+    status: string | null
+    message: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WorkspaceJoinRequestMaxAggregateOutputType = {
+    id: string | null
+    workspaceId: string | null
+    userId: string | null
+    status: string | null
+    message: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type WorkspaceJoinRequestCountAggregateOutputType = {
+    id: number
+    workspaceId: number
+    userId: number
+    status: number
+    message: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type WorkspaceJoinRequestMinAggregateInputType = {
+    id?: true
+    workspaceId?: true
+    userId?: true
+    status?: true
+    message?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type WorkspaceJoinRequestMaxAggregateInputType = {
+    id?: true
+    workspaceId?: true
+    userId?: true
+    status?: true
+    message?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type WorkspaceJoinRequestCountAggregateInputType = {
+    id?: true
+    workspaceId?: true
+    userId?: true
+    status?: true
+    message?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type WorkspaceJoinRequestAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WorkspaceJoinRequest to aggregate.
+     */
+    where?: WorkspaceJoinRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkspaceJoinRequests to fetch.
+     */
+    orderBy?: WorkspaceJoinRequestOrderByWithRelationInput | WorkspaceJoinRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: WorkspaceJoinRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkspaceJoinRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkspaceJoinRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned WorkspaceJoinRequests
+    **/
+    _count?: true | WorkspaceJoinRequestCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: WorkspaceJoinRequestMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: WorkspaceJoinRequestMaxAggregateInputType
+  }
+
+  export type GetWorkspaceJoinRequestAggregateType<T extends WorkspaceJoinRequestAggregateArgs> = {
+        [P in keyof T & keyof AggregateWorkspaceJoinRequest]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWorkspaceJoinRequest[P]>
+      : GetScalarType<T[P], AggregateWorkspaceJoinRequest[P]>
+  }
+
+
+
+
+  export type WorkspaceJoinRequestGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WorkspaceJoinRequestWhereInput
+    orderBy?: WorkspaceJoinRequestOrderByWithAggregationInput | WorkspaceJoinRequestOrderByWithAggregationInput[]
+    by: WorkspaceJoinRequestScalarFieldEnum[] | WorkspaceJoinRequestScalarFieldEnum
+    having?: WorkspaceJoinRequestScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: WorkspaceJoinRequestCountAggregateInputType | true
+    _min?: WorkspaceJoinRequestMinAggregateInputType
+    _max?: WorkspaceJoinRequestMaxAggregateInputType
+  }
+
+  export type WorkspaceJoinRequestGroupByOutputType = {
+    id: string
+    workspaceId: string
+    userId: string
+    status: string
+    message: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: WorkspaceJoinRequestCountAggregateOutputType | null
+    _min: WorkspaceJoinRequestMinAggregateOutputType | null
+    _max: WorkspaceJoinRequestMaxAggregateOutputType | null
+  }
+
+  type GetWorkspaceJoinRequestGroupByPayload<T extends WorkspaceJoinRequestGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<WorkspaceJoinRequestGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof WorkspaceJoinRequestGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], WorkspaceJoinRequestGroupByOutputType[P]>
+            : GetScalarType<T[P], WorkspaceJoinRequestGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type WorkspaceJoinRequestSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    workspaceId?: boolean
+    userId?: boolean
+    status?: boolean
+    message?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["workspaceJoinRequest"]>
+
+  export type WorkspaceJoinRequestSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    workspaceId?: boolean
+    userId?: boolean
+    status?: boolean
+    message?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["workspaceJoinRequest"]>
+
+  export type WorkspaceJoinRequestSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    workspaceId?: boolean
+    userId?: boolean
+    status?: boolean
+    message?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["workspaceJoinRequest"]>
+
+  export type WorkspaceJoinRequestSelectScalar = {
+    id?: boolean
+    workspaceId?: boolean
+    userId?: boolean
+    status?: boolean
+    message?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type WorkspaceJoinRequestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "workspaceId" | "userId" | "status" | "message" | "createdAt" | "updatedAt", ExtArgs["result"]["workspaceJoinRequest"]>
+  export type WorkspaceJoinRequestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type WorkspaceJoinRequestIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type WorkspaceJoinRequestIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    workspace?: boolean | WorkspaceDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $WorkspaceJoinRequestPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "WorkspaceJoinRequest"
+    objects: {
+      workspace: Prisma.$WorkspacePayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      workspaceId: string
+      userId: string
+      status: string
+      message: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["workspaceJoinRequest"]>
+    composites: {}
+  }
+
+  type WorkspaceJoinRequestGetPayload<S extends boolean | null | undefined | WorkspaceJoinRequestDefaultArgs> = $Result.GetResult<Prisma.$WorkspaceJoinRequestPayload, S>
+
+  type WorkspaceJoinRequestCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<WorkspaceJoinRequestFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: WorkspaceJoinRequestCountAggregateInputType | true
+    }
+
+  export interface WorkspaceJoinRequestDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['WorkspaceJoinRequest'], meta: { name: 'WorkspaceJoinRequest' } }
+    /**
+     * Find zero or one WorkspaceJoinRequest that matches the filter.
+     * @param {WorkspaceJoinRequestFindUniqueArgs} args - Arguments to find a WorkspaceJoinRequest
+     * @example
+     * // Get one WorkspaceJoinRequest
+     * const workspaceJoinRequest = await prisma.workspaceJoinRequest.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends WorkspaceJoinRequestFindUniqueArgs>(args: SelectSubset<T, WorkspaceJoinRequestFindUniqueArgs<ExtArgs>>): Prisma__WorkspaceJoinRequestClient<$Result.GetResult<Prisma.$WorkspaceJoinRequestPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one WorkspaceJoinRequest that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {WorkspaceJoinRequestFindUniqueOrThrowArgs} args - Arguments to find a WorkspaceJoinRequest
+     * @example
+     * // Get one WorkspaceJoinRequest
+     * const workspaceJoinRequest = await prisma.workspaceJoinRequest.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends WorkspaceJoinRequestFindUniqueOrThrowArgs>(args: SelectSubset<T, WorkspaceJoinRequestFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WorkspaceJoinRequestClient<$Result.GetResult<Prisma.$WorkspaceJoinRequestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WorkspaceJoinRequest that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceJoinRequestFindFirstArgs} args - Arguments to find a WorkspaceJoinRequest
+     * @example
+     * // Get one WorkspaceJoinRequest
+     * const workspaceJoinRequest = await prisma.workspaceJoinRequest.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends WorkspaceJoinRequestFindFirstArgs>(args?: SelectSubset<T, WorkspaceJoinRequestFindFirstArgs<ExtArgs>>): Prisma__WorkspaceJoinRequestClient<$Result.GetResult<Prisma.$WorkspaceJoinRequestPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WorkspaceJoinRequest that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceJoinRequestFindFirstOrThrowArgs} args - Arguments to find a WorkspaceJoinRequest
+     * @example
+     * // Get one WorkspaceJoinRequest
+     * const workspaceJoinRequest = await prisma.workspaceJoinRequest.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends WorkspaceJoinRequestFindFirstOrThrowArgs>(args?: SelectSubset<T, WorkspaceJoinRequestFindFirstOrThrowArgs<ExtArgs>>): Prisma__WorkspaceJoinRequestClient<$Result.GetResult<Prisma.$WorkspaceJoinRequestPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more WorkspaceJoinRequests that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceJoinRequestFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all WorkspaceJoinRequests
+     * const workspaceJoinRequests = await prisma.workspaceJoinRequest.findMany()
+     * 
+     * // Get first 10 WorkspaceJoinRequests
+     * const workspaceJoinRequests = await prisma.workspaceJoinRequest.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const workspaceJoinRequestWithIdOnly = await prisma.workspaceJoinRequest.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends WorkspaceJoinRequestFindManyArgs>(args?: SelectSubset<T, WorkspaceJoinRequestFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceJoinRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a WorkspaceJoinRequest.
+     * @param {WorkspaceJoinRequestCreateArgs} args - Arguments to create a WorkspaceJoinRequest.
+     * @example
+     * // Create one WorkspaceJoinRequest
+     * const WorkspaceJoinRequest = await prisma.workspaceJoinRequest.create({
+     *   data: {
+     *     // ... data to create a WorkspaceJoinRequest
+     *   }
+     * })
+     * 
+     */
+    create<T extends WorkspaceJoinRequestCreateArgs>(args: SelectSubset<T, WorkspaceJoinRequestCreateArgs<ExtArgs>>): Prisma__WorkspaceJoinRequestClient<$Result.GetResult<Prisma.$WorkspaceJoinRequestPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many WorkspaceJoinRequests.
+     * @param {WorkspaceJoinRequestCreateManyArgs} args - Arguments to create many WorkspaceJoinRequests.
+     * @example
+     * // Create many WorkspaceJoinRequests
+     * const workspaceJoinRequest = await prisma.workspaceJoinRequest.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends WorkspaceJoinRequestCreateManyArgs>(args?: SelectSubset<T, WorkspaceJoinRequestCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many WorkspaceJoinRequests and returns the data saved in the database.
+     * @param {WorkspaceJoinRequestCreateManyAndReturnArgs} args - Arguments to create many WorkspaceJoinRequests.
+     * @example
+     * // Create many WorkspaceJoinRequests
+     * const workspaceJoinRequest = await prisma.workspaceJoinRequest.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many WorkspaceJoinRequests and only return the `id`
+     * const workspaceJoinRequestWithIdOnly = await prisma.workspaceJoinRequest.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends WorkspaceJoinRequestCreateManyAndReturnArgs>(args?: SelectSubset<T, WorkspaceJoinRequestCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceJoinRequestPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a WorkspaceJoinRequest.
+     * @param {WorkspaceJoinRequestDeleteArgs} args - Arguments to delete one WorkspaceJoinRequest.
+     * @example
+     * // Delete one WorkspaceJoinRequest
+     * const WorkspaceJoinRequest = await prisma.workspaceJoinRequest.delete({
+     *   where: {
+     *     // ... filter to delete one WorkspaceJoinRequest
+     *   }
+     * })
+     * 
+     */
+    delete<T extends WorkspaceJoinRequestDeleteArgs>(args: SelectSubset<T, WorkspaceJoinRequestDeleteArgs<ExtArgs>>): Prisma__WorkspaceJoinRequestClient<$Result.GetResult<Prisma.$WorkspaceJoinRequestPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one WorkspaceJoinRequest.
+     * @param {WorkspaceJoinRequestUpdateArgs} args - Arguments to update one WorkspaceJoinRequest.
+     * @example
+     * // Update one WorkspaceJoinRequest
+     * const workspaceJoinRequest = await prisma.workspaceJoinRequest.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends WorkspaceJoinRequestUpdateArgs>(args: SelectSubset<T, WorkspaceJoinRequestUpdateArgs<ExtArgs>>): Prisma__WorkspaceJoinRequestClient<$Result.GetResult<Prisma.$WorkspaceJoinRequestPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more WorkspaceJoinRequests.
+     * @param {WorkspaceJoinRequestDeleteManyArgs} args - Arguments to filter WorkspaceJoinRequests to delete.
+     * @example
+     * // Delete a few WorkspaceJoinRequests
+     * const { count } = await prisma.workspaceJoinRequest.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends WorkspaceJoinRequestDeleteManyArgs>(args?: SelectSubset<T, WorkspaceJoinRequestDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WorkspaceJoinRequests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceJoinRequestUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many WorkspaceJoinRequests
+     * const workspaceJoinRequest = await prisma.workspaceJoinRequest.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends WorkspaceJoinRequestUpdateManyArgs>(args: SelectSubset<T, WorkspaceJoinRequestUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WorkspaceJoinRequests and returns the data updated in the database.
+     * @param {WorkspaceJoinRequestUpdateManyAndReturnArgs} args - Arguments to update many WorkspaceJoinRequests.
+     * @example
+     * // Update many WorkspaceJoinRequests
+     * const workspaceJoinRequest = await prisma.workspaceJoinRequest.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more WorkspaceJoinRequests and only return the `id`
+     * const workspaceJoinRequestWithIdOnly = await prisma.workspaceJoinRequest.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends WorkspaceJoinRequestUpdateManyAndReturnArgs>(args: SelectSubset<T, WorkspaceJoinRequestUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceJoinRequestPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one WorkspaceJoinRequest.
+     * @param {WorkspaceJoinRequestUpsertArgs} args - Arguments to update or create a WorkspaceJoinRequest.
+     * @example
+     * // Update or create a WorkspaceJoinRequest
+     * const workspaceJoinRequest = await prisma.workspaceJoinRequest.upsert({
+     *   create: {
+     *     // ... data to create a WorkspaceJoinRequest
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the WorkspaceJoinRequest we want to update
+     *   }
+     * })
+     */
+    upsert<T extends WorkspaceJoinRequestUpsertArgs>(args: SelectSubset<T, WorkspaceJoinRequestUpsertArgs<ExtArgs>>): Prisma__WorkspaceJoinRequestClient<$Result.GetResult<Prisma.$WorkspaceJoinRequestPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of WorkspaceJoinRequests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceJoinRequestCountArgs} args - Arguments to filter WorkspaceJoinRequests to count.
+     * @example
+     * // Count the number of WorkspaceJoinRequests
+     * const count = await prisma.workspaceJoinRequest.count({
+     *   where: {
+     *     // ... the filter for the WorkspaceJoinRequests we want to count
+     *   }
+     * })
+    **/
+    count<T extends WorkspaceJoinRequestCountArgs>(
+      args?: Subset<T, WorkspaceJoinRequestCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], WorkspaceJoinRequestCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a WorkspaceJoinRequest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceJoinRequestAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends WorkspaceJoinRequestAggregateArgs>(args: Subset<T, WorkspaceJoinRequestAggregateArgs>): Prisma.PrismaPromise<GetWorkspaceJoinRequestAggregateType<T>>
+
+    /**
+     * Group by WorkspaceJoinRequest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceJoinRequestGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends WorkspaceJoinRequestGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: WorkspaceJoinRequestGroupByArgs['orderBy'] }
+        : { orderBy?: WorkspaceJoinRequestGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, WorkspaceJoinRequestGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWorkspaceJoinRequestGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the WorkspaceJoinRequest model
+   */
+  readonly fields: WorkspaceJoinRequestFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for WorkspaceJoinRequest.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__WorkspaceJoinRequestClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    workspace<T extends WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WorkspaceDefaultArgs<ExtArgs>>): Prisma__WorkspaceClient<$Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the WorkspaceJoinRequest model
+   */
+  interface WorkspaceJoinRequestFieldRefs {
+    readonly id: FieldRef<"WorkspaceJoinRequest", 'String'>
+    readonly workspaceId: FieldRef<"WorkspaceJoinRequest", 'String'>
+    readonly userId: FieldRef<"WorkspaceJoinRequest", 'String'>
+    readonly status: FieldRef<"WorkspaceJoinRequest", 'String'>
+    readonly message: FieldRef<"WorkspaceJoinRequest", 'String'>
+    readonly createdAt: FieldRef<"WorkspaceJoinRequest", 'DateTime'>
+    readonly updatedAt: FieldRef<"WorkspaceJoinRequest", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * WorkspaceJoinRequest findUnique
+   */
+  export type WorkspaceJoinRequestFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceJoinRequest
+     */
+    select?: WorkspaceJoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceJoinRequest
+     */
+    omit?: WorkspaceJoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceJoinRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which WorkspaceJoinRequest to fetch.
+     */
+    where: WorkspaceJoinRequestWhereUniqueInput
+  }
+
+  /**
+   * WorkspaceJoinRequest findUniqueOrThrow
+   */
+  export type WorkspaceJoinRequestFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceJoinRequest
+     */
+    select?: WorkspaceJoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceJoinRequest
+     */
+    omit?: WorkspaceJoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceJoinRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which WorkspaceJoinRequest to fetch.
+     */
+    where: WorkspaceJoinRequestWhereUniqueInput
+  }
+
+  /**
+   * WorkspaceJoinRequest findFirst
+   */
+  export type WorkspaceJoinRequestFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceJoinRequest
+     */
+    select?: WorkspaceJoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceJoinRequest
+     */
+    omit?: WorkspaceJoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceJoinRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which WorkspaceJoinRequest to fetch.
+     */
+    where?: WorkspaceJoinRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkspaceJoinRequests to fetch.
+     */
+    orderBy?: WorkspaceJoinRequestOrderByWithRelationInput | WorkspaceJoinRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WorkspaceJoinRequests.
+     */
+    cursor?: WorkspaceJoinRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkspaceJoinRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkspaceJoinRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WorkspaceJoinRequests.
+     */
+    distinct?: WorkspaceJoinRequestScalarFieldEnum | WorkspaceJoinRequestScalarFieldEnum[]
+  }
+
+  /**
+   * WorkspaceJoinRequest findFirstOrThrow
+   */
+  export type WorkspaceJoinRequestFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceJoinRequest
+     */
+    select?: WorkspaceJoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceJoinRequest
+     */
+    omit?: WorkspaceJoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceJoinRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which WorkspaceJoinRequest to fetch.
+     */
+    where?: WorkspaceJoinRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkspaceJoinRequests to fetch.
+     */
+    orderBy?: WorkspaceJoinRequestOrderByWithRelationInput | WorkspaceJoinRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WorkspaceJoinRequests.
+     */
+    cursor?: WorkspaceJoinRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkspaceJoinRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkspaceJoinRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WorkspaceJoinRequests.
+     */
+    distinct?: WorkspaceJoinRequestScalarFieldEnum | WorkspaceJoinRequestScalarFieldEnum[]
+  }
+
+  /**
+   * WorkspaceJoinRequest findMany
+   */
+  export type WorkspaceJoinRequestFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceJoinRequest
+     */
+    select?: WorkspaceJoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceJoinRequest
+     */
+    omit?: WorkspaceJoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceJoinRequestInclude<ExtArgs> | null
+    /**
+     * Filter, which WorkspaceJoinRequests to fetch.
+     */
+    where?: WorkspaceJoinRequestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkspaceJoinRequests to fetch.
+     */
+    orderBy?: WorkspaceJoinRequestOrderByWithRelationInput | WorkspaceJoinRequestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing WorkspaceJoinRequests.
+     */
+    cursor?: WorkspaceJoinRequestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkspaceJoinRequests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkspaceJoinRequests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WorkspaceJoinRequests.
+     */
+    distinct?: WorkspaceJoinRequestScalarFieldEnum | WorkspaceJoinRequestScalarFieldEnum[]
+  }
+
+  /**
+   * WorkspaceJoinRequest create
+   */
+  export type WorkspaceJoinRequestCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceJoinRequest
+     */
+    select?: WorkspaceJoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceJoinRequest
+     */
+    omit?: WorkspaceJoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceJoinRequestInclude<ExtArgs> | null
+    /**
+     * The data needed to create a WorkspaceJoinRequest.
+     */
+    data: XOR<WorkspaceJoinRequestCreateInput, WorkspaceJoinRequestUncheckedCreateInput>
+  }
+
+  /**
+   * WorkspaceJoinRequest createMany
+   */
+  export type WorkspaceJoinRequestCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many WorkspaceJoinRequests.
+     */
+    data: WorkspaceJoinRequestCreateManyInput | WorkspaceJoinRequestCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WorkspaceJoinRequest createManyAndReturn
+   */
+  export type WorkspaceJoinRequestCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceJoinRequest
+     */
+    select?: WorkspaceJoinRequestSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceJoinRequest
+     */
+    omit?: WorkspaceJoinRequestOmit<ExtArgs> | null
+    /**
+     * The data used to create many WorkspaceJoinRequests.
+     */
+    data: WorkspaceJoinRequestCreateManyInput | WorkspaceJoinRequestCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceJoinRequestIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * WorkspaceJoinRequest update
+   */
+  export type WorkspaceJoinRequestUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceJoinRequest
+     */
+    select?: WorkspaceJoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceJoinRequest
+     */
+    omit?: WorkspaceJoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceJoinRequestInclude<ExtArgs> | null
+    /**
+     * The data needed to update a WorkspaceJoinRequest.
+     */
+    data: XOR<WorkspaceJoinRequestUpdateInput, WorkspaceJoinRequestUncheckedUpdateInput>
+    /**
+     * Choose, which WorkspaceJoinRequest to update.
+     */
+    where: WorkspaceJoinRequestWhereUniqueInput
+  }
+
+  /**
+   * WorkspaceJoinRequest updateMany
+   */
+  export type WorkspaceJoinRequestUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update WorkspaceJoinRequests.
+     */
+    data: XOR<WorkspaceJoinRequestUpdateManyMutationInput, WorkspaceJoinRequestUncheckedUpdateManyInput>
+    /**
+     * Filter which WorkspaceJoinRequests to update
+     */
+    where?: WorkspaceJoinRequestWhereInput
+    /**
+     * Limit how many WorkspaceJoinRequests to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * WorkspaceJoinRequest updateManyAndReturn
+   */
+  export type WorkspaceJoinRequestUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceJoinRequest
+     */
+    select?: WorkspaceJoinRequestSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceJoinRequest
+     */
+    omit?: WorkspaceJoinRequestOmit<ExtArgs> | null
+    /**
+     * The data used to update WorkspaceJoinRequests.
+     */
+    data: XOR<WorkspaceJoinRequestUpdateManyMutationInput, WorkspaceJoinRequestUncheckedUpdateManyInput>
+    /**
+     * Filter which WorkspaceJoinRequests to update
+     */
+    where?: WorkspaceJoinRequestWhereInput
+    /**
+     * Limit how many WorkspaceJoinRequests to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceJoinRequestIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * WorkspaceJoinRequest upsert
+   */
+  export type WorkspaceJoinRequestUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceJoinRequest
+     */
+    select?: WorkspaceJoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceJoinRequest
+     */
+    omit?: WorkspaceJoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceJoinRequestInclude<ExtArgs> | null
+    /**
+     * The filter to search for the WorkspaceJoinRequest to update in case it exists.
+     */
+    where: WorkspaceJoinRequestWhereUniqueInput
+    /**
+     * In case the WorkspaceJoinRequest found by the `where` argument doesn't exist, create a new WorkspaceJoinRequest with this data.
+     */
+    create: XOR<WorkspaceJoinRequestCreateInput, WorkspaceJoinRequestUncheckedCreateInput>
+    /**
+     * In case the WorkspaceJoinRequest was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<WorkspaceJoinRequestUpdateInput, WorkspaceJoinRequestUncheckedUpdateInput>
+  }
+
+  /**
+   * WorkspaceJoinRequest delete
+   */
+  export type WorkspaceJoinRequestDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceJoinRequest
+     */
+    select?: WorkspaceJoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceJoinRequest
+     */
+    omit?: WorkspaceJoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceJoinRequestInclude<ExtArgs> | null
+    /**
+     * Filter which WorkspaceJoinRequest to delete.
+     */
+    where: WorkspaceJoinRequestWhereUniqueInput
+  }
+
+  /**
+   * WorkspaceJoinRequest deleteMany
+   */
+  export type WorkspaceJoinRequestDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WorkspaceJoinRequests to delete
+     */
+    where?: WorkspaceJoinRequestWhereInput
+    /**
+     * Limit how many WorkspaceJoinRequests to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * WorkspaceJoinRequest without action
+   */
+  export type WorkspaceJoinRequestDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceJoinRequest
+     */
+    select?: WorkspaceJoinRequestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceJoinRequest
+     */
+    omit?: WorkspaceJoinRequestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: WorkspaceJoinRequestInclude<ExtArgs> | null
   }
 
 
@@ -17215,6 +18504,8 @@ export namespace Prisma {
     name: 'name',
     logoUrl: 'logoUrl',
     description: 'description',
+    domain: 'domain',
+    isPrivate: 'isPrivate',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     deletedAt: 'deletedAt'
@@ -17236,6 +18527,19 @@ export namespace Prisma {
   };
 
   export type WorkspaceInvitationScalarFieldEnum = (typeof WorkspaceInvitationScalarFieldEnum)[keyof typeof WorkspaceInvitationScalarFieldEnum]
+
+
+  export const WorkspaceJoinRequestScalarFieldEnum: {
+    id: 'id',
+    workspaceId: 'workspaceId',
+    userId: 'userId',
+    status: 'status',
+    message: 'message',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type WorkspaceJoinRequestScalarFieldEnum = (typeof WorkspaceJoinRequestScalarFieldEnum)[keyof typeof WorkspaceJoinRequestScalarFieldEnum]
 
 
   export const WorkspaceMemberScalarFieldEnum: {
@@ -17504,6 +18808,7 @@ export namespace Prisma {
     WorkspaceInvitations?: WorkspaceInvitationListRelationFilter
     refreshTokens?: RefreshTokenListRelationFilter
     nanoHistorys?: NanoHistoryListRelationFilter
+    joinRequests?: WorkspaceJoinRequestListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -17521,6 +18826,7 @@ export namespace Prisma {
     WorkspaceInvitations?: WorkspaceInvitationOrderByRelationAggregateInput
     refreshTokens?: RefreshTokenOrderByRelationAggregateInput
     nanoHistorys?: NanoHistoryOrderByRelationAggregateInput
+    joinRequests?: WorkspaceJoinRequestOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -17541,6 +18847,7 @@ export namespace Prisma {
     WorkspaceInvitations?: WorkspaceInvitationListRelationFilter
     refreshTokens?: RefreshTokenListRelationFilter
     nanoHistorys?: NanoHistoryListRelationFilter
+    joinRequests?: WorkspaceJoinRequestListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -17631,12 +18938,15 @@ export namespace Prisma {
     name?: StringFilter<"Workspace"> | string
     logoUrl?: StringNullableFilter<"Workspace"> | string | null
     description?: StringNullableFilter<"Workspace"> | string | null
+    domain?: StringNullableFilter<"Workspace"> | string | null
+    isPrivate?: BoolFilter<"Workspace"> | boolean
     createdAt?: DateTimeFilter<"Workspace"> | Date | string
     updatedAt?: DateTimeFilter<"Workspace"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Workspace"> | Date | string | null
     members?: WorkspaceMemberListRelationFilter
     invitations?: WorkspaceInvitationListRelationFilter
     chatrooms?: ChatroomListRelationFilter
+    joinRequests?: WorkspaceJoinRequestListRelationFilter
   }
 
   export type WorkspaceOrderByWithRelationInput = {
@@ -17644,35 +18954,43 @@ export namespace Prisma {
     name?: SortOrder
     logoUrl?: SortOrderInput | SortOrder
     description?: SortOrderInput | SortOrder
+    domain?: SortOrderInput | SortOrder
+    isPrivate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
     members?: WorkspaceMemberOrderByRelationAggregateInput
     invitations?: WorkspaceInvitationOrderByRelationAggregateInput
     chatrooms?: ChatroomOrderByRelationAggregateInput
+    joinRequests?: WorkspaceJoinRequestOrderByRelationAggregateInput
   }
 
   export type WorkspaceWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    domain?: string
     AND?: WorkspaceWhereInput | WorkspaceWhereInput[]
     OR?: WorkspaceWhereInput[]
     NOT?: WorkspaceWhereInput | WorkspaceWhereInput[]
     name?: StringFilter<"Workspace"> | string
     logoUrl?: StringNullableFilter<"Workspace"> | string | null
     description?: StringNullableFilter<"Workspace"> | string | null
+    isPrivate?: BoolFilter<"Workspace"> | boolean
     createdAt?: DateTimeFilter<"Workspace"> | Date | string
     updatedAt?: DateTimeFilter<"Workspace"> | Date | string
     deletedAt?: DateTimeNullableFilter<"Workspace"> | Date | string | null
     members?: WorkspaceMemberListRelationFilter
     invitations?: WorkspaceInvitationListRelationFilter
     chatrooms?: ChatroomListRelationFilter
-  }, "id">
+    joinRequests?: WorkspaceJoinRequestListRelationFilter
+  }, "id" | "domain">
 
   export type WorkspaceOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
     logoUrl?: SortOrderInput | SortOrder
     description?: SortOrderInput | SortOrder
+    domain?: SortOrderInput | SortOrder
+    isPrivate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrderInput | SortOrder
@@ -17689,6 +19007,8 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"Workspace"> | string
     logoUrl?: StringNullableWithAggregatesFilter<"Workspace"> | string | null
     description?: StringNullableWithAggregatesFilter<"Workspace"> | string | null
+    domain?: StringNullableWithAggregatesFilter<"Workspace"> | string | null
+    isPrivate?: BoolWithAggregatesFilter<"Workspace"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Workspace"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Workspace"> | Date | string
     deletedAt?: DateTimeNullableWithAggregatesFilter<"Workspace"> | Date | string | null
@@ -17771,6 +19091,75 @@ export namespace Prisma {
     status?: StringNullableWithAggregatesFilter<"WorkspaceInvitation"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"WorkspaceInvitation"> | Date | string
     expiresAt?: DateTimeWithAggregatesFilter<"WorkspaceInvitation"> | Date | string
+  }
+
+  export type WorkspaceJoinRequestWhereInput = {
+    AND?: WorkspaceJoinRequestWhereInput | WorkspaceJoinRequestWhereInput[]
+    OR?: WorkspaceJoinRequestWhereInput[]
+    NOT?: WorkspaceJoinRequestWhereInput | WorkspaceJoinRequestWhereInput[]
+    id?: StringFilter<"WorkspaceJoinRequest"> | string
+    workspaceId?: StringFilter<"WorkspaceJoinRequest"> | string
+    userId?: StringFilter<"WorkspaceJoinRequest"> | string
+    status?: StringFilter<"WorkspaceJoinRequest"> | string
+    message?: StringNullableFilter<"WorkspaceJoinRequest"> | string | null
+    createdAt?: DateTimeFilter<"WorkspaceJoinRequest"> | Date | string
+    updatedAt?: DateTimeFilter<"WorkspaceJoinRequest"> | Date | string
+    workspace?: XOR<WorkspaceScalarRelationFilter, WorkspaceWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type WorkspaceJoinRequestOrderByWithRelationInput = {
+    id?: SortOrder
+    workspaceId?: SortOrder
+    userId?: SortOrder
+    status?: SortOrder
+    message?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    workspace?: WorkspaceOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type WorkspaceJoinRequestWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    workspaceId_userId?: WorkspaceJoinRequestWorkspaceIdUserIdCompoundUniqueInput
+    AND?: WorkspaceJoinRequestWhereInput | WorkspaceJoinRequestWhereInput[]
+    OR?: WorkspaceJoinRequestWhereInput[]
+    NOT?: WorkspaceJoinRequestWhereInput | WorkspaceJoinRequestWhereInput[]
+    workspaceId?: StringFilter<"WorkspaceJoinRequest"> | string
+    userId?: StringFilter<"WorkspaceJoinRequest"> | string
+    status?: StringFilter<"WorkspaceJoinRequest"> | string
+    message?: StringNullableFilter<"WorkspaceJoinRequest"> | string | null
+    createdAt?: DateTimeFilter<"WorkspaceJoinRequest"> | Date | string
+    updatedAt?: DateTimeFilter<"WorkspaceJoinRequest"> | Date | string
+    workspace?: XOR<WorkspaceScalarRelationFilter, WorkspaceWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "workspaceId_userId">
+
+  export type WorkspaceJoinRequestOrderByWithAggregationInput = {
+    id?: SortOrder
+    workspaceId?: SortOrder
+    userId?: SortOrder
+    status?: SortOrder
+    message?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: WorkspaceJoinRequestCountOrderByAggregateInput
+    _max?: WorkspaceJoinRequestMaxOrderByAggregateInput
+    _min?: WorkspaceJoinRequestMinOrderByAggregateInput
+  }
+
+  export type WorkspaceJoinRequestScalarWhereWithAggregatesInput = {
+    AND?: WorkspaceJoinRequestScalarWhereWithAggregatesInput | WorkspaceJoinRequestScalarWhereWithAggregatesInput[]
+    OR?: WorkspaceJoinRequestScalarWhereWithAggregatesInput[]
+    NOT?: WorkspaceJoinRequestScalarWhereWithAggregatesInput | WorkspaceJoinRequestScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"WorkspaceJoinRequest"> | string
+    workspaceId?: StringWithAggregatesFilter<"WorkspaceJoinRequest"> | string
+    userId?: StringWithAggregatesFilter<"WorkspaceJoinRequest"> | string
+    status?: StringWithAggregatesFilter<"WorkspaceJoinRequest"> | string
+    message?: StringNullableWithAggregatesFilter<"WorkspaceJoinRequest"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"WorkspaceJoinRequest"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"WorkspaceJoinRequest"> | Date | string
   }
 
   export type WorkspaceMemberWhereInput = {
@@ -18452,6 +19841,7 @@ export namespace Prisma {
     WorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     nanoHistorys?: NanoHistoryCreateNestedManyWithoutWriterInput
+    joinRequests?: WorkspaceJoinRequestCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -18469,6 +19859,7 @@ export namespace Prisma {
     WorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     nanoHistorys?: NanoHistoryUncheckedCreateNestedManyWithoutWriterInput
+    joinRequests?: WorkspaceJoinRequestUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -18486,6 +19877,7 @@ export namespace Prisma {
     WorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     nanoHistorys?: NanoHistoryUpdateManyWithoutWriterNestedInput
+    joinRequests?: WorkspaceJoinRequestUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -18503,6 +19895,7 @@ export namespace Prisma {
     WorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     nanoHistorys?: NanoHistoryUncheckedUpdateManyWithoutWriterNestedInput
+    joinRequests?: WorkspaceJoinRequestUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -18594,12 +19987,15 @@ export namespace Prisma {
     name: string
     logoUrl?: string | null
     description?: string | null
+    domain?: string | null
+    isPrivate?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
     members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
     invitations?: WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
     chatrooms?: ChatroomCreateNestedManyWithoutWorkspaceInput
+    joinRequests?: WorkspaceJoinRequestCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUncheckedCreateInput = {
@@ -18607,12 +20003,15 @@ export namespace Prisma {
     name: string
     logoUrl?: string | null
     description?: string | null
+    domain?: string | null
+    isPrivate?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
     members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
     invitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
     chatrooms?: ChatroomUncheckedCreateNestedManyWithoutWorkspaceInput
+    joinRequests?: WorkspaceJoinRequestUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUpdateInput = {
@@ -18620,12 +20019,15 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    domain?: NullableStringFieldUpdateOperationsInput | string | null
+    isPrivate?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
     invitations?: WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
     chatrooms?: ChatroomUpdateManyWithoutWorkspaceNestedInput
+    joinRequests?: WorkspaceJoinRequestUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateInput = {
@@ -18633,12 +20035,15 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    domain?: NullableStringFieldUpdateOperationsInput | string | null
+    isPrivate?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
     invitations?: WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
     chatrooms?: ChatroomUncheckedUpdateManyWithoutWorkspaceNestedInput
+    joinRequests?: WorkspaceJoinRequestUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceCreateManyInput = {
@@ -18646,6 +20051,8 @@ export namespace Prisma {
     name: string
     logoUrl?: string | null
     description?: string | null
+    domain?: string | null
+    isPrivate?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
@@ -18656,6 +20063,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    domain?: NullableStringFieldUpdateOperationsInput | string | null
+    isPrivate?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -18666,6 +20075,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    domain?: NullableStringFieldUpdateOperationsInput | string | null
+    isPrivate?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -18751,6 +20162,74 @@ export namespace Prisma {
     status?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WorkspaceJoinRequestCreateInput = {
+    id?: string
+    status?: string
+    message?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    workspace: WorkspaceCreateNestedOneWithoutJoinRequestsInput
+    user: UserCreateNestedOneWithoutJoinRequestsInput
+  }
+
+  export type WorkspaceJoinRequestUncheckedCreateInput = {
+    id?: string
+    workspaceId: string
+    userId: string
+    status?: string
+    message?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WorkspaceJoinRequestUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    workspace?: WorkspaceUpdateOneRequiredWithoutJoinRequestsNestedInput
+    user?: UserUpdateOneRequiredWithoutJoinRequestsNestedInput
+  }
+
+  export type WorkspaceJoinRequestUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WorkspaceJoinRequestCreateManyInput = {
+    id?: string
+    workspaceId: string
+    userId: string
+    status?: string
+    message?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WorkspaceJoinRequestUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WorkspaceJoinRequestUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WorkspaceMemberCreateInput = {
@@ -19518,6 +20997,12 @@ export namespace Prisma {
     none?: NanoHistoryWhereInput
   }
 
+  export type WorkspaceJoinRequestListRelationFilter = {
+    every?: WorkspaceJoinRequestWhereInput
+    some?: WorkspaceJoinRequestWhereInput
+    none?: WorkspaceJoinRequestWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -19536,6 +21021,10 @@ export namespace Prisma {
   }
 
   export type NanoHistoryOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type WorkspaceJoinRequestOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -19665,6 +21154,11 @@ export namespace Prisma {
     timezone?: SortOrder
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type ChatroomListRelationFilter = {
     every?: ChatroomWhereInput
     some?: ChatroomWhereInput
@@ -19680,6 +21174,8 @@ export namespace Prisma {
     name?: SortOrder
     logoUrl?: SortOrder
     description?: SortOrder
+    domain?: SortOrder
+    isPrivate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrder
@@ -19690,6 +21186,8 @@ export namespace Prisma {
     name?: SortOrder
     logoUrl?: SortOrder
     description?: SortOrder
+    domain?: SortOrder
+    isPrivate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrder
@@ -19700,9 +21198,19 @@ export namespace Prisma {
     name?: SortOrder
     logoUrl?: SortOrder
     description?: SortOrder
+    domain?: SortOrder
+    isPrivate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     deletedAt?: SortOrder
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type WorkspaceScalarRelationFilter = {
@@ -19752,6 +21260,41 @@ export namespace Prisma {
     expiresAt?: SortOrder
   }
 
+  export type WorkspaceJoinRequestWorkspaceIdUserIdCompoundUniqueInput = {
+    workspaceId: string
+    userId: string
+  }
+
+  export type WorkspaceJoinRequestCountOrderByAggregateInput = {
+    id?: SortOrder
+    workspaceId?: SortOrder
+    userId?: SortOrder
+    status?: SortOrder
+    message?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WorkspaceJoinRequestMaxOrderByAggregateInput = {
+    id?: SortOrder
+    workspaceId?: SortOrder
+    userId?: SortOrder
+    status?: SortOrder
+    message?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WorkspaceJoinRequestMinOrderByAggregateInput = {
+    id?: SortOrder
+    workspaceId?: SortOrder
+    userId?: SortOrder
+    status?: SortOrder
+    message?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
   export type ChatroomMemberListRelationFilter = {
     every?: ChatroomMemberWhereInput
     some?: ChatroomMemberWhereInput
@@ -19798,11 +21341,6 @@ export namespace Prisma {
     joinedAt?: SortOrder
   }
 
-  export type BoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
   export type ChatMessageListRelationFilter = {
     every?: ChatMessageWhereInput
     some?: ChatMessageWhereInput
@@ -19841,14 +21379,6 @@ export namespace Prisma {
     isPrivate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-  }
-
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type ChatroomScalarRelationFilter = {
@@ -20324,6 +21854,13 @@ export namespace Prisma {
     connect?: NanoHistoryWhereUniqueInput | NanoHistoryWhereUniqueInput[]
   }
 
+  export type WorkspaceJoinRequestCreateNestedManyWithoutUserInput = {
+    create?: XOR<WorkspaceJoinRequestCreateWithoutUserInput, WorkspaceJoinRequestUncheckedCreateWithoutUserInput> | WorkspaceJoinRequestCreateWithoutUserInput[] | WorkspaceJoinRequestUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: WorkspaceJoinRequestCreateOrConnectWithoutUserInput | WorkspaceJoinRequestCreateOrConnectWithoutUserInput[]
+    createMany?: WorkspaceJoinRequestCreateManyUserInputEnvelope
+    connect?: WorkspaceJoinRequestWhereUniqueInput | WorkspaceJoinRequestWhereUniqueInput[]
+  }
+
   export type UserPreferenceUncheckedCreateNestedOneWithoutUserInput = {
     create?: XOR<UserPreferenceCreateWithoutUserInput, UserPreferenceUncheckedCreateWithoutUserInput>
     connectOrCreate?: UserPreferenceCreateOrConnectWithoutUserInput
@@ -20356,6 +21893,13 @@ export namespace Prisma {
     connectOrCreate?: NanoHistoryCreateOrConnectWithoutWriterInput | NanoHistoryCreateOrConnectWithoutWriterInput[]
     createMany?: NanoHistoryCreateManyWriterInputEnvelope
     connect?: NanoHistoryWhereUniqueInput | NanoHistoryWhereUniqueInput[]
+  }
+
+  export type WorkspaceJoinRequestUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<WorkspaceJoinRequestCreateWithoutUserInput, WorkspaceJoinRequestUncheckedCreateWithoutUserInput> | WorkspaceJoinRequestCreateWithoutUserInput[] | WorkspaceJoinRequestUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: WorkspaceJoinRequestCreateOrConnectWithoutUserInput | WorkspaceJoinRequestCreateOrConnectWithoutUserInput[]
+    createMany?: WorkspaceJoinRequestCreateManyUserInputEnvelope
+    connect?: WorkspaceJoinRequestWhereUniqueInput | WorkspaceJoinRequestWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -20440,6 +21984,20 @@ export namespace Prisma {
     deleteMany?: NanoHistoryScalarWhereInput | NanoHistoryScalarWhereInput[]
   }
 
+  export type WorkspaceJoinRequestUpdateManyWithoutUserNestedInput = {
+    create?: XOR<WorkspaceJoinRequestCreateWithoutUserInput, WorkspaceJoinRequestUncheckedCreateWithoutUserInput> | WorkspaceJoinRequestCreateWithoutUserInput[] | WorkspaceJoinRequestUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: WorkspaceJoinRequestCreateOrConnectWithoutUserInput | WorkspaceJoinRequestCreateOrConnectWithoutUserInput[]
+    upsert?: WorkspaceJoinRequestUpsertWithWhereUniqueWithoutUserInput | WorkspaceJoinRequestUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: WorkspaceJoinRequestCreateManyUserInputEnvelope
+    set?: WorkspaceJoinRequestWhereUniqueInput | WorkspaceJoinRequestWhereUniqueInput[]
+    disconnect?: WorkspaceJoinRequestWhereUniqueInput | WorkspaceJoinRequestWhereUniqueInput[]
+    delete?: WorkspaceJoinRequestWhereUniqueInput | WorkspaceJoinRequestWhereUniqueInput[]
+    connect?: WorkspaceJoinRequestWhereUniqueInput | WorkspaceJoinRequestWhereUniqueInput[]
+    update?: WorkspaceJoinRequestUpdateWithWhereUniqueWithoutUserInput | WorkspaceJoinRequestUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: WorkspaceJoinRequestUpdateManyWithWhereWithoutUserInput | WorkspaceJoinRequestUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: WorkspaceJoinRequestScalarWhereInput | WorkspaceJoinRequestScalarWhereInput[]
+  }
+
   export type UserPreferenceUncheckedUpdateOneWithoutUserNestedInput = {
     create?: XOR<UserPreferenceCreateWithoutUserInput, UserPreferenceUncheckedCreateWithoutUserInput>
     connectOrCreate?: UserPreferenceCreateOrConnectWithoutUserInput
@@ -20506,6 +22064,20 @@ export namespace Prisma {
     deleteMany?: NanoHistoryScalarWhereInput | NanoHistoryScalarWhereInput[]
   }
 
+  export type WorkspaceJoinRequestUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<WorkspaceJoinRequestCreateWithoutUserInput, WorkspaceJoinRequestUncheckedCreateWithoutUserInput> | WorkspaceJoinRequestCreateWithoutUserInput[] | WorkspaceJoinRequestUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: WorkspaceJoinRequestCreateOrConnectWithoutUserInput | WorkspaceJoinRequestCreateOrConnectWithoutUserInput[]
+    upsert?: WorkspaceJoinRequestUpsertWithWhereUniqueWithoutUserInput | WorkspaceJoinRequestUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: WorkspaceJoinRequestCreateManyUserInputEnvelope
+    set?: WorkspaceJoinRequestWhereUniqueInput | WorkspaceJoinRequestWhereUniqueInput[]
+    disconnect?: WorkspaceJoinRequestWhereUniqueInput | WorkspaceJoinRequestWhereUniqueInput[]
+    delete?: WorkspaceJoinRequestWhereUniqueInput | WorkspaceJoinRequestWhereUniqueInput[]
+    connect?: WorkspaceJoinRequestWhereUniqueInput | WorkspaceJoinRequestWhereUniqueInput[]
+    update?: WorkspaceJoinRequestUpdateWithWhereUniqueWithoutUserInput | WorkspaceJoinRequestUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: WorkspaceJoinRequestUpdateManyWithWhereWithoutUserInput | WorkspaceJoinRequestUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: WorkspaceJoinRequestScalarWhereInput | WorkspaceJoinRequestScalarWhereInput[]
+  }
+
   export type UserCreateNestedOneWithoutPreferenceInput = {
     create?: XOR<UserCreateWithoutPreferenceInput, UserUncheckedCreateWithoutPreferenceInput>
     connectOrCreate?: UserCreateOrConnectWithoutPreferenceInput
@@ -20541,6 +22113,13 @@ export namespace Prisma {
     connect?: ChatroomWhereUniqueInput | ChatroomWhereUniqueInput[]
   }
 
+  export type WorkspaceJoinRequestCreateNestedManyWithoutWorkspaceInput = {
+    create?: XOR<WorkspaceJoinRequestCreateWithoutWorkspaceInput, WorkspaceJoinRequestUncheckedCreateWithoutWorkspaceInput> | WorkspaceJoinRequestCreateWithoutWorkspaceInput[] | WorkspaceJoinRequestUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: WorkspaceJoinRequestCreateOrConnectWithoutWorkspaceInput | WorkspaceJoinRequestCreateOrConnectWithoutWorkspaceInput[]
+    createMany?: WorkspaceJoinRequestCreateManyWorkspaceInputEnvelope
+    connect?: WorkspaceJoinRequestWhereUniqueInput | WorkspaceJoinRequestWhereUniqueInput[]
+  }
+
   export type WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput = {
     create?: XOR<WorkspaceMemberCreateWithoutWorkspaceInput, WorkspaceMemberUncheckedCreateWithoutWorkspaceInput> | WorkspaceMemberCreateWithoutWorkspaceInput[] | WorkspaceMemberUncheckedCreateWithoutWorkspaceInput[]
     connectOrCreate?: WorkspaceMemberCreateOrConnectWithoutWorkspaceInput | WorkspaceMemberCreateOrConnectWithoutWorkspaceInput[]
@@ -20560,6 +22139,17 @@ export namespace Prisma {
     connectOrCreate?: ChatroomCreateOrConnectWithoutWorkspaceInput | ChatroomCreateOrConnectWithoutWorkspaceInput[]
     createMany?: ChatroomCreateManyWorkspaceInputEnvelope
     connect?: ChatroomWhereUniqueInput | ChatroomWhereUniqueInput[]
+  }
+
+  export type WorkspaceJoinRequestUncheckedCreateNestedManyWithoutWorkspaceInput = {
+    create?: XOR<WorkspaceJoinRequestCreateWithoutWorkspaceInput, WorkspaceJoinRequestUncheckedCreateWithoutWorkspaceInput> | WorkspaceJoinRequestCreateWithoutWorkspaceInput[] | WorkspaceJoinRequestUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: WorkspaceJoinRequestCreateOrConnectWithoutWorkspaceInput | WorkspaceJoinRequestCreateOrConnectWithoutWorkspaceInput[]
+    createMany?: WorkspaceJoinRequestCreateManyWorkspaceInputEnvelope
+    connect?: WorkspaceJoinRequestWhereUniqueInput | WorkspaceJoinRequestWhereUniqueInput[]
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
   }
 
   export type WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput = {
@@ -20604,6 +22194,20 @@ export namespace Prisma {
     deleteMany?: ChatroomScalarWhereInput | ChatroomScalarWhereInput[]
   }
 
+  export type WorkspaceJoinRequestUpdateManyWithoutWorkspaceNestedInput = {
+    create?: XOR<WorkspaceJoinRequestCreateWithoutWorkspaceInput, WorkspaceJoinRequestUncheckedCreateWithoutWorkspaceInput> | WorkspaceJoinRequestCreateWithoutWorkspaceInput[] | WorkspaceJoinRequestUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: WorkspaceJoinRequestCreateOrConnectWithoutWorkspaceInput | WorkspaceJoinRequestCreateOrConnectWithoutWorkspaceInput[]
+    upsert?: WorkspaceJoinRequestUpsertWithWhereUniqueWithoutWorkspaceInput | WorkspaceJoinRequestUpsertWithWhereUniqueWithoutWorkspaceInput[]
+    createMany?: WorkspaceJoinRequestCreateManyWorkspaceInputEnvelope
+    set?: WorkspaceJoinRequestWhereUniqueInput | WorkspaceJoinRequestWhereUniqueInput[]
+    disconnect?: WorkspaceJoinRequestWhereUniqueInput | WorkspaceJoinRequestWhereUniqueInput[]
+    delete?: WorkspaceJoinRequestWhereUniqueInput | WorkspaceJoinRequestWhereUniqueInput[]
+    connect?: WorkspaceJoinRequestWhereUniqueInput | WorkspaceJoinRequestWhereUniqueInput[]
+    update?: WorkspaceJoinRequestUpdateWithWhereUniqueWithoutWorkspaceInput | WorkspaceJoinRequestUpdateWithWhereUniqueWithoutWorkspaceInput[]
+    updateMany?: WorkspaceJoinRequestUpdateManyWithWhereWithoutWorkspaceInput | WorkspaceJoinRequestUpdateManyWithWhereWithoutWorkspaceInput[]
+    deleteMany?: WorkspaceJoinRequestScalarWhereInput | WorkspaceJoinRequestScalarWhereInput[]
+  }
+
   export type WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput = {
     create?: XOR<WorkspaceMemberCreateWithoutWorkspaceInput, WorkspaceMemberUncheckedCreateWithoutWorkspaceInput> | WorkspaceMemberCreateWithoutWorkspaceInput[] | WorkspaceMemberUncheckedCreateWithoutWorkspaceInput[]
     connectOrCreate?: WorkspaceMemberCreateOrConnectWithoutWorkspaceInput | WorkspaceMemberCreateOrConnectWithoutWorkspaceInput[]
@@ -20646,6 +22250,20 @@ export namespace Prisma {
     deleteMany?: ChatroomScalarWhereInput | ChatroomScalarWhereInput[]
   }
 
+  export type WorkspaceJoinRequestUncheckedUpdateManyWithoutWorkspaceNestedInput = {
+    create?: XOR<WorkspaceJoinRequestCreateWithoutWorkspaceInput, WorkspaceJoinRequestUncheckedCreateWithoutWorkspaceInput> | WorkspaceJoinRequestCreateWithoutWorkspaceInput[] | WorkspaceJoinRequestUncheckedCreateWithoutWorkspaceInput[]
+    connectOrCreate?: WorkspaceJoinRequestCreateOrConnectWithoutWorkspaceInput | WorkspaceJoinRequestCreateOrConnectWithoutWorkspaceInput[]
+    upsert?: WorkspaceJoinRequestUpsertWithWhereUniqueWithoutWorkspaceInput | WorkspaceJoinRequestUpsertWithWhereUniqueWithoutWorkspaceInput[]
+    createMany?: WorkspaceJoinRequestCreateManyWorkspaceInputEnvelope
+    set?: WorkspaceJoinRequestWhereUniqueInput | WorkspaceJoinRequestWhereUniqueInput[]
+    disconnect?: WorkspaceJoinRequestWhereUniqueInput | WorkspaceJoinRequestWhereUniqueInput[]
+    delete?: WorkspaceJoinRequestWhereUniqueInput | WorkspaceJoinRequestWhereUniqueInput[]
+    connect?: WorkspaceJoinRequestWhereUniqueInput | WorkspaceJoinRequestWhereUniqueInput[]
+    update?: WorkspaceJoinRequestUpdateWithWhereUniqueWithoutWorkspaceInput | WorkspaceJoinRequestUpdateWithWhereUniqueWithoutWorkspaceInput[]
+    updateMany?: WorkspaceJoinRequestUpdateManyWithWhereWithoutWorkspaceInput | WorkspaceJoinRequestUpdateManyWithWhereWithoutWorkspaceInput[]
+    deleteMany?: WorkspaceJoinRequestScalarWhereInput | WorkspaceJoinRequestScalarWhereInput[]
+  }
+
   export type WorkspaceCreateNestedOneWithoutInvitationsInput = {
     create?: XOR<WorkspaceCreateWithoutInvitationsInput, WorkspaceUncheckedCreateWithoutInvitationsInput>
     connectOrCreate?: WorkspaceCreateOrConnectWithoutInvitationsInput
@@ -20672,6 +22290,34 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutWorkspaceInvitationsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutWorkspaceInvitationsInput, UserUpdateWithoutWorkspaceInvitationsInput>, UserUncheckedUpdateWithoutWorkspaceInvitationsInput>
+  }
+
+  export type WorkspaceCreateNestedOneWithoutJoinRequestsInput = {
+    create?: XOR<WorkspaceCreateWithoutJoinRequestsInput, WorkspaceUncheckedCreateWithoutJoinRequestsInput>
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutJoinRequestsInput
+    connect?: WorkspaceWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutJoinRequestsInput = {
+    create?: XOR<UserCreateWithoutJoinRequestsInput, UserUncheckedCreateWithoutJoinRequestsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutJoinRequestsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type WorkspaceUpdateOneRequiredWithoutJoinRequestsNestedInput = {
+    create?: XOR<WorkspaceCreateWithoutJoinRequestsInput, WorkspaceUncheckedCreateWithoutJoinRequestsInput>
+    connectOrCreate?: WorkspaceCreateOrConnectWithoutJoinRequestsInput
+    upsert?: WorkspaceUpsertWithoutJoinRequestsInput
+    connect?: WorkspaceWhereUniqueInput
+    update?: XOR<XOR<WorkspaceUpdateToOneWithWhereWithoutJoinRequestsInput, WorkspaceUpdateWithoutJoinRequestsInput>, WorkspaceUncheckedUpdateWithoutJoinRequestsInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutJoinRequestsNestedInput = {
+    create?: XOR<UserCreateWithoutJoinRequestsInput, UserUncheckedCreateWithoutJoinRequestsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutJoinRequestsInput
+    upsert?: UserUpsertWithoutJoinRequestsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutJoinRequestsInput, UserUpdateWithoutJoinRequestsInput>, UserUncheckedUpdateWithoutJoinRequestsInput>
   }
 
   export type WorkspaceCreateNestedOneWithoutMembersInput = {
@@ -20818,10 +22464,6 @@ export namespace Prisma {
     connectOrCreate?: ChatMessageCreateOrConnectWithoutChatroomInput | ChatMessageCreateOrConnectWithoutChatroomInput[]
     createMany?: ChatMessageCreateManyChatroomInputEnvelope
     connect?: ChatMessageWhereUniqueInput | ChatMessageWhereUniqueInput[]
-  }
-
-  export type BoolFieldUpdateOperationsInput = {
-    set?: boolean
   }
 
   export type WorkspaceUpdateOneRequiredWithoutChatroomsNestedInput = {
@@ -21691,6 +23333,34 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type WorkspaceJoinRequestCreateWithoutUserInput = {
+    id?: string
+    status?: string
+    message?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    workspace: WorkspaceCreateNestedOneWithoutJoinRequestsInput
+  }
+
+  export type WorkspaceJoinRequestUncheckedCreateWithoutUserInput = {
+    id?: string
+    workspaceId: string
+    status?: string
+    message?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WorkspaceJoinRequestCreateOrConnectWithoutUserInput = {
+    where: WorkspaceJoinRequestWhereUniqueInput
+    create: XOR<WorkspaceJoinRequestCreateWithoutUserInput, WorkspaceJoinRequestUncheckedCreateWithoutUserInput>
+  }
+
+  export type WorkspaceJoinRequestCreateManyUserInputEnvelope = {
+    data: WorkspaceJoinRequestCreateManyUserInput | WorkspaceJoinRequestCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserPreferenceUpsertWithoutUserInput = {
     update: XOR<UserPreferenceUpdateWithoutUserInput, UserPreferenceUncheckedUpdateWithoutUserInput>
     create: XOR<UserPreferenceCreateWithoutUserInput, UserPreferenceUncheckedCreateWithoutUserInput>
@@ -21832,6 +23502,35 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"NanoHistory"> | Date | string
   }
 
+  export type WorkspaceJoinRequestUpsertWithWhereUniqueWithoutUserInput = {
+    where: WorkspaceJoinRequestWhereUniqueInput
+    update: XOR<WorkspaceJoinRequestUpdateWithoutUserInput, WorkspaceJoinRequestUncheckedUpdateWithoutUserInput>
+    create: XOR<WorkspaceJoinRequestCreateWithoutUserInput, WorkspaceJoinRequestUncheckedCreateWithoutUserInput>
+  }
+
+  export type WorkspaceJoinRequestUpdateWithWhereUniqueWithoutUserInput = {
+    where: WorkspaceJoinRequestWhereUniqueInput
+    data: XOR<WorkspaceJoinRequestUpdateWithoutUserInput, WorkspaceJoinRequestUncheckedUpdateWithoutUserInput>
+  }
+
+  export type WorkspaceJoinRequestUpdateManyWithWhereWithoutUserInput = {
+    where: WorkspaceJoinRequestScalarWhereInput
+    data: XOR<WorkspaceJoinRequestUpdateManyMutationInput, WorkspaceJoinRequestUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type WorkspaceJoinRequestScalarWhereInput = {
+    AND?: WorkspaceJoinRequestScalarWhereInput | WorkspaceJoinRequestScalarWhereInput[]
+    OR?: WorkspaceJoinRequestScalarWhereInput[]
+    NOT?: WorkspaceJoinRequestScalarWhereInput | WorkspaceJoinRequestScalarWhereInput[]
+    id?: StringFilter<"WorkspaceJoinRequest"> | string
+    workspaceId?: StringFilter<"WorkspaceJoinRequest"> | string
+    userId?: StringFilter<"WorkspaceJoinRequest"> | string
+    status?: StringFilter<"WorkspaceJoinRequest"> | string
+    message?: StringNullableFilter<"WorkspaceJoinRequest"> | string | null
+    createdAt?: DateTimeFilter<"WorkspaceJoinRequest"> | Date | string
+    updatedAt?: DateTimeFilter<"WorkspaceJoinRequest"> | Date | string
+  }
+
   export type UserCreateWithoutPreferenceInput = {
     id?: string
     email?: string | null
@@ -21846,6 +23545,7 @@ export namespace Prisma {
     WorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     nanoHistorys?: NanoHistoryCreateNestedManyWithoutWriterInput
+    joinRequests?: WorkspaceJoinRequestCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPreferenceInput = {
@@ -21862,6 +23562,7 @@ export namespace Prisma {
     WorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     nanoHistorys?: NanoHistoryUncheckedCreateNestedManyWithoutWriterInput
+    joinRequests?: WorkspaceJoinRequestUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPreferenceInput = {
@@ -21894,6 +23595,7 @@ export namespace Prisma {
     WorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     nanoHistorys?: NanoHistoryUpdateManyWithoutWriterNestedInput
+    joinRequests?: WorkspaceJoinRequestUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPreferenceInput = {
@@ -21910,6 +23612,7 @@ export namespace Prisma {
     WorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     nanoHistorys?: NanoHistoryUncheckedUpdateManyWithoutWriterNestedInput
+    joinRequests?: WorkspaceJoinRequestUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WorkspaceMemberCreateWithoutWorkspaceInput = {
@@ -22002,6 +23705,34 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type WorkspaceJoinRequestCreateWithoutWorkspaceInput = {
+    id?: string
+    status?: string
+    message?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutJoinRequestsInput
+  }
+
+  export type WorkspaceJoinRequestUncheckedCreateWithoutWorkspaceInput = {
+    id?: string
+    userId: string
+    status?: string
+    message?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WorkspaceJoinRequestCreateOrConnectWithoutWorkspaceInput = {
+    where: WorkspaceJoinRequestWhereUniqueInput
+    create: XOR<WorkspaceJoinRequestCreateWithoutWorkspaceInput, WorkspaceJoinRequestUncheckedCreateWithoutWorkspaceInput>
+  }
+
+  export type WorkspaceJoinRequestCreateManyWorkspaceInputEnvelope = {
+    data: WorkspaceJoinRequestCreateManyWorkspaceInput | WorkspaceJoinRequestCreateManyWorkspaceInput[]
+    skipDuplicates?: boolean
+  }
+
   export type WorkspaceMemberUpsertWithWhereUniqueWithoutWorkspaceInput = {
     where: WorkspaceMemberWhereUniqueInput
     update: XOR<WorkspaceMemberUpdateWithoutWorkspaceInput, WorkspaceMemberUncheckedUpdateWithoutWorkspaceInput>
@@ -22063,16 +23794,35 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Chatroom"> | Date | string
   }
 
+  export type WorkspaceJoinRequestUpsertWithWhereUniqueWithoutWorkspaceInput = {
+    where: WorkspaceJoinRequestWhereUniqueInput
+    update: XOR<WorkspaceJoinRequestUpdateWithoutWorkspaceInput, WorkspaceJoinRequestUncheckedUpdateWithoutWorkspaceInput>
+    create: XOR<WorkspaceJoinRequestCreateWithoutWorkspaceInput, WorkspaceJoinRequestUncheckedCreateWithoutWorkspaceInput>
+  }
+
+  export type WorkspaceJoinRequestUpdateWithWhereUniqueWithoutWorkspaceInput = {
+    where: WorkspaceJoinRequestWhereUniqueInput
+    data: XOR<WorkspaceJoinRequestUpdateWithoutWorkspaceInput, WorkspaceJoinRequestUncheckedUpdateWithoutWorkspaceInput>
+  }
+
+  export type WorkspaceJoinRequestUpdateManyWithWhereWithoutWorkspaceInput = {
+    where: WorkspaceJoinRequestScalarWhereInput
+    data: XOR<WorkspaceJoinRequestUpdateManyMutationInput, WorkspaceJoinRequestUncheckedUpdateManyWithoutWorkspaceInput>
+  }
+
   export type WorkspaceCreateWithoutInvitationsInput = {
     id?: string
     name: string
     logoUrl?: string | null
     description?: string | null
+    domain?: string | null
+    isPrivate?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
     members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
     chatrooms?: ChatroomCreateNestedManyWithoutWorkspaceInput
+    joinRequests?: WorkspaceJoinRequestCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUncheckedCreateWithoutInvitationsInput = {
@@ -22080,11 +23830,14 @@ export namespace Prisma {
     name: string
     logoUrl?: string | null
     description?: string | null
+    domain?: string | null
+    isPrivate?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
     members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
     chatrooms?: ChatroomUncheckedCreateNestedManyWithoutWorkspaceInput
+    joinRequests?: WorkspaceJoinRequestUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceCreateOrConnectWithoutInvitationsInput = {
@@ -22106,6 +23859,7 @@ export namespace Prisma {
     workspaceMembers?: WorkspaceMemberCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     nanoHistorys?: NanoHistoryCreateNestedManyWithoutWriterInput
+    joinRequests?: WorkspaceJoinRequestCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWorkspaceInvitationsInput = {
@@ -22122,6 +23876,7 @@ export namespace Prisma {
     workspaceMembers?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     nanoHistorys?: NanoHistoryUncheckedCreateNestedManyWithoutWriterInput
+    joinRequests?: WorkspaceJoinRequestUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWorkspaceInvitationsInput = {
@@ -22145,11 +23900,14 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    domain?: NullableStringFieldUpdateOperationsInput | string | null
+    isPrivate?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
     chatrooms?: ChatroomUpdateManyWithoutWorkspaceNestedInput
+    joinRequests?: WorkspaceJoinRequestUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateWithoutInvitationsInput = {
@@ -22157,11 +23915,14 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    domain?: NullableStringFieldUpdateOperationsInput | string | null
+    isPrivate?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
     chatrooms?: ChatroomUncheckedUpdateManyWithoutWorkspaceNestedInput
+    joinRequests?: WorkspaceJoinRequestUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type UserUpsertWithoutWorkspaceInvitationsInput = {
@@ -22189,6 +23950,7 @@ export namespace Prisma {
     workspaceMembers?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     nanoHistorys?: NanoHistoryUpdateManyWithoutWriterNestedInput
+    joinRequests?: WorkspaceJoinRequestUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWorkspaceInvitationsInput = {
@@ -22205,6 +23967,167 @@ export namespace Prisma {
     workspaceMembers?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     nanoHistorys?: NanoHistoryUncheckedUpdateManyWithoutWriterNestedInput
+    joinRequests?: WorkspaceJoinRequestUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type WorkspaceCreateWithoutJoinRequestsInput = {
+    id?: string
+    name: string
+    logoUrl?: string | null
+    description?: string | null
+    domain?: string | null
+    isPrivate?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
+    invitations?: WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
+    chatrooms?: ChatroomCreateNestedManyWithoutWorkspaceInput
+  }
+
+  export type WorkspaceUncheckedCreateWithoutJoinRequestsInput = {
+    id?: string
+    name: string
+    logoUrl?: string | null
+    description?: string | null
+    domain?: string | null
+    isPrivate?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
+    invitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
+    chatrooms?: ChatroomUncheckedCreateNestedManyWithoutWorkspaceInput
+  }
+
+  export type WorkspaceCreateOrConnectWithoutJoinRequestsInput = {
+    where: WorkspaceWhereUniqueInput
+    create: XOR<WorkspaceCreateWithoutJoinRequestsInput, WorkspaceUncheckedCreateWithoutJoinRequestsInput>
+  }
+
+  export type UserCreateWithoutJoinRequestsInput = {
+    id?: string
+    email?: string | null
+    password?: string | null
+    firstName: string
+    lastName?: string | null
+    provider?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    preference?: UserPreferenceCreateNestedOneWithoutUserInput
+    workspaceMembers?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    WorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    nanoHistorys?: NanoHistoryCreateNestedManyWithoutWriterInput
+  }
+
+  export type UserUncheckedCreateWithoutJoinRequestsInput = {
+    id?: string
+    email?: string | null
+    password?: string | null
+    firstName: string
+    lastName?: string | null
+    provider?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    preference?: UserPreferenceUncheckedCreateNestedOneWithoutUserInput
+    workspaceMembers?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    WorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    nanoHistorys?: NanoHistoryUncheckedCreateNestedManyWithoutWriterInput
+  }
+
+  export type UserCreateOrConnectWithoutJoinRequestsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutJoinRequestsInput, UserUncheckedCreateWithoutJoinRequestsInput>
+  }
+
+  export type WorkspaceUpsertWithoutJoinRequestsInput = {
+    update: XOR<WorkspaceUpdateWithoutJoinRequestsInput, WorkspaceUncheckedUpdateWithoutJoinRequestsInput>
+    create: XOR<WorkspaceCreateWithoutJoinRequestsInput, WorkspaceUncheckedCreateWithoutJoinRequestsInput>
+    where?: WorkspaceWhereInput
+  }
+
+  export type WorkspaceUpdateToOneWithWhereWithoutJoinRequestsInput = {
+    where?: WorkspaceWhereInput
+    data: XOR<WorkspaceUpdateWithoutJoinRequestsInput, WorkspaceUncheckedUpdateWithoutJoinRequestsInput>
+  }
+
+  export type WorkspaceUpdateWithoutJoinRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    domain?: NullableStringFieldUpdateOperationsInput | string | null
+    isPrivate?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
+    invitations?: WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
+    chatrooms?: ChatroomUpdateManyWithoutWorkspaceNestedInput
+  }
+
+  export type WorkspaceUncheckedUpdateWithoutJoinRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    domain?: NullableStringFieldUpdateOperationsInput | string | null
+    isPrivate?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
+    invitations?: WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
+    chatrooms?: ChatroomUncheckedUpdateManyWithoutWorkspaceNestedInput
+  }
+
+  export type UserUpsertWithoutJoinRequestsInput = {
+    update: XOR<UserUpdateWithoutJoinRequestsInput, UserUncheckedUpdateWithoutJoinRequestsInput>
+    create: XOR<UserCreateWithoutJoinRequestsInput, UserUncheckedCreateWithoutJoinRequestsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutJoinRequestsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutJoinRequestsInput, UserUncheckedUpdateWithoutJoinRequestsInput>
+  }
+
+  export type UserUpdateWithoutJoinRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    provider?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    preference?: UserPreferenceUpdateOneWithoutUserNestedInput
+    workspaceMembers?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    WorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    nanoHistorys?: NanoHistoryUpdateManyWithoutWriterNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutJoinRequestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    provider?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    preference?: UserPreferenceUncheckedUpdateOneWithoutUserNestedInput
+    workspaceMembers?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    WorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    nanoHistorys?: NanoHistoryUncheckedUpdateManyWithoutWriterNestedInput
   }
 
   export type WorkspaceCreateWithoutMembersInput = {
@@ -22212,11 +24135,14 @@ export namespace Prisma {
     name: string
     logoUrl?: string | null
     description?: string | null
+    domain?: string | null
+    isPrivate?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
     invitations?: WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
     chatrooms?: ChatroomCreateNestedManyWithoutWorkspaceInput
+    joinRequests?: WorkspaceJoinRequestCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUncheckedCreateWithoutMembersInput = {
@@ -22224,11 +24150,14 @@ export namespace Prisma {
     name: string
     logoUrl?: string | null
     description?: string | null
+    domain?: string | null
+    isPrivate?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
     invitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
     chatrooms?: ChatroomUncheckedCreateNestedManyWithoutWorkspaceInput
+    joinRequests?: WorkspaceJoinRequestUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceCreateOrConnectWithoutMembersInput = {
@@ -22250,6 +24179,7 @@ export namespace Prisma {
     WorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     nanoHistorys?: NanoHistoryCreateNestedManyWithoutWriterInput
+    joinRequests?: WorkspaceJoinRequestCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutWorkspaceMembersInput = {
@@ -22266,6 +24196,7 @@ export namespace Prisma {
     WorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     nanoHistorys?: NanoHistoryUncheckedCreateNestedManyWithoutWriterInput
+    joinRequests?: WorkspaceJoinRequestUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutWorkspaceMembersInput = {
@@ -22361,11 +24292,14 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    domain?: NullableStringFieldUpdateOperationsInput | string | null
+    isPrivate?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     invitations?: WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
     chatrooms?: ChatroomUpdateManyWithoutWorkspaceNestedInput
+    joinRequests?: WorkspaceJoinRequestUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateWithoutMembersInput = {
@@ -22373,11 +24307,14 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    domain?: NullableStringFieldUpdateOperationsInput | string | null
+    isPrivate?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     invitations?: WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
     chatrooms?: ChatroomUncheckedUpdateManyWithoutWorkspaceNestedInput
+    joinRequests?: WorkspaceJoinRequestUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type UserUpsertWithoutWorkspaceMembersInput = {
@@ -22405,6 +24342,7 @@ export namespace Prisma {
     WorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     nanoHistorys?: NanoHistoryUpdateManyWithoutWriterNestedInput
+    joinRequests?: WorkspaceJoinRequestUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWorkspaceMembersInput = {
@@ -22421,6 +24359,7 @@ export namespace Prisma {
     WorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     nanoHistorys?: NanoHistoryUncheckedUpdateManyWithoutWriterNestedInput
+    joinRequests?: WorkspaceJoinRequestUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ChatroomMemberUpsertWithWhereUniqueWithoutWorkspaceMemberInput = {
@@ -22492,11 +24431,14 @@ export namespace Prisma {
     name: string
     logoUrl?: string | null
     description?: string | null
+    domain?: string | null
+    isPrivate?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
     members?: WorkspaceMemberCreateNestedManyWithoutWorkspaceInput
     invitations?: WorkspaceInvitationCreateNestedManyWithoutWorkspaceInput
+    joinRequests?: WorkspaceJoinRequestCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceUncheckedCreateWithoutChatroomsInput = {
@@ -22504,11 +24446,14 @@ export namespace Prisma {
     name: string
     logoUrl?: string | null
     description?: string | null
+    domain?: string | null
+    isPrivate?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     deletedAt?: Date | string | null
     members?: WorkspaceMemberUncheckedCreateNestedManyWithoutWorkspaceInput
     invitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutWorkspaceInput
+    joinRequests?: WorkspaceJoinRequestUncheckedCreateNestedManyWithoutWorkspaceInput
   }
 
   export type WorkspaceCreateOrConnectWithoutChatroomsInput = {
@@ -22593,11 +24538,14 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    domain?: NullableStringFieldUpdateOperationsInput | string | null
+    isPrivate?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     members?: WorkspaceMemberUpdateManyWithoutWorkspaceNestedInput
     invitations?: WorkspaceInvitationUpdateManyWithoutWorkspaceNestedInput
+    joinRequests?: WorkspaceJoinRequestUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type WorkspaceUncheckedUpdateWithoutChatroomsInput = {
@@ -22605,11 +24553,14 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     logoUrl?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    domain?: NullableStringFieldUpdateOperationsInput | string | null
+    isPrivate?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     members?: WorkspaceMemberUncheckedUpdateManyWithoutWorkspaceNestedInput
     invitations?: WorkspaceInvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
+    joinRequests?: WorkspaceJoinRequestUncheckedUpdateManyWithoutWorkspaceNestedInput
   }
 
   export type ChatroomMemberUpsertWithWhereUniqueWithoutChatroomInput = {
@@ -23305,6 +25256,7 @@ export namespace Prisma {
     workspaceMembers?: WorkspaceMemberCreateNestedManyWithoutUserInput
     WorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    joinRequests?: WorkspaceJoinRequestCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutNanoHistorysInput = {
@@ -23321,6 +25273,7 @@ export namespace Prisma {
     workspaceMembers?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     WorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    joinRequests?: WorkspaceJoinRequestUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutNanoHistorysInput = {
@@ -23428,6 +25381,7 @@ export namespace Prisma {
     workspaceMembers?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     WorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    joinRequests?: WorkspaceJoinRequestUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNanoHistorysInput = {
@@ -23444,6 +25398,7 @@ export namespace Prisma {
     workspaceMembers?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     WorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    joinRequests?: WorkspaceJoinRequestUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type NanoHistoryCreateWithoutApprovalRequestInput = {
@@ -23706,6 +25661,7 @@ export namespace Prisma {
     workspaceMembers?: WorkspaceMemberCreateNestedManyWithoutUserInput
     WorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
     nanoHistorys?: NanoHistoryCreateNestedManyWithoutWriterInput
+    joinRequests?: WorkspaceJoinRequestCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutRefreshTokensInput = {
@@ -23722,6 +25678,7 @@ export namespace Prisma {
     workspaceMembers?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
     WorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
     nanoHistorys?: NanoHistoryUncheckedCreateNestedManyWithoutWriterInput
+    joinRequests?: WorkspaceJoinRequestUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutRefreshTokensInput = {
@@ -23754,6 +25711,7 @@ export namespace Prisma {
     workspaceMembers?: WorkspaceMemberUpdateManyWithoutUserNestedInput
     WorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
     nanoHistorys?: NanoHistoryUpdateManyWithoutWriterNestedInput
+    joinRequests?: WorkspaceJoinRequestUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRefreshTokensInput = {
@@ -23770,6 +25728,7 @@ export namespace Prisma {
     workspaceMembers?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
     WorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
     nanoHistorys?: NanoHistoryUncheckedUpdateManyWithoutWriterNestedInput
+    joinRequests?: WorkspaceJoinRequestUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type WorkspaceMemberCreateManyUserInput = {
@@ -23806,6 +25765,15 @@ export namespace Prisma {
     title?: string | null
     content?: NullableJsonNullValueInput | InputJsonValue
     workspaceId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WorkspaceJoinRequestCreateManyUserInput = {
+    id?: string
+    workspaceId: string
+    status?: string
+    message?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -23930,6 +25898,33 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type WorkspaceJoinRequestUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    workspace?: WorkspaceUpdateOneRequiredWithoutJoinRequestsNestedInput
+  }
+
+  export type WorkspaceJoinRequestUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WorkspaceJoinRequestUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type WorkspaceMemberCreateManyWorkspaceInput = {
     userId: string
     role?: string | null
@@ -23952,6 +25947,15 @@ export namespace Prisma {
     title?: string | null
     description?: string | null
     isPrivate?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type WorkspaceJoinRequestCreateManyWorkspaceInput = {
+    id?: string
+    userId: string
+    status?: string
+    message?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -24038,6 +26042,33 @@ export namespace Prisma {
     title?: NullableStringFieldUpdateOperationsInput | string | null
     description?: NullableStringFieldUpdateOperationsInput | string | null
     isPrivate?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WorkspaceJoinRequestUpdateWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutJoinRequestsNestedInput
+  }
+
+  export type WorkspaceJoinRequestUncheckedUpdateWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WorkspaceJoinRequestUncheckedUpdateManyWithoutWorkspaceInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    message?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

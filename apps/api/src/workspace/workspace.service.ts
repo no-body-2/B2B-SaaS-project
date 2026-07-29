@@ -15,6 +15,7 @@ import {
   BadRequestException,
   ForbiddenException,
   NotFoundException,
+  ConflictException,
 } from '@nestjs/common';
 import { createId } from '@paralleldrive/cuid2';
 import { PrismaService } from '../prisma/prisma.service';
@@ -56,6 +57,15 @@ export class WorkspaceService {
       );
     }
 
+    if (dto.domain) {
+      const existingDomain = await this.prisma.workspace.findFirst({
+        where: { domain: dto.domain.trim(), deletedAt: null },
+      });
+      if (existingDomain) {
+        throw new ConflictException('이미 사용 중인 접속 도메인입니다.');
+      }
+    }
+
     return this.prisma.$transaction(async (tx) => {
       const workspaceId = `w-${createId()}`;
 
@@ -65,6 +75,8 @@ export class WorkspaceService {
           name: dto.name,
           description: dto.description,
           logoUrl: dto.logoUrl,
+          domain: dto.domain ? dto.domain.trim() : undefined,
+          isPrivate: dto.isPrivate ?? true,
         },
       });
 
@@ -83,6 +95,8 @@ export class WorkspaceService {
           name: workspace.name,
           description: workspace.description,
           logoUrl: workspace.logoUrl,
+          domain: workspace.domain,
+          isPrivate: workspace.isPrivate,
           createdAt: workspace.createdAt,
         },
       };
@@ -142,48 +156,39 @@ export class WorkspaceService {
    * - {NotFoundException} - 해당하는 워크스페이스를 찾을 수 없는 경우
    */
   async getWorkspaceDetail(userId: string, param: WorkspaceParamDto) {
-    // 1. 워크스페이스 ID 추출
     const { workspaceId } = param;
 
-    // 2. 워크스페이스 존재 여부 확인
-    const workspaceExists = await this.prisma.workspace.findUnique({
-      where: { id: workspaceId },
+    const workspaceExists = await this.prisma.workspace.findFirst({
+      where: {
+        OR: [{ id: workspaceId }, { domain: workspaceId }],
+        deletedAt: null,
+      },
     });
-    if (!workspaceExists || workspaceExists.deletedAt !== null) {
+    if (!workspaceExists) {
       throw new NotFoundException('해당하는 워크스페이스를 찾을 수 없습니다.');
     }
 
-    // 3. 사용자가 해당 워크스페이스에 소속되어 있는 상태인지 확인
+    const realWorkspaceId = workspaceExists.id;
+
     const membership = await this.workspaceGuard.validateMembership(
       userId,
-      workspaceId,
+      realWorkspaceId,
     );
 
-    // 4. 반환할 데이터 추출 Promise.all 사용
-    const [workspaceDetail, totalMemberCount] = await Promise.all([
-      this.prisma.workspace.findUnique({
-        where: { id: workspaceId },
-      }),
-      this.prisma.workspaceMember.count({
-        where: { workspaceId },
-      }),
-    ]);
+    const totalMemberCount = await this.prisma.workspaceMember.count({
+      where: { workspaceId: realWorkspaceId },
+    });
 
-    if (!workspaceDetail) {
-      throw new NotFoundException(
-        '해당하는 워크스페이스의 정보를 불러오는 중 오류가 발생했습니다.',
-      );
-    }
-
-    // 5. 총 멤버 수와 조회를 요청한 사용자의 Role을 포함하여 결과 반환
     return {
-      id: workspaceDetail.id,
-      name: workspaceDetail.name,
-      description: workspaceDetail.description,
-      logoUrl: workspaceDetail.logoUrl,
+      id: workspaceExists.id,
+      name: workspaceExists.name,
+      description: workspaceExists.description,
+      domain: workspaceExists.domain,
+      isPrivate: workspaceExists.isPrivate,
+      logoUrl: workspaceExists.logoUrl,
       role: membership.role,
       totalMemberCount,
-      createdAt: workspaceDetail.createdAt,
+      createdAt: workspaceExists.createdAt,
     };
   }
 
@@ -347,5 +352,134 @@ export class WorkspaceService {
         updatedAt: restored.updatedAt,
       },
     };
+  }
+
+  /**
+   * 공개 워크스페이스 추천 목록 조회 (isPrivate: false)
+   */
+  async listPublicWorkspaces(userId: string) {
+    const myMemberships = await this.prisma.workspaceMember.findMany({
+      where: { userId },
+      select: { workspaceId: true },
+    });
+    const myWsIds = myMemberships.map((m) => m.workspaceId);
+
+    const publicWorkspaces = await this.prisma.workspace.findMany({
+      where: {
+        isPrivate: false,
+        deletedAt: null,
+        id: { notIn: myWsIds },
+      },
+      take: 10,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        _count: { select: { members: true } },
+        joinRequests: {
+          where: { userId },
+        },
+      },
+    });
+
+    return publicWorkspaces.map((ws) => ({
+      id: ws.id,
+      name: ws.name,
+      description: ws.description,
+      logoUrl: ws.logoUrl,
+      domain: ws.domain,
+      isPrivate: ws.isPrivate,
+      memberCount: ws._count.members,
+      hasRequested: ws.joinRequests.some((r) => r.status === 'PENDING'),
+      createdAt: ws.createdAt,
+    }));
+  }
+
+  /**
+   * 공개 워크스페이스 가입 요청 생성
+   */
+  async requestJoinWorkspace(userId: string, workspaceId: string, message?: string) {
+    const ws = await this.prisma.workspace.findUnique({
+      where: { id: workspaceId },
+    });
+    if (!ws || ws.deletedAt) {
+      throw new NotFoundException('워크스페이스를 찾을 수 없습니다.');
+    }
+    if (ws.isPrivate) {
+      throw new ForbiddenException('비공개 워크스페이스에는 신청할 수 없습니다.');
+    }
+
+    const existingMember = await this.prisma.workspaceMember.findUnique({
+      where: { workspaceId_userId: { workspaceId, userId } },
+    });
+    if (existingMember) {
+      throw new BadRequestException('이미 해당 워크스페이스의 멤버입니다.');
+    }
+
+    const request = await this.prisma.workspaceJoinRequest.upsert({
+      where: { workspaceId_userId: { workspaceId, userId } },
+      update: { status: 'PENDING', message },
+      create: { workspaceId, userId, message, status: 'PENDING' },
+    });
+
+    return { message: '가입 신청이 제출되었습니다.', request };
+  }
+
+  /**
+   * OWNER/ADMIN 전용 가입 요청 목록 조회
+   */
+  async getJoinRequests(userId: string, workspaceId: string) {
+    await this.workspaceGuard.verifyWorkspaceAdmin(userId, workspaceId);
+
+    const requests = await this.prisma.workspaceJoinRequest.findMany({
+      where: { workspaceId },
+      include: {
+        user: { select: { id: true, email: true, firstName: true, lastName: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return requests.map((r) => ({
+      id: r.id,
+      userId: r.userId,
+      userName: `${r.user.lastName || ''}${r.user.firstName || ''}`.trim() || r.user.email || 'Unknown',
+      userEmail: r.user.email,
+      status: r.status,
+      message: r.message,
+      createdAt: r.createdAt,
+    }));
+  }
+
+  /**
+   * OWNER/ADMIN 전용 가입 요청 승인 / 거절
+   */
+  async processJoinRequest(userId: string, workspaceId: string, requestId: string, action: 'APPROVE' | 'REJECT') {
+    await this.workspaceGuard.verifyWorkspaceAdmin(userId, workspaceId);
+
+    const request = await this.prisma.workspaceJoinRequest.findUnique({
+      where: { id: requestId },
+    });
+    if (!request || request.workspaceId !== workspaceId) {
+      throw new NotFoundException('해당 가입 신청을 찾을 수 없습니다.');
+    }
+
+    if (action === 'APPROVE') {
+      await this.prisma.$transaction([
+        this.prisma.workspaceJoinRequest.update({
+          where: { id: requestId },
+          data: { status: 'APPROVED' },
+        }),
+        this.prisma.workspaceMember.upsert({
+          where: { workspaceId_userId: { workspaceId, userId: request.userId } },
+          update: { role: 'MEMBER' },
+          create: { workspaceId, userId: request.userId, role: 'MEMBER' },
+        }),
+      ]);
+      return { message: '가입 신청을 승인하였습니다.' };
+    } else {
+      await this.prisma.workspaceJoinRequest.update({
+        where: { id: requestId },
+        data: { status: 'REJECTED' },
+      });
+      return { message: '가입 신청을 거절하였습니다.' };
+    }
   }
 }

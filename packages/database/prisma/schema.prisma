@@ -32,6 +32,7 @@ model User {
   WorkspaceInvitations WorkspaceInvitation[] @relation("InviterRelation")
   refreshTokens        RefreshToken[]
   nanoHistorys         NanoHistory[]
+  joinRequests         WorkspaceJoinRequest[]
 
   @@map("users")
 }
@@ -59,15 +60,18 @@ model Workspace {
   name        String  @map("name")
   logoUrl     String? @map("logo_url")
   description String? @map("description")
+  domain      String? @unique @map("domain")
+  isPrivate   Boolean @default(true) @map("is_private")
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at") // Soft Delete 방식을 사용하기에 사용
 
   // Relations
-  members     WorkspaceMember[]
-  invitations WorkspaceInvitation[]
-  chatrooms   Chatroom[]
+  members      WorkspaceMember[]
+  invitations  WorkspaceInvitation[]
+  chatrooms    Chatroom[]
+  joinRequests WorkspaceJoinRequest[]
 
   @@map("workspaces")
 }
@@ -94,6 +98,28 @@ model WorkspaceInvitation {
   @@index([expiresAt])
   @@index([inviterId])
   @@map("workspace_invitations")
+}
+
+/// 워크스페이스 가입 신청 정보
+/// @namespace Workspace
+model WorkspaceJoinRequest {
+  id          String   @id @default(cuid()) @map("id")
+  workspaceId String   @map("workspace_id")
+  userId      String   @map("user_id")
+  status      String   @default("PENDING") @map("status") // PENDING, APPROVED, REJECTED
+  message     String?  @map("message")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@index([workspaceId, status])
+  @@index([userId])
+  @@map("workspace_join_requests")
 }
 
 /// 사용자 - 워크스페이스 매핑

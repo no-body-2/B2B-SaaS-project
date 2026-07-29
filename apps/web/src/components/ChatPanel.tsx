@@ -98,16 +98,24 @@ export default function ChatPanel() {
     socket.emit('joinRoom', { chatroomId: activeChannel.id });
 
     // 실시간 신규 메시지 청취
-    socket.on('newMessage', (newMsg: ChatMessage) => {
+    socket.on('newMessage', (newMsg: any) => {
+      const msgId = newMsg.messageId || newMsg.id;
+      if (!msgId || !newMsg.content) return;
+
       if (newMsg.chatroomId === activeChannel.id) {
         const sender = members.find((mem) => mem.userId === newMsg.senderId);
-        const formattedMsg = {
-          ...newMsg,
-          id: newMsg.id || (newMsg as any).messageId,
-          senderName: sender?.user?.name || newMsg.senderName || '알 수 없음'
+        const formattedMsg: ChatMessage = {
+          id: msgId,
+          chatroomId: newMsg.chatroomId,
+          senderId: newMsg.senderId,
+          senderName: sender?.user?.name || newMsg.senderName || '알 수 없음',
+          content: newMsg.content,
+          createdAt: newMsg.createdAt || new Date().toISOString(),
+          isEdited: newMsg.isEdited ?? false,
+          isDeleted: newMsg.isDeleted ?? false,
         };
         setMessages((prev) => {
-          if (prev.some((m) => m.id === formattedMsg.id)) return prev;
+          if (prev.some((m) => m.id === msgId)) return prev;
           return [...prev, formattedMsg];
         });
         setTimeout(scrollToBottom, 50);
