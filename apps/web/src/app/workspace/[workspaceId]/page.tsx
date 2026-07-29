@@ -60,10 +60,10 @@ export default function WorkspaceDetailView() {
 
   // 워크스페이스 선택 및 정보 동기화
   useEffect(() => {
-    if (workspaceId && user) {
+    if (workspaceId && user && activeWorkspace?.id !== workspaceId) {
       selectWorkspace(workspaceId);
     }
-  }, [workspaceId, user, selectWorkspace]);
+  }, [workspaceId, user, activeWorkspace?.id, selectWorkspace]);
 
   const handleCreateRootDoc = async (e: React.FormEvent) => {
     e.preventDefault();

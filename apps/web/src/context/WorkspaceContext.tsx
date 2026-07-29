@@ -142,7 +142,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, []);
 
   // 워크스페이스 세부 데이터 일괄 동기화
-  const selectWorkspace = async (workspaceId: string) => {
+  const selectWorkspace = useCallback(async (workspaceId: string) => {
     setLoadingWorkspace(true);
     try {
       // 1. 워크스페이스 상세 정보 및 내 권한 파악
@@ -224,7 +224,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     } finally {
       setLoadingWorkspace(false);
     }
-  };
+  }, [formatMembers]);
 
   const createWorkspace = async (name: string, domain: string) => {
     try {
