@@ -65,7 +65,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # 3. 백엔드 API 빌드 및 푸시 (ARM64 전용 빌드)
+      # 3. 백엔드 API 빌드 및 푸시 (ARM64 전용 빌드 + GHA 캐시)
       - name: Build and Push API Image
         uses: docker/build-push-action@v6
         with:
@@ -74,8 +74,10 @@ jobs:
           platforms: linux/arm64
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/luminano-api:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      # 4. 프런트엔드 WEB 빌드 및 푸시 (ARM64 전용 빌드 + API 주소 주입)
+      # 4. 프런트엔드 WEB 빌드 및 푸시 (ARM64 전용 빌드 + GHA 캐시)
       - name: Build and Push Web Image
         uses: docker/build-push-action@v6
         with:
@@ -87,6 +89,8 @@ jobs:
             NEXT_PUBLIC_API_URL=https://api.luminano.xyz
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/luminano-web:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       # 5. EC2 SSH 접속 및 쿠버네티스 롤아웃 재시작
       - name: SSH to EC2 & Restart Deployment
@@ -99,5 +103,5 @@ jobs:
             export KUBECONFIG=$HOME/.kube/config
             kubectl rollout restart deployment/luminano-api
             kubectl rollout restart deployment/luminano-web
-            kubectl rollout status deployment/luminano-api
-            kubectl rollout status deployment/luminano-web
+            kubectl rollout status deployment/luminano-api --timeout=180s
+            kubectl rollout status deployment/luminano-web --timeout=180s
