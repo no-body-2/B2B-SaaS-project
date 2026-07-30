@@ -73,10 +73,11 @@ export default function WorkspaceDetailView() {
 
   // 워크스페이스 선택 및 정보 동기화
   useEffect(() => {
-    if (workspaceId && user && activeWorkspace?.id !== workspaceId) {
+    const isAlreadyLoaded = activeWorkspace && (activeWorkspace.id === workspaceId || activeWorkspace.domain === workspaceId);
+    if (workspaceId && user && !isAlreadyLoaded) {
       selectWorkspace(workspaceId);
     }
-  }, [workspaceId, user, activeWorkspace?.id, selectWorkspace]);
+  }, [workspaceId, user, activeWorkspace, selectWorkspace]);
 
   // Drag & Drop 핸들러
   const handleDragStart = (e: React.DragEvent, id: string) => {
