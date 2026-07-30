@@ -133,6 +133,8 @@ export class WorkspaceService {
       name: record.workspace.name,
       description: record.workspace.description,
       logoUrl: record.workspace.logoUrl,
+      domain: record.workspace.domain,
+      isPrivate: record.workspace.isPrivate,
       role: record.role,
       createdAt: record.workspace.createdAt,
       deletedAt: record.workspace.deletedAt,

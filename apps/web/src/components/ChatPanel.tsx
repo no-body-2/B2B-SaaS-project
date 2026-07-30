@@ -152,19 +152,24 @@ export default function ChatPanel() {
 
     try {
       const res = await apiClient.channels.postMessage(activeWorkspace.id, activeChannel.id, payloadText);
-      const rawMsg = res.data;
+      const rawMsg = res.data?.result || res.data;
+      const msgId = rawMsg.messageId || rawMsg.id || `msg-${Date.now()}`;
       const sender = members.find((mem) => mem.userId === rawMsg.senderId);
-      const formatted = {
-        id: rawMsg.messageId || rawMsg.id,
-        chatroomId: rawMsg.chatroomId,
-        senderId: rawMsg.senderId,
-        senderName: sender?.user?.name || rawMsg.senderName || '나',
-        content: rawMsg.content,
-        createdAt: rawMsg.createdAt,
+      const currentUserId = user?.id || (user as any)?.userId;
+      const formatted: ChatMessage = {
+        id: msgId,
+        chatroomId: rawMsg.chatroomId || activeChannel.id,
+        senderId: rawMsg.senderId || currentUserId,
+        senderName: sender?.user?.name || user?.name || rawMsg.senderName || '나',
+        content: rawMsg.content || payloadText,
+        createdAt: rawMsg.createdAt || new Date().toISOString(),
         isEdited: rawMsg.isEdited ?? false,
         isDeleted: rawMsg.isDeleted ?? false,
       };
-      setMessages((prev) => [...prev, formatted]);
+      setMessages((prev) => {
+        if (prev.some((m) => m.id === msgId)) return prev;
+        return [...prev, formatted];
+      });
       setTimeout(scrollToBottom, 50);
 
       if (process.env.NEXT_PUBLIC_API_MOCK !== 'false' && socketRef.current) {
@@ -406,7 +411,8 @@ export default function ChatPanel() {
             </div>
           ) : (
             messages.map((msg) => {
-              const isMe = msg.senderId === user?.id;
+              const currentUserId = user?.id || (user as any)?.userId;
+              const isMe = msg.senderId === currentUserId;
               const isEditing = editingMsgId === msg.id;
 
               return (

@@ -133,7 +133,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       
       const formatted = listData.map((ws: any) => ({
         ...ws,
-        domain: ws.domain || ws.description || ws.name || ''
+        domain: ws.domain || ws.id || ''
       }));
       setWorkspaces(formatted);
     } catch (err) {
@@ -149,7 +149,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const wsRes = await apiClient.workspace.getDetail(workspaceId);
       const formattedWs = {
         ...wsRes.data,
-        domain: wsRes.data.domain || wsRes.data.description || wsRes.data.name || ''
+        domain: wsRes.data.domain || wsRes.data.id || ''
       };
       setActiveWorkspace(formattedWs);
 
