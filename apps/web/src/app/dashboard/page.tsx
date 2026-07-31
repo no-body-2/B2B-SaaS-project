@@ -146,14 +146,6 @@ export default function Dashboard() {
             <LogOut className="w-4 h-4" />
             로그아웃
           </button>
-          <button
-            onClick={handleDeleteAccount}
-            className="p-2 text-slate-500 dark:text-slate-400 hover:text-red-400 rounded-lg hover:bg-slate-800/50 transition flex items-center gap-1.5 text-xs font-semibold cursor-pointer border border-transparent bg-transparent"
-            title="회원탈퇴"
-          >
-            <Trash2 className="w-4 h-4" />
-            회원탈퇴
-          </button>
         </div>
       </header>
 
@@ -394,7 +386,7 @@ export default function Dashboard() {
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-200">회사/조직 이름</label>
                 <input
                   type="text"
-                  placeholder="예: 구글 코리아"
+                  placeholder="예: Company"
                   value={wsName}
                   onChange={(e) => setWsName(e.target.value)}
                   className="w-full px-3 py-2 border border-luminano-border rounded-lg text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-luminano-accent/20 focus:border-luminano-accent"
@@ -406,7 +398,7 @@ export default function Dashboard() {
                 <div className="flex items-center">
                   <input
                     type="text"
-                    placeholder="google"
+                    placeholder="example"
                     value={wsDomain}
                     onChange={(e) => setWsDomain(e.target.value)}
                     className="flex-1 px-3 py-2 border border-luminano-border rounded-l-lg text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-luminano-accent/20 focus:border-luminano-accent"

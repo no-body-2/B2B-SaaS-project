@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { apiClient } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { User, Lock, Mail, Settings, Loader2, Sparkles } from 'lucide-react';
+import { User, Lock, Mail, Settings, Loader2, Sparkles, Trash2, AlertTriangle } from 'lucide-react';
 
 export default function UserProfileSettings() {
-  const { user } = useAuth();
+  const router = useRouter();
+  const { user, deleteAccount } = useAuth();
   const { setTheme: setThemeContext } = useTheme();
 
   // 1. 프로필 수정 State
@@ -364,6 +366,39 @@ export default function UserProfileSettings() {
             </div>
           </form>
         )}
+      </div>
+
+      {/* 5. 계정 위험 영역 (Danger Zone) - 회원탈퇴 */}
+      <div className="bg-red-950/10 dark:bg-red-950/20 border border-red-900/30 dark:border-red-900/50 rounded-xl p-6 shadow-md flex flex-col gap-4">
+        <div className="flex items-center gap-2 text-red-500">
+          <AlertTriangle className="w-5 h-5" />
+          <h3 className="font-bold text-base text-red-500">계정 위험 영역 (Danger Zone)</h3>
+        </div>
+
+        <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          회원 탈퇴 시 모든 소유 워크스페이스 권한 및 세션 정보가 즉시 무효화됩니다. 탈퇴한 계정의 데이터는 복구할 수 없습니다.
+        </p>
+
+        <div className="flex justify-end pt-2 border-t border-red-900/20">
+          <button
+            type="button"
+            onClick={async () => {
+              if (confirm('정말로 계정을 탈퇴하시겠습니까? 데이터 복구가 불가능하며 모든 세션 정보가 무효화됩니다.')) {
+                try {
+                  await deleteAccount();
+                  router.push('/');
+                } catch (err) {
+                  console.error(err);
+                  alert('회원 탈퇴에 실패했습니다.');
+                }
+              }
+            }}
+            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg text-xs flex items-center gap-1.5 transition cursor-pointer border-0 shadow-sm"
+          >
+            <Trash2 className="w-4 h-4" />
+            회원 탈퇴 진행
+          </button>
+        </div>
       </div>
 
     </div>
