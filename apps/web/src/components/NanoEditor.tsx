@@ -15,7 +15,8 @@ export default function NanoEditor() {
     updateNano, 
     deleteNano, 
     fetchApprovals,
-    selectNano
+    selectNano,
+    selectWorkspace
   } = useWorkspace();
 
   const [title, setTitle] = useState('');
@@ -44,7 +45,7 @@ export default function NanoEditor() {
       const res = await apiClient.nanos.listChild(activeWorkspace.id, activeNano.id);
       const childList = Array.isArray(res.data) 
         ? res.data 
-        : (res.data?.nanoList || []);
+        : (res.data?.nanos || res.data?.nanoList || res.data?.items || []);
       setChildNanos(childList.map((n: any) => ({
         id: n.nanoId || n.id,
         title: n.title,
@@ -87,7 +88,9 @@ export default function NanoEditor() {
       });
       setNewChildTitle('');
       await fetchChildren();
+      await selectWorkspace(activeWorkspace.id);
     } catch (err) {
+      console.error(err);
       alert('하위 문서 생성에 실패했습니다.');
     } finally {
       setCreatingChild(false);
@@ -183,26 +186,20 @@ export default function NanoEditor() {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Lock / Unlock 토글 버튼 */}
+          {/* Lock / Unlock 아이콘 전용 토글 버튼 */}
           <button
             onClick={() => setIsEditMode(!isEditMode)}
-            className={`px-3 py-1.5 border rounded-lg text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer ${
+            className={`p-2 border rounded-lg transition cursor-pointer flex items-center justify-center ${
               isEditMode 
-                ? 'bg-luminano-accent/10 border-luminano-accent/40 text-luminano-accent' 
-                : 'bg-background border-luminano-border text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                ? 'bg-luminano-accent/15 border-luminano-accent text-luminano-accent shadow-xs' 
+                : 'bg-background border-luminano-border text-slate-500 hover:text-slate-200 hover:border-slate-600'
             }`}
-            title={isEditMode ? '편집 잠금 (읽기 전용 모드로 전환)' : '편집 잠금 해제 (수정 모드로 전환)'}
+            title={isEditMode ? '편집 잠금 (읽기 전용 모드 전환)' : '편집 잠금 해제 (수정 모드 전환)'}
           >
             {isEditMode ? (
-              <>
-                <Unlock className="w-3.5 h-3.5 text-luminano-accent animate-pulse" />
-                <span className="font-bold">편집 잠금 해제됨</span>
-              </>
+              <Unlock className="w-4 h-4 text-luminano-accent animate-pulse" />
             ) : (
-              <>
-                <Lock className="w-3.5 h-3.5 text-slate-500" />
-                <span>편집 잠금됨</span>
-              </>
+              <Lock className="w-4 h-4 text-slate-500" />
             )}
           </button>
 

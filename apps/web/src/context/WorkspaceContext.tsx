@@ -154,69 +154,83 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       setActiveWorkspace(formattedWs);
 
       // 2. 멤버 목록 로딩
-      const memRes = await apiClient.members.list(workspaceId);
-      const memberList = Array.isArray(memRes.data) 
-        ? memRes.data 
-        : (memRes.data?.members || []);
-      setMembers(formatMembers(memberList));
+      try {
+        const memRes = await apiClient.members.list(workspaceId);
+        const memberList = Array.isArray(memRes.data) 
+          ? memRes.data 
+          : (memRes.data?.members || []);
+        setMembers(formatMembers(memberList));
+      } catch (e) {
+        console.error('Failed to load members:', e);
+      }
 
       // 3. 문서(Nano) 최상위 목록 로딩
-      const nanoRes = await apiClient.nanos.listRoot(workspaceId);
-      const nanoList = Array.isArray(nanoRes.data) 
-        ? nanoRes.data 
-        : (nanoRes.data?.nanoList || []);
-      
-      const formattedNanos = nanoList.map((n: any) => ({
-        id: n.nanoId || n.id,
-        title: n.title,
-        type: n.type,
-        createdAt: n.createdAt,
-        workspaceId,
-        content: n.content || '',
-        parentNanoId: n.parentNanoId || null,
-        order: n.order || 1
-      }));
-      setNanos(formattedNanos);
-      setActiveNano(null);
+      try {
+        const nanoRes = await apiClient.nanos.listRoot(workspaceId);
+        const nanoList = Array.isArray(nanoRes.data) 
+          ? nanoRes.data 
+          : (nanoRes.data?.nanoList || []);
+        
+        const formattedNanos = nanoList.map((n: any) => ({
+          id: n.nanoId || n.id,
+          title: n.title,
+          type: n.type,
+          createdAt: n.createdAt,
+          workspaceId,
+          content: n.content || '',
+          parentNanoId: n.parentNanoId || null,
+          order: n.order || 1
+        }));
+        setNanos(formattedNanos);
+      } catch (e) {
+        console.error('Failed to load nanos:', e);
+      }
 
       // 4. 채팅방 목록 로딩
-      const chRes = await apiClient.channels.list(workspaceId);
-      const channelList = Array.isArray(chRes.data) 
-        ? chRes.data 
-        : (chRes.data?.rooms || []);
-      
-      const formattedChannels = channelList.map((ch: any) => ({
-        id: ch.chatroomId || ch.id,
-        name: ch.title || ch.name,
-        isPrivate: ch.isPrivate,
-        ownerId: ch.ownerId || '',
-        isJoined: ch.isJoined ?? false,
-      }));
-      setChannels(formattedChannels);
-      setActiveChannel(null);
+      try {
+        const chRes = await apiClient.channels.list(workspaceId);
+        const channelList = Array.isArray(chRes.data) 
+          ? chRes.data 
+          : (chRes.data?.rooms || []);
+        
+        const formattedChannels = channelList.map((ch: any) => ({
+          id: ch.chatroomId || ch.id,
+          name: ch.title || ch.name,
+          isPrivate: ch.isPrivate,
+          ownerId: ch.ownerId || '',
+          isJoined: ch.isJoined ?? false,
+        }));
+        setChannels(formattedChannels);
+      } catch (e) {
+        console.error('Failed to load channels:', e);
+      }
 
       // 5. 결재 요청 목록 로딩
-      const isOwner = wsRes.data.role === 'OWNER';
-      const appRes = isOwner 
-        ? await apiClient.workflows.listOwner(workspaceId)
-        : await apiClient.workflows.listMe(workspaceId);
-      const approvalList = Array.isArray(appRes.data) 
-        ? appRes.data 
-        : (appRes.data?.items || []);
+      try {
+        const isOwner = wsRes.data.role === 'OWNER';
+        const appRes = isOwner 
+          ? await apiClient.workflows.listOwner(workspaceId)
+          : await apiClient.workflows.listMe(workspaceId);
+        const approvalList = Array.isArray(appRes.data) 
+          ? appRes.data 
+          : (appRes.data?.items || []);
 
-      const formattedApprovals = approvalList.map((ap: any) => ({
-        id: ap.approvalRequestId || ap.id,
-        workspaceId,
-        nanoId: ap.nanoId,
-        title: ap.title,
-        content: ap.content || '',
-        requesterId: ap.requesterId || '',
-        requesterName: ap.requesterName || 'Unknown',
-        status: ap.status,
-        opinion: ap.opinion || null,
-        createdAt: ap.createdAt,
-      }));
-      setApprovals(formattedApprovals);
+        const formattedApprovals = approvalList.map((ap: any) => ({
+          id: ap.approvalRequestId || ap.id,
+          workspaceId,
+          nanoId: ap.nanoId,
+          title: ap.title,
+          content: ap.content || '',
+          requesterId: ap.requesterId || '',
+          requesterName: ap.requesterName || 'Unknown',
+          status: ap.status,
+          opinion: ap.opinion || null,
+          createdAt: ap.createdAt,
+        }));
+        setApprovals(formattedApprovals);
+      } catch (e) {
+        console.error('Failed to load approvals:', e);
+      }
 
     } catch (err) {
       console.error('Failed to load workspace data details:', err);
