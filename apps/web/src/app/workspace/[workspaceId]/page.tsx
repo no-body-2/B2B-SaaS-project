@@ -89,7 +89,7 @@ export default function WorkspaceDetailView() {
     e.preventDefault();
   };
 
-  const handleDrop = (e: React.DragEvent, targetId: string) => {
+  const handleDrop = async (e: React.DragEvent, targetId: string) => {
     e.preventDefault();
     if (!draggedNanoId || draggedNanoId === targetId) return;
 
@@ -101,31 +101,20 @@ export default function WorkspaceDetailView() {
       const [removed] = list.splice(dragIdx, 1);
       list.splice(dropIdx, 0, removed);
       setOrderedNanos(list);
-      setHasUnsavedNanoOrder(true);
-    }
-    setDraggedNanoId(null);
-  };
 
-  const handleApplyNanoOrder = async () => {
-    setSavingOrder(true);
-    try {
-      for (let i = 0; i < orderedNanos.length; i++) {
-        const doc = orderedNanos[i];
-        const prevNanoId = i > 0 ? orderedNanos[i - 1].id : undefined;
-        await apiClient.nanos.movePosition(workspaceId, doc.id, {
-          targetParentNanoId: doc.parentNanoId || undefined,
+      // 드롭 즉시 위치 자동 저장 (Auto-save on drop)
+      const prevNanoId = dropIdx > 0 ? list[dropIdx - 1].id : undefined;
+      try {
+        await apiClient.nanos.movePosition(workspaceId, draggedNanoId, {
+          targetParentNanoId: removed.parentNanoId || undefined,
           prevNanoId,
         });
+        await selectWorkspace(workspaceId);
+      } catch (err) {
+        console.error('Failed to auto-save nano position:', err);
       }
-      alert('문서 순서 변경이 저장되었습니다.');
-      setHasUnsavedNanoOrder(false);
-      await selectWorkspace(workspaceId);
-    } catch (err) {
-      console.error(err);
-      alert('문서 순서 저장에 실패했습니다.');
-    } finally {
-      setSavingOrder(false);
     }
+    setDraggedNanoId(null);
   };
 
   const handleCreateRootDoc = async (e: React.FormEvent) => {
@@ -328,18 +317,6 @@ export default function WorkspaceDetailView() {
                 <Plus className="w-3.5 h-3.5" />
               </button>
             </div>
-
-            {/* Drag & Drop 변경사항 적용 버튼 */}
-            {hasUnsavedNanoOrder && (
-              <button
-                onClick={handleApplyNanoOrder}
-                disabled={savingOrder}
-                className="mx-2 my-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer border-0 shadow-sm"
-              >
-                {savingOrder ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
-                변경사항 적용
-              </button>
-            )}
 
             {isCreatingDoc && (
               <form onSubmit={handleCreateRootDoc} className="flex gap-1.5 px-2 mt-1">

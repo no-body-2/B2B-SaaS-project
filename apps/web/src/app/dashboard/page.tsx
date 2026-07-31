@@ -133,7 +133,7 @@ export default function Dashboard() {
           <div className="w-9 h-9 rounded-lg flex items-center justify-center overflow-hidden">
             <LumiNanoIcon size={36} />
           </div>
-          <span className="font-bold text-lg tracking-tight text-foreground">LumiNano SaaS</span>
+          <span className="font-bold text-lg tracking-tight text-foreground">LumiNano</span>
         </div>
         <div className="flex items-center gap-4">
           <span className="text-sm font-medium text-slate-700 dark:text-slate-200">

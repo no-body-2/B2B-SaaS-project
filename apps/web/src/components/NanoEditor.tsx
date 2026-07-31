@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../lib/api';
-import { FileText, Save, Trash2, Calendar, Edit3, ShieldAlert, Sparkles, Loader2, Plus, ChevronRight, CornerDownRight } from 'lucide-react';
+import { FileText, Save, Trash2, Calendar, Lock, Unlock, ShieldAlert, Sparkles, Loader2, Plus, ChevronRight, CornerDownRight } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -35,7 +35,7 @@ export default function NanoEditor() {
   const [apprOpinion, setApprOpinion] = useState('');
   const [submittingAppr, setSubmittingAppr] = useState(false);
 
-  const isOwner = activeWorkspace?.role === 'OWNER';
+  const isOwner = activeWorkspace?.role === 'OWNER' || activeWorkspace?.role === 'ADMIN';
 
   const fetchChildren = useCallback(async () => {
     if (!activeWorkspace || !activeNano) return;
@@ -183,42 +183,54 @@ export default function NanoEditor() {
         </div>
 
         <div className="flex items-center gap-3">
-          {isEditMode ? (
-            <>
-              <button
-                onClick={() => setIsEditMode(false)}
-                className="px-3.5 py-1.5 border border-luminano-border text-slate-700 dark:text-slate-300 hover:bg-slate-800/40 rounded-lg text-xs font-semibold transition cursor-pointer bg-transparent"
-              >
-                취소
-              </button>
-              <button
-                onClick={handleSaveClick}
-                disabled={saving}
-                className="px-3.5 py-1.5 bg-luminano-accent hover:bg-luminano-accent/90 disabled:bg-luminano-accent/60 text-white dark:text-slate-950 font-bold rounded-lg text-xs flex items-center gap-1.5 transition cursor-pointer border-0"
-              >
-                {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-                {isOwner ? '저장 완료' : '수정 승인 상신'}
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => setIsEditMode(true)}
-                className="px-3.5 py-1.5 border border-luminano-border text-slate-700 dark:text-slate-300 hover:bg-slate-800/40 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer bg-transparent"
-              >
-                <Edit3 className="w-3.5 h-3.5 text-luminano-accent" />
-                문서 수정
-              </button>
-              {isOwner && (
-                <button
-                  onClick={handleDelete}
-                  className="p-2 text-slate-500 dark:text-slate-400 hover:text-red-400 rounded-lg hover:bg-slate-800/40 transition cursor-pointer border border-transparent bg-transparent"
-                  title="문서 삭제"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+          {/* Lock / Unlock 토글 버튼 */}
+          <button
+            onClick={() => setIsEditMode(!isEditMode)}
+            className={`px-3 py-1.5 border rounded-lg text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer ${
+              isEditMode 
+                ? 'bg-luminano-accent/10 border-luminano-accent/40 text-luminano-accent' 
+                : 'bg-background border-luminano-border text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+            }`}
+            title={isEditMode ? '편집 잠금 (읽기 전용 모드로 전환)' : '편집 잠금 해제 (수정 모드로 전환)'}
+          >
+            {isEditMode ? (
+              <>
+                <Unlock className="w-3.5 h-3.5 text-luminano-accent animate-pulse" />
+                <span className="font-bold">편집 잠금 해제됨</span>
+              </>
+            ) : (
+              <>
+                <Lock className="w-3.5 h-3.5 text-slate-500" />
+                <span>편집 잠금됨</span>
+              </>
+            )}
+          </button>
+
+          {isEditMode && (
+            <button
+              onClick={handleSaveClick}
+              disabled={saving}
+              className="px-3.5 py-1.5 bg-luminano-accent hover:bg-luminano-accent/90 disabled:bg-luminano-accent/60 text-white dark:text-slate-950 font-bold rounded-lg text-xs flex items-center gap-1.5 transition cursor-pointer border-0 shadow-sm"
+            >
+              {saving ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : isOwner ? (
+                <Save className="w-3.5 h-3.5" />
+              ) : (
+                <ShieldAlert className="w-3.5 h-3.5" />
               )}
-            </>
+              {isOwner ? '변경사항 저장' : '수정 승인 요청'}
+            </button>
+          )}
+
+          {!isEditMode && isOwner && (
+            <button
+              onClick={handleDelete}
+              className="p-2 text-slate-500 dark:text-slate-400 hover:text-red-400 rounded-lg hover:bg-slate-800/40 transition cursor-pointer border border-transparent bg-transparent"
+              title="문서 삭제"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
           )}
         </div>
       </div>

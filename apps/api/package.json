@@ -1,6 +1,6 @@
 {
   "name": "@luminano/api",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "B2B Luminano Service's API Package",
   "author": "no-body-2",
   "private": true,
