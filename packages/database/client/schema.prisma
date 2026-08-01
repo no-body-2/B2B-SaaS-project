@@ -15,12 +15,15 @@ datasource db {
 /// 사용자 핵심 정보
 /// @namespace Auth
 model User {
-  id        String  @id @default(cuid()) @map("id")
-  email     String? @unique @map("email")
-  password  String? @map("password")
-  firstName String  @map("firstname")
-  lastName  String? @map("lastname")
-  provider  String  @default("local") @map("provider")
+  id                 String  @id @default(cuid()) @map("id")
+  email              String? @unique @map("email")
+  password           String? @map("password")
+  firstName          String  @map("firstname")
+  lastName           String? @map("lastname")
+  nickname           String? @map("nickname")
+  profileImage       String? @map("profile_image")
+  defaultNameDisplay String  @default("NICKNAME") @map("default_name_display")
+  provider           String  @default("local") @map("provider")
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
@@ -56,12 +59,13 @@ model UserPreference {
 /// 워크스페이스 핵심 정보
 /// @namespace Workspace
 model Workspace {
-  id          String  @id @default(cuid()) @map("id")
-  name        String  @map("name")
-  logoUrl     String? @map("logo_url")
-  description String? @map("description")
-  domain      String? @unique @map("domain")
-  isPrivate   Boolean @default(true) @map("is_private")
+  id              String  @id @default(cuid()) @map("id")
+  name            String  @map("name")
+  logoUrl         String? @map("logo_url")
+  description     String? @map("description")
+  domain          String? @unique @map("domain")
+  isPrivate       Boolean @default(true) @map("is_private")
+  allowedNameType String  @default("ALLOW_NICKNAME") @map("allowed_name_type")
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
@@ -331,4 +335,22 @@ model RefreshToken {
 
   @@index([userId])
   @@map("refresh_tokens")
+}
+
+/// 파일/미디어 보관 정보
+/// @namespace Storage
+model FileAttachment {
+  id           String   @id @default(cuid()) @map("id")
+  filename     String   @map("filename")
+  originalName String   @map("original_name")
+  mimeType     String   @map("mime_type")
+  size         Int      @map("size")
+  url          String   @map("url")
+  uploaderId   String   @map("uploader_id")
+  workspaceId  String?  @map("workspace_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([uploaderId])
+  @@index([workspaceId])
+  @@map("file_attachments")
 }

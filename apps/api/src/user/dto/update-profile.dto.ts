@@ -35,4 +35,32 @@ export class UpdateProfileDto {
   @IsString()
   @Length(1, 50)
   lastName?: string;
+
+  @ApiProperty({
+    description: '사용자 닉네임',
+    example: 'lumi_master',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  @Length(1, 50)
+  nickname?: string;
+
+  @ApiProperty({
+    description: '프로필 이미지 URL',
+    example: 'https://example.com/avatar.png',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  profileImage?: string;
+
+  @ApiProperty({
+    description: '기본 이름 표시 방식 (NICKNAME 또는 REAL_NAME)',
+    example: 'NICKNAME',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  defaultNameDisplay?: string;
 }

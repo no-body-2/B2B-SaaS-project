@@ -7,6 +7,12 @@ interface User {
   id: string;
   email: string;
   name: string;
+  firstName?: string;
+  lastName?: string;
+  nickname?: string;
+  profileImage?: string;
+  defaultNameDisplay?: string;
+  displayName?: string;
 }
 
 interface AuthContextType {
@@ -17,6 +23,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   deleteAccount: () => Promise<void>;
   googleLogin: (code: string) => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,13 +36,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // 유저 정보에 name 필드가 누락되었거나 firstName/lastName이 분리되었을 경우 보정하는 헬퍼
   const formatUser = (rawUser: any): User | null => {
     if (!rawUser) return null;
-    const nameCombined = (rawUser.lastName || rawUser.firstName)
+    const realName = (rawUser.lastName || rawUser.firstName)
       ? `${rawUser.lastName || ''}${rawUser.firstName || ''}`.trim()
       : (rawUser.name || rawUser.email);
+    const nickname = rawUser.nickname || realName;
+    const defaultNameDisplay = rawUser.defaultNameDisplay || 'NICKNAME';
+    const displayName = (defaultNameDisplay === 'NICKNAME' && rawUser.nickname) 
+      ? rawUser.nickname 
+      : realName;
+
     return {
       id: rawUser.id || rawUser.userId,
       email: rawUser.email,
-      name: nameCombined,
+      name: realName,
+      firstName: rawUser.firstName,
+      lastName: rawUser.lastName,
+      nickname: rawUser.nickname || '',
+      profileImage: rawUser.profileImage || rawUser.avatarUrl || '',
+      defaultNameDisplay: defaultNameDisplay,
+      displayName: displayName,
     };
   };
 
@@ -195,8 +214,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const refreshProfile = async () => {
+    try {
+      const res = await apiClient.user.getMe();
+      setUser(formatUser(res.data));
+    } catch (err) {
+      console.error('Failed to refresh user profile:', err);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, deleteAccount, googleLogin }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, deleteAccount, googleLogin, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

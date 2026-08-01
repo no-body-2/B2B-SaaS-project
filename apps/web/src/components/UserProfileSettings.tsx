@@ -15,8 +15,13 @@ export default function UserProfileSettings() {
   // 1. 프로필 수정 State
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [profileImage, setProfileImage] = useState('');
+  const [defaultNameDisplay, setDefaultNameDisplay] = useState('NICKNAME');
   const [updatingProfile, setUpdatingProfile] = useState(false);
   const [profileMsg, setProfileMsg] = useState('');
+
+  const { refreshProfile } = useAuth();
 
   // 2. 비번 변경 State
   const [currentPassword, setCurrentPassword] = useState('');
@@ -50,6 +55,9 @@ export default function UserProfileSettings() {
         if (profileRes.data) {
           setFirstName(profileRes.data.firstName || '');
           setLastName(profileRes.data.lastName || '');
+          setNickname(profileRes.data.nickname || '');
+          setProfileImage(profileRes.data.profileImage || '');
+          setDefaultNameDisplay(profileRes.data.defaultNameDisplay || 'NICKNAME');
         }
         
         if (prefRes.data) {
@@ -75,8 +83,15 @@ export default function UserProfileSettings() {
     setUpdatingProfile(true);
 
     try {
-      await apiClient.user.updateProfile({ firstName, lastName });
-      setProfileMsg('성공적으로 이름을 변경하였습니다. 갱신을 위해 재로그인 하실 수 있습니다.');
+      await apiClient.user.updateProfile({ 
+        firstName, 
+        lastName, 
+        nickname, 
+        profileImage, 
+        defaultNameDisplay 
+      });
+      await refreshProfile();
+      setProfileMsg('성공적으로 프로필 및 이름 표기 설정을 수정하였습니다.');
     } catch (err: any) {
       const rawMsg = err.response?.data?.message;
       const parsedMsg = Array.isArray(rawMsg) ? rawMsg.join(', ') : rawMsg;
@@ -191,13 +206,64 @@ export default function UserProfileSettings() {
               className="px-3 py-2 border border-luminano-border rounded-lg text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-luminano-accent/20 focus:border-luminano-accent"
             />
           </div>
+
+          <div className="flex flex-col gap-1.5 col-span-1">
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">닉네임 (Nickname)</label>
+            <input
+              type="text"
+              placeholder="예: 루미_마스터"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              className="px-3 py-2 border border-luminano-border rounded-lg text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-luminano-accent/20 focus:border-luminano-accent"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5 col-span-1">
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">프로필 이미지 URL (Avatar URL)</label>
+            <input
+              type="text"
+              placeholder="https://example.com/avatar.png"
+              value={profileImage}
+              onChange={(e) => setProfileImage(e.target.value)}
+              className="px-3 py-2 border border-luminano-border rounded-lg text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-luminano-accent/20 focus:border-luminano-accent"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5 col-span-2">
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">이름 기본 표시 방식 (Name Display Preference)</label>
+            <div className="flex items-center gap-4 pt-1">
+              <label className="flex items-center gap-2 text-xs cursor-pointer text-slate-700 dark:text-slate-300">
+                <input
+                  type="radio"
+                  name="nameDisplay"
+                  value="NICKNAME"
+                  checked={defaultNameDisplay === 'NICKNAME'}
+                  onChange={() => setDefaultNameDisplay('NICKNAME')}
+                  className="accent-luminano-accent"
+                />
+                닉네임 우선 표시 (예: {nickname || '루미_마스터'})
+              </label>
+              <label className="flex items-center gap-2 text-xs cursor-pointer text-slate-700 dark:text-slate-300">
+                <input
+                  type="radio"
+                  name="nameDisplay"
+                  value="REAL_NAME"
+                  checked={defaultNameDisplay === 'REAL_NAME'}
+                  onChange={() => setDefaultNameDisplay('REAL_NAME')}
+                  className="accent-luminano-accent"
+                />
+                본명 우선 표시 (예: {lastName}{firstName})
+              </label>
+            </div>
+          </div>
+
           <div className="col-span-2 flex justify-end">
             <button
               type="submit"
               disabled={updatingProfile}
-              className="px-4 py-2 bg-luminano-accent hover:bg-luminano-accent/90 disabled:bg-luminano-accent/60 text-slate-950 font-bold rounded-lg text-xs flex items-center gap-1.5 transition cursor-pointer border-0"
+              className="px-4 py-2 bg-luminano-accent hover:bg-luminano-accent/90 disabled:bg-luminano-accent/60 text-slate-950 font-bold rounded-lg text-xs flex items-center gap-1.5 transition cursor-pointer border-0 shadow-sm"
             >
-              {updatingProfile ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : '프로필 저장'}
+              {updatingProfile ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : '프로필 및 표기 설정 저장'}
             </button>
           </div>
         </form>

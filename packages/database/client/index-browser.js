@@ -126,6 +126,9 @@ exports.Prisma.UserScalarFieldEnum = {
   password: 'password',
   firstName: 'firstName',
   lastName: 'lastName',
+  nickname: 'nickname',
+  profileImage: 'profileImage',
+  defaultNameDisplay: 'defaultNameDisplay',
   provider: 'provider',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
@@ -146,6 +149,7 @@ exports.Prisma.WorkspaceScalarFieldEnum = {
   description: 'description',
   domain: 'domain',
   isPrivate: 'isPrivate',
+  allowedNameType: 'allowedNameType',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
@@ -268,6 +272,18 @@ exports.Prisma.RefreshTokenScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.FileAttachmentScalarFieldEnum = {
+  id: 'id',
+  filename: 'filename',
+  originalName: 'originalName',
+  mimeType: 'mimeType',
+  size: 'size',
+  url: 'url',
+  uploaderId: 'uploaderId',
+  workspaceId: 'workspaceId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -309,7 +325,8 @@ exports.Prisma.ModelName = {
   NanoHistory: 'NanoHistory',
   ApprovalRequest: 'ApprovalRequest',
   PendingNano: 'PendingNano',
-  RefreshToken: 'RefreshToken'
+  RefreshToken: 'RefreshToken',
+  FileAttachment: 'FileAttachment'
 };
 
 /**

@@ -136,9 +136,23 @@ export default function Dashboard() {
           <span className="font-bold text-lg tracking-tight text-foreground">LumiNano</span>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
-            {user.name}님 환영합니다
-          </span>
+          <div className="flex items-center gap-2.5 bg-slate-800/20 dark:bg-slate-800/40 px-3 py-1.5 rounded-full border border-luminano-border">
+            {user.profileImage ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={user.profileImage}
+                alt="User Profile"
+                className="w-6 h-6 rounded-full object-cover border border-luminano-accent/50"
+              />
+            ) : (
+              <div className="w-6 h-6 rounded-full bg-luminano-accent/20 text-luminano-accent font-bold text-xs flex items-center justify-center border border-luminano-accent/40">
+                {(user.nickname || user.name || 'U').substring(0, 1)}
+              </div>
+            )}
+            <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
+              {user.displayName || user.nickname || user.name}님 환영합니다
+            </span>
+          </div>
           <button
             onClick={logout}
             className="p-2 text-slate-600 dark:text-slate-400 hover:text-red-400 rounded-lg hover:bg-slate-800/50 transition flex items-center gap-1.5 text-xs font-semibold cursor-pointer border border-transparent bg-transparent"
@@ -284,7 +298,7 @@ export default function Dashboard() {
                         onClick={() => handleRequestJoin(pWs.id)}
                         className="px-3 py-1.5 bg-luminano-accent hover:bg-luminano-accent/90 text-white dark:text-slate-950 rounded-lg text-xs font-bold transition cursor-pointer border-0"
                       >
-                        가입 신청
+                        즉시 가입
                       </button>
                     )}
                   </div>

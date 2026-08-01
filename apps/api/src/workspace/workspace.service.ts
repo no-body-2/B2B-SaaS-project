@@ -416,6 +416,18 @@ export class WorkspaceService {
       throw new BadRequestException('이미 해당 워크스페이스의 멤버입니다.');
     }
 
+    // Public 워크스페이스일 경우 가입 신청 절차 없이 즉시 멤버십 승인 가입
+    if (!ws.isPrivate) {
+      await this.prisma.workspaceMember.create({
+        data: {
+          workspaceId,
+          userId,
+          role: 'MEMBER',
+        },
+      });
+      return { message: '공개 워크스페이스에 즉시 가입되었습니다.', joined: true };
+    }
+
     const request = await this.prisma.workspaceJoinRequest.upsert({
       where: { workspaceId_userId: { workspaceId, userId } },
       update: { status: 'PENDING', message },
