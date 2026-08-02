@@ -79,6 +79,7 @@ export class AuthService {
         password: hashedPassword,
         firstName: dto.firstName,
         lastName: dto.lastName,
+        nickname: dto.nickname || null,
         provider: 'local', // dto 검증 완료 후 default: local 저장
       },
     });

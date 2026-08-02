@@ -19,7 +19,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name: string) => Promise<void>;
+  register: (email: string, password: string, name: string, nickname?: string) => Promise<void>;
   logout: () => Promise<void>;
   deleteAccount: () => Promise<void>;
   googleLogin: (code: string) => Promise<void>;
@@ -114,7 +114,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (email: string, password: string, name: string) => {
+  const register = async (email: string, password: string, name: string, nickname?: string) => {
     try {
       const trimmedName = name.trim();
       let lastName = '';
@@ -134,7 +134,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email, 
         password, 
         firstName, 
-        lastName 
+        lastName,
+        nickname: nickname?.trim() || undefined,
       });
     } catch (err) {
       console.error('Registration request failed:', err);

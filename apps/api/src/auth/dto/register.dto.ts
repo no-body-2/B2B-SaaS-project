@@ -13,6 +13,7 @@
 import {
   IsEmail,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Length,
   Matches,
@@ -57,6 +58,18 @@ export class RegisterDto {
     example: 'Doe',
     required: false,
   })
+  @IsOptional()
   @IsString()
   lastName?: string;
+
+  // 5. 닉네임 검증: 문자열
+  @ApiProperty({
+    description: '사용자의 닉네임',
+    example: 'lumi_master',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  @Length(1, 50, { message: '닉네임은 1자 이상 50자 이하이어야 합니다.' })
+  nickname?: string;
 }
