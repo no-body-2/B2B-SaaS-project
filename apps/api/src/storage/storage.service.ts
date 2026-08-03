@@ -20,7 +20,11 @@ export class StorageService {
     });
   }
 
-  async uploadFile(file: Express.Multer.File, userId: string, workspaceId?: string) {
+  async uploadFile(
+    file: Express.Multer.File,
+    userId: string,
+    workspaceId?: string,
+  ) {
     const fileExtension = file.originalname.split('.').pop();
     const storedFilename = `${createId()}.${fileExtension}`;
     const key = `uploads/${storedFilename}`;
@@ -53,7 +57,9 @@ export class StorageService {
       return { url: fileUrl, attachment };
     } catch (error) {
       console.error('S3 Upload Error:', error);
-      throw new InternalServerErrorException('파일 업로드에 실패하였습니다. 다시 시도해주세요.');
+      throw new InternalServerErrorException(
+        '파일 업로드에 실패하였습니다. 다시 시도해주세요.',
+      );
     }
   }
 }

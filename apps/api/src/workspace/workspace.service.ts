@@ -398,7 +398,11 @@ export class WorkspaceService {
   /**
    * 공개 워크스페이스 가입 요청 생성
    */
-  async requestJoinWorkspace(userId: string, workspaceId: string, message?: string) {
+  async requestJoinWorkspace(
+    userId: string,
+    workspaceId: string,
+    message?: string,
+  ) {
     const ws = await this.prisma.workspace.findUnique({
       where: { id: workspaceId },
     });
@@ -406,7 +410,9 @@ export class WorkspaceService {
       throw new NotFoundException('워크스페이스를 찾을 수 없습니다.');
     }
     if (ws.isPrivate) {
-      throw new ForbiddenException('비공개 워크스페이스에는 신청할 수 없습니다.');
+      throw new ForbiddenException(
+        '비공개 워크스페이스에는 신청할 수 없습니다.',
+      );
     }
 
     const existingMember = await this.prisma.workspaceMember.findUnique({
@@ -425,7 +431,10 @@ export class WorkspaceService {
           role: 'MEMBER',
         },
       });
-      return { message: '공개 워크스페이스에 즉시 가입되었습니다.', joined: true };
+      return {
+        message: '공개 워크스페이스에 즉시 가입되었습니다.',
+        joined: true,
+      };
     }
 
     const request = await this.prisma.workspaceJoinRequest.upsert({
@@ -446,7 +455,9 @@ export class WorkspaceService {
     const requests = await this.prisma.workspaceJoinRequest.findMany({
       where: { workspaceId },
       include: {
-        user: { select: { id: true, email: true, firstName: true, lastName: true } },
+        user: {
+          select: { id: true, email: true, firstName: true, lastName: true },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -454,7 +465,10 @@ export class WorkspaceService {
     return requests.map((r) => ({
       id: r.id,
       userId: r.userId,
-      userName: `${r.user.lastName || ''}${r.user.firstName || ''}`.trim() || r.user.email || 'Unknown',
+      userName:
+        `${r.user.lastName || ''}${r.user.firstName || ''}`.trim() ||
+        r.user.email ||
+        'Unknown',
       userEmail: r.user.email,
       status: r.status,
       message: r.message,
@@ -465,7 +479,12 @@ export class WorkspaceService {
   /**
    * OWNER/ADMIN 전용 가입 요청 승인 / 거절
    */
-  async processJoinRequest(userId: string, workspaceId: string, requestId: string, action: 'APPROVE' | 'REJECT') {
+  async processJoinRequest(
+    userId: string,
+    workspaceId: string,
+    requestId: string,
+    action: 'APPROVE' | 'REJECT',
+  ) {
     await this.workspaceGuard.verifyWorkspaceAdmin(userId, workspaceId);
 
     const request = await this.prisma.workspaceJoinRequest.findUnique({
@@ -482,7 +501,9 @@ export class WorkspaceService {
           data: { status: 'APPROVED' },
         }),
         this.prisma.workspaceMember.upsert({
-          where: { workspaceId_userId: { workspaceId, userId: request.userId } },
+          where: {
+            workspaceId_userId: { workspaceId, userId: request.userId },
+          },
           update: { role: 'MEMBER' },
           create: { workspaceId, userId: request.userId, role: 'MEMBER' },
         }),

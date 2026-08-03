@@ -126,8 +126,12 @@ export class UserService {
         firstName: dto.firstName,
         lastName: dto.lastName,
         nickname: dto.nickname !== undefined ? dto.nickname : undefined,
-        profileImage: dto.profileImage !== undefined ? dto.profileImage : undefined,
-        defaultNameDisplay: dto.defaultNameDisplay !== undefined ? dto.defaultNameDisplay : undefined,
+        profileImage:
+          dto.profileImage !== undefined ? dto.profileImage : undefined,
+        defaultNameDisplay:
+          dto.defaultNameDisplay !== undefined
+            ? dto.defaultNameDisplay
+            : undefined,
       },
       select: {
         id: true,
