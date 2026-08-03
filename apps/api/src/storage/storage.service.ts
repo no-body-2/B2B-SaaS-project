@@ -6,18 +6,20 @@ import { getS3Config, S3Config } from './storage.config';
 
 @Injectable()
 export class StorageService {
-  private s3Client: S3Client;
-  private config: S3Config;
+  private s3Client: S3Client | null = null;
+  private config: S3Config | null = null;
 
   constructor(private prisma: PrismaService) {
     this.config = getS3Config();
-    this.s3Client = new S3Client({
-      region: this.config.region,
-      credentials: {
-        accessKeyId: this.config.accessKeyId,
-        secretAccessKey: this.config.secretAccessKey,
-      },
-    });
+    if (this.config) {
+      this.s3Client = new S3Client({
+        region: this.config.region,
+        credentials: {
+          accessKeyId: this.config.accessKeyId,
+          secretAccessKey: this.config.secretAccessKey,
+        },
+      });
+    }
   }
 
   async uploadFile(
@@ -25,6 +27,12 @@ export class StorageService {
     userId: string,
     workspaceId?: string,
   ) {
+    if (!this.config || !this.s3Client) {
+      throw new InternalServerErrorException(
+        'AWS S3 환경변수(AWS_REGION, AWS_S3_BUCKET_NAME 등)가 서버에 설정되지 않았습니다.',
+      );
+    }
+
     const fileExtension = file.originalname.split('.').pop();
     const storedFilename = `${createId()}.${fileExtension}`;
     const key = `uploads/${storedFilename}`;
