@@ -819,6 +819,11 @@ const mockApi = {
       return { data: { message: '모크 읽음 동기화 완료' } };
     },
   },
+  storage: {
+    upload: async (formData: FormData) => {
+      return { data: { url: 'https://placeholder.com/mock-avatar.png' } };
+    },
+  },
 };
 
 // 모드 통합 내보내기 (IS_MOCK 여부에 따라 API 동적 연동)
@@ -831,6 +836,12 @@ export const apiClient = IS_MOCK
         logout: () => realApi.post('/auth/logout'),
         googleLogin: (dto: any) => realApi.post('/auth/google', dto),
         refresh: () => realApi.post('/auth/refresh'),
+      },
+      storage: {
+        upload: (formData: FormData) =>
+          realApi.post('/storage/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          }),
       },
       user: {
         getMe: () => realApi.get('/user/me'),

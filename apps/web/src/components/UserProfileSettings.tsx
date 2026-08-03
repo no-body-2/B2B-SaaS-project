@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { apiClient } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { User, Lock, Mail, Settings, Loader2, Sparkles, Trash2, AlertTriangle } from 'lucide-react';
+import { User, Lock, Mail, Settings, Loader2, Sparkles, Trash2, AlertTriangle, Upload } from 'lucide-react';
 
 export default function UserProfileSettings() {
   const router = useRouter();
@@ -19,9 +19,33 @@ export default function UserProfileSettings() {
   const [profileImage, setProfileImage] = useState('');
   const [defaultNameDisplay, setDefaultNameDisplay] = useState('NICKNAME');
   const [updatingProfile, setUpdatingProfile] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [profileMsg, setProfileMsg] = useState('');
 
   const { refreshProfile } = useAuth();
+
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    setProfileMsg('');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await apiClient.storage.upload(formData);
+      const uploadedUrl = res.data.url;
+      setProfileImage(uploadedUrl);
+      setProfileMsg('이미지가 성공적으로 업로드되었습니다. [프로필 및 표기 설정 저장]을 눌러 최종 반영해 주세요.');
+    } catch (err: any) {
+      console.error('Image upload failed:', err);
+      setProfileMsg('이미지 업로드에 실패했습니다. S3 연동 상태나 파일 형식을 확인해 주세요.');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   // 2. 비번 변경 State
   const [currentPassword, setCurrentPassword] = useState('');
@@ -219,14 +243,27 @@ export default function UserProfileSettings() {
           </div>
 
           <div className="flex flex-col gap-1.5 col-span-1">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">프로필 이미지 URL (Avatar URL)</label>
-            <input
-              type="text"
-              placeholder="https://example.com/avatar.png"
-              value={profileImage}
-              onChange={(e) => setProfileImage(e.target.value)}
-              className="px-3 py-2 border border-luminano-border rounded-lg text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-luminano-accent/20 focus:border-luminano-accent"
-            />
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">프로필 이미지 (Avatar)</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="https://example.com/avatar.png"
+                value={profileImage}
+                onChange={(e) => setProfileImage(e.target.value)}
+                className="flex-1 px-3 py-2 border border-luminano-border rounded-lg text-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-luminano-accent/20 focus:border-luminano-accent min-w-0"
+              />
+              <label className="px-3 py-2 bg-slate-800/10 dark:bg-slate-800 hover:bg-slate-700/20 text-slate-700 dark:text-slate-200 border border-luminano-border rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition whitespace-nowrap">
+                {uploadingImage ? <Loader2 className="w-3.5 h-3.5 animate-spin text-luminano-accent" /> : <Upload className="w-3.5 h-3.5" />}
+                파일 업로드
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageFileChange}
+                  disabled={uploadingImage}
+                  className="hidden"
+                />
+              </label>
+            </div>
           </div>
 
           <div className="flex flex-col gap-1.5 col-span-2">

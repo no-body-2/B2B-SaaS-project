@@ -15,6 +15,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { MailerModule } from './mailer/mailer.module';
 import { GuardModule } from './common/guard/guard.module';
 import { SchedulerModule } from './common/scheduler/scheduler.module';
+import { StorageModule } from './storage/storage.module';
 
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
@@ -41,6 +42,7 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     MailerModule,
     GuardModule,
     SchedulerModule,
+    StorageModule,
   ],
   controllers: [AppController],
   providers: [
