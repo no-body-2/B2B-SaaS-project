@@ -23,6 +23,7 @@ import {
 } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import { createId } from '@paralleldrive/cuid2';
+import { appConfig } from '../common/config/app.config';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../redis/redis.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -320,7 +321,7 @@ export class UserService {
     }
 
     // 5. 인증 링크 생성
-    const baseUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000';
+    const baseUrl = appConfig.frontendUrl;
     const verifiedUrl = `${baseUrl.replace(/\/$/, '')}/user/email/verify?token=${token}`;
     console.log(`[인증 메일 발송 완료] URL: ${verifiedUrl}`);
 

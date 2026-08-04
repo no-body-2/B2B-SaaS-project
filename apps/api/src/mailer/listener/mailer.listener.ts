@@ -17,22 +17,22 @@ import * as nodemailer from 'nodemailer';
 import { MailTemplateFactory } from '../template/mail-template.factory';
 import { SentMessageInfo } from 'nodemailer/lib/smtp-transport';
 
+import { appConfig } from '../../common/config/app.config';
+
 @Injectable()
 export class MailerListener {
   private readonly logger = new Logger(MailerListener.name);
   private transporter: nodemailer.Transporter;
 
   constructor() {
+    const smtp = appConfig.smtp;
     this.transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.ethereal.email',
-      port: parseInt(process.env.SMTP_PORT || '587', 10),
-      secure: process.env.SMTP_SECURE === 'true',
+      host: smtp.host,
+      port: smtp.port,
+      secure: smtp.secure,
       auth: {
-        user: process.env.SMTP_USER || '4f3b99021172e2',
-        pass:
-          process.env.SMTP_PASSWORD ||
-          process.env.SMTP_PASS ||
-          '7c141adfc4fc89',
+        user: smtp.user,
+        pass: smtp.pass,
       },
     });
   }
@@ -54,8 +54,9 @@ export class MailerListener {
     try {
       const htmlContent = MailTemplateFactory.createHtml(template, context);
 
-      const fromName = process.env.SMTP_FROM_NAME || 'LumiNano';
-      const fromEmail = process.env.SMTP_FROM_EMAIL || 'no-reply@luminano.com';
+      const smtp = appConfig.smtp;
+      const fromName = smtp.fromName;
+      const fromEmail = smtp.fromEmail;
 
       const info = (await this.transporter.sendMail({
         from: `"${fromName}" <${fromEmail}>`,

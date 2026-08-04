@@ -13,6 +13,7 @@
 import { Global, Module } from '@nestjs/common';
 import { RedisService } from './redis.service';
 import Redis from 'ioredis';
+import { appConfig } from '../common/config/app.config';
 
 // 자주 사용될 예정이므로 전역 모듈로 선언
 @Global()
@@ -21,9 +22,16 @@ import Redis from 'ioredis';
     {
       provide: 'REDIS_CLIENT',
       useFactory: () => {
-        const redisUrl = process.env.REDIS_URL;
+        const redisUrl = appConfig.redisUrl;
         if (!redisUrl) {
-          throw new Error('REDIS_URL 설정이 존재하지 않습니다.');
+          console.warn(
+            '[RedisModule] REDIS_URL이 설정되지 않았습니다. 로컬 127.0.0.1:6379로 연결을 시도합니다.',
+          );
+          return new Redis({
+            host: '127.0.0.1',
+            port: 6379,
+            lazyConnect: true,
+          });
         }
         return new Redis(redisUrl);
       },

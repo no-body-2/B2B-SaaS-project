@@ -21,11 +21,13 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { TokenHelper } from './utils/token.helper';
 import { MailerModule } from '../mailer/mailer.module';
 
+import { appConfig } from '../common/config/app.config';
+
 @Module({
   imports: [
     JwtModule.register({
       global: true,
-      secret: process.env.JWT_ACCESS_SECRET,
+      secret: appConfig.jwtAccessSecret,
       signOptions: { expiresIn: '1h' },
     }),
     MailerModule,

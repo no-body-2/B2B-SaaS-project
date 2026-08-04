@@ -27,10 +27,12 @@ import { TokenHelper } from './utils/token.helper';
 import { MailerService } from '../mailer/mailer.service';
 import { RedisService } from '../redis/redis.service';
 
+import { appConfig } from '../common/config/app.config';
+
 @Injectable()
 export class AuthService {
   // googleClient 선언
-  private googleClient: OAuth2Client;
+  private readonly googleClient: OAuth2Client;
 
   // 생성자 (Constructor)
   constructor(
@@ -40,9 +42,9 @@ export class AuthService {
     private readonly redisService: RedisService,
   ) {
     this.googleClient = new OAuth2Client(
-      process.env.GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_CLIENT_SECRET,
-      process.env.GOOGLE_REDIRECT_URI,
+      appConfig.google.clientId,
+      appConfig.google.clientSecret,
+      appConfig.google.redirectUri,
     );
   }
 
@@ -220,7 +222,7 @@ export class AuthService {
       const { tokens } = await this.googleClient.getToken(dto.code);
       const ticket = await this.googleClient.verifyIdToken({
         idToken: tokens.id_token!,
-        audience: process.env.GOOGLE_CLIENT_ID,
+        audience: appConfig.google.clientId,
       });
       payload = ticket.getPayload();
     } catch {

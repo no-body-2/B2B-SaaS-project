@@ -23,6 +23,7 @@ import { InviteMemberDto } from './dto/member/invite-member.dto';
 import { WorkspaceParamDto } from '../common/dto/workspace-param.dto';
 import { WorkspaceGuardService } from '../common/guard/workspace-guard.service';
 import { createId } from '@paralleldrive/cuid2';
+import { appConfig } from '../common/config/app.config';
 import { AcceptInvitationDto } from './dto/member/accept-invitation.dto';
 import { WorkspaceMemberQueryDto } from './dto/member/workspace-member-query.dto';
 import { Prisma } from '@luminano/database';
@@ -127,7 +128,7 @@ export class WorkspaceMemberService {
     });
 
     // 8. 토큰을 바탕으로 링크 생성
-    const verifiedLink = `${process.env.WORKSPACE_INVITATION_URL}?token=${invitationToken}&workspaceId=${workspaceId}`;
+    const verifiedLink = `${appConfig.workspaceInvitationUrl}?token=${invitationToken}&workspaceId=${workspaceId}`;
 
     // 9. 이메일 전송
     this.mailerService.sendInvitationMail(

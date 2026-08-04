@@ -38,6 +38,8 @@ import { Public } from '../common/decorators/public.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { RateLimitGuard } from './guards/rate-limit.guard';
 
+import { appConfig } from '../common/config/app.config';
+
 // 기본 주소 '/auth'
 @ApiTags('인증 (Auth)')
 @Controller('auth')
@@ -46,7 +48,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   private setRefreshTokenCookie(res: express.Response, refreshToken: string) {
-    const isProd = process.env.NODE_ENV === 'production';
+    const isProd = appConfig.isProduction;
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: isProd,

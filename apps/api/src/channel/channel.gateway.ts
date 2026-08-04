@@ -29,6 +29,8 @@ interface JwtPayload {
   email: string;
 }
 
+import { appConfig } from '../common/config/app.config';
+
 @WebSocketGateway({
   namespace: 'chat',
   cors: {
@@ -37,10 +39,10 @@ interface JwtPayload {
       callback: (err: Error | null, allow?: boolean) => void,
     ) => {
       const allowedOrigins = [
-        process.env.FRONTEND_URL,
+        appConfig.frontendUrl,
         'http://localhost:3000',
         'http://127.0.0.1:3000',
-      ].filter(Boolean) as string[];
+      ].filter(Boolean);
       if (
         !requestOrigin ||
         allowedOrigins.includes(requestOrigin) ||
@@ -110,8 +112,8 @@ export class ChannelGateway
       // 쿠키 인증(refreshToken)인 경우 JWT_REFRESH_SECRET로, 헤더 인증(accessToken)인 경우 JWT_ACCESS_SECRET로 검증합니다.
       const payload = (await this.jwtService.verifyAsync(token, {
         secret: isCookieAuth
-          ? process.env.JWT_REFRESH_SECRET
-          : process.env.JWT_ACCESS_SECRET,
+          ? appConfig.jwtRefreshSecret
+          : appConfig.jwtAccessSecret,
       })) as unknown as JwtPayload;
 
       // 3. 소켓 세션에 사용자 식별자 바인딩

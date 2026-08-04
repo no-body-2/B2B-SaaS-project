@@ -14,6 +14,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Request } from 'express';
+import { appConfig } from '../../common/config/app.config';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -21,14 +22,6 @@ export class JwtRefreshStrategy extends PassportStrategy(
   'jwt-refresh',
 ) {
   constructor() {
-    const secret = process.env.JWT_REFRESH_SECRET;
-
-    if (!secret) {
-      throw new Error(
-        '보안 에러: JWT_REFRESH_SECRET 환경 변수가 설정되지 않았습니다.',
-      );
-    }
-
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -43,7 +36,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
         },
       ]),
       ignoreExpiration: false,
-      secretOrKey: secret,
+      secretOrKey: appConfig.jwtRefreshSecret,
       // validate 메서드에서 Client 측에서 전송한 Plain Text를 참조할 수 있게하는 옵션
       passReqToCallback: true,
     });

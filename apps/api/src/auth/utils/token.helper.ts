@@ -15,6 +15,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
 import { createId } from '@paralleldrive/cuid2';
+import { appConfig } from '../../common/config/app.config';
 
 @Injectable()
 export class TokenHelper {
@@ -24,13 +25,10 @@ export class TokenHelper {
   ) {}
 
   /**
-   * AUTH - Generate And Save Token
-   * @description
-   * - Local or Social 로그인을 시도하는 사용자에 대한 JWT Access Token & Refresh Token 발급 및 저장
-   * @remakrs
-   * - Local 로그인과 Social 로그인의 공통 로직이므로 별도의 메서드로 리팩터링
-   * @param user - Local or Social 로그인을 시도하는 사용자의 정보
-   * @param ipAddress - 접속한 Client Ip 주소
+   * 사용자 식별자 정보(User)를 전달받아 토큰 생성 및 DB에 Refresh Token 저장
+   *
+   * @param user - Prisma User 객체
+   * @param ipAddress - 접속한 Client IP 주소 (보안 로그용)
    * @param userAgent - 접속한 Client 브라우저 및 디바이스 정보 (보안 로그용)
    * @returns - 사용자 정보 (민감 정보 제외) & JWT Access Token이 담긴 객체
    */
@@ -39,13 +37,8 @@ export class TokenHelper {
     ipAddress?: string,
     userAgent?: string,
   ) {
-    const accessSecret = process.env.JWT_ACCESS_SECRET;
-    const refreshSecret = process.env.JWT_REFRESH_SECRET;
-    if (!accessSecret || !refreshSecret) {
-      throw new Error(
-        '보안 오류: JWT Secret Key 환경 변수가 설정되지 않았습니다.',
-      );
-    }
+    const accessSecret = appConfig.jwtAccessSecret;
+    const refreshSecret = appConfig.jwtRefreshSecret;
 
     // 1. Payload에 비밀번호 등의 민감한 정보를 제외한 최소한의 식별자 전달
     const accessTokenPayload = { sub: user.id, email: user.email };
