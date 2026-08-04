@@ -15,6 +15,7 @@ import {
   IsString,
   IsUrl,
   Length,
+  Matches,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -54,6 +55,9 @@ export class CreateWorkspaceDto {
   })
   @IsOptional()
   @IsString()
+  @Matches(/^[a-z0-9-]+$/, {
+    message: '도메인은 영문 소문자, 숫자, 하이픈(-)만 사용할 수 있습니다.',
+  })
   domain?: string;
 
   @ApiPropertyOptional({

@@ -6,7 +6,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import LumiNanoIcon from '../../components/LumiNanoIcon';
 import { apiClient } from '../../lib/api';
-import { Building2, Plus, LogOut, Trash2, ArrowRight, Loader2, Sparkles } from 'lucide-react';
+import { Building2, Plus, LogOut, Trash2, ArrowRight, Loader2, Sparkles, ChevronDown, User as UserIcon, Settings } from 'lucide-react';
+import UserProfileSettings from '../../components/UserProfileSettings';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -23,6 +24,8 @@ export default function Dashboard() {
   const deletedWorkspaces = workspaces.filter((ws) => ws.deletedAt);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [wsName, setWsName] = useState('');
   const [wsDomain, setWsDomain] = useState('');
   const [wsIsPrivate, setWsIsPrivate] = useState(true);
@@ -52,9 +55,9 @@ export default function Dashboard() {
     setLoadingPublic(true);
     try {
       const res = await apiClient.workspace.listPublic();
-      setPublicWorkspaces(Array.isArray(res.data) ? res.data : []);
+      setPublicWorkspaces(res.data || []);
     } catch (err) {
-      console.error('Failed to load public workspaces:', err);
+      console.error('Failed to fetch public workspaces:', err);
     } finally {
       setLoadingPublic(false);
     }
@@ -69,13 +72,20 @@ export default function Dashboard() {
       return;
     }
 
+    const domainTrimmed = wsDomain.trim();
+    if (!/^[a-z0-9-]+$/.test(domainTrimmed)) {
+      setErrorMsg('도메인은 영문 소문자, 숫자, 하이픈(-)만 사용할 수 있습니다. (한글/특수문자/공백 불가)');
+      return;
+    }
+
     setCreating(true);
     try {
-      await createWorkspace(wsName.trim(), wsDomain.trim(), wsIsPrivate);
+      await createWorkspace(wsName.trim(), domainTrimmed, wsIsPrivate);
       setWsName('');
       setWsDomain('');
       setIsModalOpen(false);
       await fetchWorkspaces();
+      await loadPublicWorkspaces();
     } catch (err: any) {
       console.error(err);
       setErrorMsg(err.response?.data?.message || '생성에 실패했습니다. 한도를 초과했거나 이미 사용 중인 도메인입니다.');
@@ -96,11 +106,12 @@ export default function Dashboard() {
 
   const handleRequestJoin = async (workspaceId: string) => {
     try {
-      await apiClient.workspace.requestJoin(workspaceId, '가입을 요청합니다.');
-      alert('가입 신청이 성공적으로 제출되었습니다.');
-      loadPublicWorkspaces();
+      const res = await apiClient.workspace.requestJoin(workspaceId, '가입을 요청합니다.');
+      alert(res.data?.message || '공개 워크스페이스에 즉시 가입되었습니다.');
+      await fetchWorkspaces();
+      await loadPublicWorkspaces();
     } catch (err: any) {
-      alert(err.response?.data?.message || '가입 신청 제출 실패');
+      alert(err.response?.data?.message || '가입 처리에 실패했습니다.');
     }
   };
 
@@ -110,22 +121,23 @@ export default function Dashboard() {
         await deleteAccount();
         router.push('/');
       } catch (err) {
-        console.error(err);
-        alert('회원 탈퇴에 실패했습니다.');
+        alert('회원 탈퇴 처리에 실패했습니다.');
       }
     }
   };
 
-  if (authLoading || !user) {
+  if (authLoading) {
     return (
-      <div className="flex flex-1 items-center justify-center min-h-screen bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
         <Loader2 className="w-8 h-8 animate-spin text-luminano-accent" />
       </div>
     );
   }
 
+  if (!user) return null;
+
   return (
-    <div className="flex flex-1 min-h-screen flex-col bg-background text-foreground">
+    <div className="min-h-screen bg-background flex flex-col transition-colors duration-200">
       
       {/* 글로벌 상단 내비 바 */}
       <header className="sticky top-0 z-40 bg-luminano-point/80 backdrop-blur border-b border-luminano-border py-4 px-8 flex justify-between items-center shadow-md">
@@ -135,8 +147,11 @@ export default function Dashboard() {
           </div>
           <span className="font-bold text-lg tracking-tight text-foreground">LumiNano</span>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2.5 bg-slate-800/20 dark:bg-slate-800/40 px-3 py-1.5 rounded-full border border-luminano-border">
+        <div className="flex items-center gap-4 relative">
+          <div 
+            onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+            className="flex items-center gap-2.5 bg-slate-800/20 dark:bg-slate-800/40 px-3 py-1.5 rounded-full border border-luminano-border cursor-pointer hover:bg-slate-800/30 transition select-none"
+          >
             {user.profileImage ? (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
@@ -150,16 +165,37 @@ export default function Dashboard() {
               </div>
             )}
             <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">
-              {user.displayName || user.nickname || user.name}님 환영합니다
+              {user.displayName || user.nickname || user.name}님
             </span>
+            <ChevronDown className={`w-3.5 h-3.5 text-slate-500 transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
           </div>
-          <button
-            onClick={logout}
-            className="p-2 text-slate-600 dark:text-slate-400 hover:text-red-400 rounded-lg hover:bg-slate-800/50 transition flex items-center gap-1.5 text-xs font-semibold cursor-pointer border border-transparent bg-transparent"
-          >
-            <LogOut className="w-4 h-4" />
-            로그아웃
-          </button>
+
+          {/* 사용자 정보 팝오버 메뉴 */}
+          {isUserMenuOpen && (
+            <div className="absolute right-0 top-12 w-48 bg-luminano-point border border-luminano-border rounded-xl shadow-xl py-1 z-50 flex flex-col text-xs font-semibold">
+              <button
+                onClick={() => {
+                  setIsUserMenuOpen(false);
+                  setIsProfileModalOpen(true);
+                }}
+                className="px-4 py-2.5 hover:bg-slate-800/20 text-slate-700 dark:text-slate-200 flex items-center gap-2 transition cursor-pointer border-0 bg-transparent text-left"
+              >
+                <Settings className="w-4 h-4 text-luminano-accent" />
+                내 정보 / 프로필 설정
+              </button>
+              <div className="h-px bg-luminano-border my-1" />
+              <button
+                onClick={() => {
+                  setIsUserMenuOpen(false);
+                  logout();
+                }}
+                className="px-4 py-2.5 hover:bg-red-500/10 text-red-500 flex items-center gap-2 transition cursor-pointer border-0 bg-transparent text-left"
+              >
+                <LogOut className="w-4 h-4" />
+                로그아웃
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
@@ -474,6 +510,27 @@ export default function Dashboard() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* 내 정보 / 프로필 설정 모달 */}
+      {isProfileModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex justify-center items-center p-4 overflow-y-auto">
+          <div className="w-full max-w-3xl bg-luminano-point rounded-xl border border-luminano-border shadow-2xl p-6 flex flex-col gap-4 max-h-[90vh] overflow-y-auto relative">
+            <div className="flex justify-between items-center border-b border-luminano-border pb-3">
+              <div className="flex items-center gap-1.5 text-slate-800 dark:text-slate-100">
+                <Settings className="w-5 h-5 text-luminano-accent" />
+                <h3 className="font-bold text-lg">내 정보 및 프로필 설정</h3>
+              </div>
+              <button
+                onClick={() => setIsProfileModalOpen(false)}
+                className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 bg-transparent border-0 cursor-pointer text-lg font-bold"
+              >
+                ✕
+              </button>
+            </div>
+            <UserProfileSettings />
           </div>
         </div>
       )}

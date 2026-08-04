@@ -16,7 +16,7 @@ import ChatPanel from '../../../components/ChatPanel';
 import MemberManagement from '../../../components/MemberManagement';
 import { 
   FileText, MessageSquare, ShieldCheck, Settings, 
-  ChevronLeft, Plus, Folder, Hash, Lock, Loader2, User, ArrowUp, ArrowDown, Users, GripVertical, CheckCircle
+  ChevronLeft, ChevronRight, ChevronDown, Plus, Folder, Hash, Lock, Loader2, User, ArrowUp, ArrowDown, Users, GripVertical, CheckCircle
 } from 'lucide-react';
 
 type Tab = 'doc' | 'approval' | 'chat' | 'settings' | 'profile' | 'members';
@@ -49,9 +49,10 @@ export default function WorkspaceDetailView() {
   const [isPrivateChannel, setIsPrivateChannel] = useState(false);
   const [isCreatingChannel, setIsCreatingChannel] = useState(false);
 
-  // Drag & Drop Nanos 상태
+  // Drag & Drop Nanos 및 트리 접기/펼치기 상태
   const [draggedNanoId, setDraggedNanoId] = useState<string | null>(null);
   const [orderedNanos, setOrderedNanos] = useState<any[]>([]);
+  const [expandedNanos, setExpandedNanos] = useState<Record<string, boolean>>({});
   const [hasUnsavedNanoOrder, setHasUnsavedNanoOrder] = useState(false);
   const [savingOrder, setSavingOrder] = useState(false);
 
@@ -338,34 +339,71 @@ export default function WorkspaceDetailView() {
             )}
 
             <div className="flex flex-col gap-0.5 mt-1.5">
-              {orderedNanos.map((doc) => {
-                const canDrag = activeWorkspace.role === 'OWNER' || activeWorkspace.role === 'ADMIN';
-                return (
-                  <div
-                    key={doc.id}
-                    draggable={canDrag}
-                    onDragStart={(e) => canDrag && handleDragStart(e, doc.id)}
-                    onDragOver={handleDragOver}
-                    onDrop={(e) => canDrag && handleDrop(e, doc.id)}
-                    className={`w-full flex items-center justify-between px-2.5 py-1 rounded-lg text-xs font-semibold tracking-wide text-left transition hover:bg-slate-800/40 text-slate-600 dark:text-slate-400 group ${
-                      draggedNanoId === doc.id ? 'opacity-40 border border-dashed border-luminano-accent' : ''
-                    }`}
-                  >
-                    <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                      {canDrag && (
-                        <GripVertical className="w-3 h-3 text-slate-400 opacity-40 group-hover:opacity-100 cursor-grab shrink-0" />
-                      )}
-                      <button
-                        onClick={() => clickNano(doc.id)}
-                        className="flex items-center gap-1.5 flex-1 text-left bg-transparent border-0 cursor-pointer text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-50 font-semibold truncate"
-                      >
-                        <FileText className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                        <span className="truncate">{doc.title}</span>
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
+              {(() => {
+                const renderNanoTree = (nodes: any[], level = 0) => {
+                  return nodes.map((doc) => {
+                    const children = orderedNanos.filter((n) => n.parentNanoId === doc.id);
+                    const hasChildren = children.length > 0;
+                    const isExpanded = expandedNanos[doc.id] !== false;
+                    const canDrag = activeWorkspace?.role === 'OWNER' || activeWorkspace?.role === 'ADMIN';
+
+                    return (
+                      <React.Fragment key={doc.id}>
+                        <div
+                          draggable={canDrag}
+                          onDragStart={(e) => canDrag && handleDragStart(e, doc.id)}
+                          onDragOver={handleDragOver}
+                          onDrop={(e) => canDrag && handleDrop(e, doc.id)}
+                          style={{ paddingLeft: `${level * 12 + 10}px` }}
+                          className={`w-full flex items-center justify-between py-1 pr-2.5 rounded-lg text-xs font-semibold tracking-wide text-left transition hover:bg-slate-800/40 text-slate-600 dark:text-slate-400 group ${
+                            draggedNanoId === doc.id ? 'opacity-40 border border-dashed border-luminano-accent' : ''
+                          }`}
+                        >
+                          <div className="flex items-center gap-1 flex-1 min-w-0">
+                            {canDrag && (
+                              <GripVertical className="w-3 h-3 text-slate-400 opacity-40 group-hover:opacity-100 cursor-grab shrink-0" />
+                            )}
+
+                            {/* 펼치기 / 접기 아이콘 버튼 */}
+                            {hasChildren ? (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setExpandedNanos((prev) => ({ ...prev, [doc.id]: !isExpanded }));
+                                }}
+                                className="p-0.5 hover:bg-slate-700/30 rounded text-slate-400 transition cursor-pointer border-0 bg-transparent shrink-0"
+                                title={isExpanded ? '하위 문서 접기' : '하위 문서 펼치기'}
+                              >
+                                {isExpanded ? (
+                                  <ChevronDown className="w-3.5 h-3.5 text-luminano-accent" />
+                                ) : (
+                                  <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                                )}
+                              </button>
+                            ) : (
+                              <span className="w-3.5 h-3.5 shrink-0" />
+                            )}
+
+                            <button
+                              onClick={() => clickNano(doc.id)}
+                              className="flex items-center gap-1.5 flex-1 text-left bg-transparent border-0 cursor-pointer text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-50 font-semibold truncate"
+                            >
+                              <FileText className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                              <span className="truncate">{doc.title}</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* 하위 문서 펼침 상태 렌더링 */}
+                        {hasChildren && isExpanded && renderNanoTree(children, level + 1)}
+                      </React.Fragment>
+                    );
+                  });
+                };
+
+                const rootNanos = orderedNanos.filter((n) => !n.parentNanoId);
+                return renderNanoTree(rootNanos.length > 0 ? rootNanos : orderedNanos);
+              })()}
             </div>
           </div>
 

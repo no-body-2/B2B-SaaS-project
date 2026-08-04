@@ -92,6 +92,16 @@
 - Media Storage AWS 내부에 설정 완료
 - apps/api/src/storage 경로에 연결 파일 작성 중
 - 작성 완료 및 config 파일을 통한 보안화 완료
+
+### 2026-08-04
+- v1.3.0 Release
+- Workspace 신규 생성 시 Domain 영문 유효성 검사
+- 결재 요청 시 기안자 이름이 Unknown으로 표시되는 문제 해결
+- Nano Tree에서 펼치기/접기 등으로 하위 Nano 목록 확인 가능
+- Workspace Domain 표기 방식 실제 서비스와 동일하게 개편
+- Workspace 권한에 따른 색상 표기 구분
+- Workspace 가입 시 자동 새로고침으로 UX 향상
+- Dashboard를 통해 사용자의 정보 및 정보 수정 창으로 이동 가능
 ---
 
 ## TODO

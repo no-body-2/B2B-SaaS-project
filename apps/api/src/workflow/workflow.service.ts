@@ -311,8 +311,12 @@ export class WorkflowService {
           include: {
             writer: {
               select: {
+                id: true,
                 firstName: true,
                 lastName: true,
+                nickname: true,
+                defaultNameDisplay: true,
+                email: true,
               },
             },
           },
@@ -331,9 +335,19 @@ export class WorkflowService {
     const formattedApprovalRequestList = items.map((ar) => {
       const historyData = ar.history;
       const writer = historyData.writer;
-      const requesterName = writer
-        ? `${writer.firstName ?? ''} ${writer.lastName ?? ''}`.trim()
-        : 'Unknown';
+      let requesterName = 'Unknown';
+
+      if (writer) {
+        const realName =
+          `${writer.lastName ?? ''}${writer.firstName ?? ''}`.trim() ||
+          writer.email ||
+          'Unknown';
+        if (writer.defaultNameDisplay === 'NICKNAME' && writer.nickname) {
+          requesterName = writer.nickname;
+        } else {
+          requesterName = realName;
+        }
+      }
 
       return {
         approvalRequestId: ar.id,

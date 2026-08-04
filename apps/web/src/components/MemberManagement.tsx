@@ -171,12 +171,12 @@ export default function MemberManagement({ workspaceId, userRole }: MemberManage
                       </td>
                       <td className="py-3.5 px-4 text-slate-400 font-mono">{m.user?.email || m.email}</td>
                       <td className="py-3.5 px-4">
-                        <span className={`px-2 py-0.5 rounded-md font-bold text-[10px] ${
-                          m.role === 'OWNER' ? 'bg-amber-500/20 text-amber-500 border border-amber-500/30' :
-                          m.role === 'ADMIN' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
-                          'bg-slate-500/20 text-slate-300'
+                        <span className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] flex items-center gap-1 ${
+                          m.role === 'OWNER' ? 'bg-amber-500/15 text-amber-500 border border-amber-500/40' :
+                          m.role === 'ADMIN' ? 'bg-indigo-500/15 text-indigo-400 border border-indigo-500/40' :
+                          'bg-emerald-500/15 text-emerald-400 border border-emerald-500/40'
                         }`}>
-                          {m.role}
+                          {m.role === 'OWNER' ? '👑 OWNER' : m.role === 'ADMIN' ? '🛡️ ADMIN' : '👤 MEMBER'}
                         </span>
                       </td>
                       <td className="py-3.5 px-4 text-right">

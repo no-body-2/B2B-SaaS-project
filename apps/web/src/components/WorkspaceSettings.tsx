@@ -286,12 +286,14 @@ export default function WorkspaceSettings() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                  <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 ${
                     m.role === 'OWNER' 
-                      ? 'bg-luminano-accent/10 text-luminano-accent border border-luminano-accent/30' 
-                      : 'bg-emerald-100 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/50'
+                      ? 'bg-amber-500/15 text-amber-500 border border-amber-500/40 shadow-2xs' 
+                      : m.role === 'ADMIN'
+                      ? 'bg-indigo-500/15 text-indigo-400 border border-indigo-500/40 shadow-2xs'
+                      : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 shadow-2xs'
                   }`}>
-                    {m.role}
+                    {m.role === 'OWNER' ? '👑 OWNER' : m.role === 'ADMIN' ? '🛡️ ADMIN' : '👤 MEMBER'}
                   </span>
                   
                   {/* OWNER 권한 액션 패널 */}
