@@ -1,8 +1,21 @@
 # LumiNano Workspace Agent Rules
 
 ## Git & Feature Development Workflow
-- **Short-lived Feature Branch Strategy**:
-  - Whenever adding new features, modifying core APIs, or upgrading versions, create a feature branch first (`feature/<feature-name>` or `fix/<bug-name>`).
-  - Perform all edits, tests, and builds on the feature branch.
-  - After verification passes, merge back into `main` and clean up the feature branch (`git branch -d`).
-  - Tag release versions (`vX.Y.Z`) on `main` and push tags to trigger production deployments.
+- **Standard 4-Step Feature Branch & Release Tagging Strategy**:
+  ```bash
+  # 1단계: 신규 작업 브랜치 생성 및 이동
+  git checkout -b feature/<feature-name>
+
+  # 2단계: 코드 수정 및 테스트 후 커밋
+  git add .
+  git commit -m "<type>: <description>"
+
+  # 3단계: 작업 완료 후 main 브랜치로 이동 및 병합
+  git checkout main
+  git merge feature/<feature-name>
+
+  # 4단계: 사용한 작업 브랜치 삭제 & 태그 푸시 배포
+  git branch -d feature/<feature-name>
+  git tag -a vX.Y.Z -m "Release Version X.Y.Z"
+  git push origin main --tags
+  ```

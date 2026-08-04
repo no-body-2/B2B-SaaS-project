@@ -45,14 +45,11 @@ jobs:
 
   deploy-api:
     needs: build-and-test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -68,7 +65,6 @@ jobs:
         with:
           context: .
           file: ./apps/api/Dockerfile
-          platforms: linux/arm64
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/luminano-api:latest
           cache-from: type=gha,scope=api
@@ -76,14 +72,11 @@ jobs:
 
   deploy-web:
     needs: build-and-test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -99,7 +92,6 @@ jobs:
         with:
           context: .
           file: ./apps/web/Dockerfile
-          platforms: linux/arm64
           build-args: |
             NEXT_PUBLIC_API_MOCK=false
             NEXT_PUBLIC_API_URL=https://api.luminano.xyz
