@@ -101,7 +101,11 @@
 - Workspace Domain 표기 방식 실제 서비스와 동일하게 개편
 - Workspace 권한에 따른 색상 표기 구분
 - Workspace 가입 시 자동 새로고침으로 UX 향상
-- Dashboard를 통해 사용자의 정보 및 정보 수정 창으로 이동 가능
+- Dashboard를 통하여 사용자의 정보 및 정보 수정 창으로 이동 가능
+
+### 2026-08-04 -2
+- v1.3.1 Release
+- api 디렉터리 하위 모듈들에 대해 env 직접 노출 및 예시값 노출 최소화
 ---
 
 ## TODO
