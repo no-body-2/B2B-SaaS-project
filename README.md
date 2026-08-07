@@ -106,6 +106,13 @@
 ### 2026-08-04 -2
 - v1.3.1 Release
 - api 디렉터리 하위 모듈들에 대해 env 직접 노출 및 예시값 노출 최소화
+
+### 2026-08-06
+- Standard Logger -> Winston으로 교체 진행 중
+
+### 2026-08-07
+- v1.4.0 Release
+- Winston Logger 장착 및 Log 저장 기능 구현 완료
 ---
 
 ## TODO

@@ -16,9 +16,20 @@ import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationError } from 'class-validator';
 import { appConfig } from './common/config/app.config';
+import { WinstonModule } from 'nest-winston';
+import { createWinstonLogger } from './common/logger/winston.config';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  // Winston Logger 사용
+  const winstonLogger = WinstonModule.createLogger({
+    instance: createWinstonLogger(),
+  });
+
+  // logger: winstonLogger Options 추가
+  const app = await NestFactory.create(AppModule, { logger: winstonLogger });
+
+  app.useGlobalInterceptors(new LoggingInterceptor());
 
   app.enableCors({
     origin: appConfig.frontendUrl,
