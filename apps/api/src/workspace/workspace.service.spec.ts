@@ -13,7 +13,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { WorkspaceService } from './workspace.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { WorkspaceGuardService } from '../common/guard/workspace-guard.service';
+import { WorkspaceGuardService } from '../common/guards/workspace-guard.service';
 import {
   BadRequestException,
   ForbiddenException,

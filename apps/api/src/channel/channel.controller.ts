@@ -39,7 +39,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { UpdateLastReadDto } from './dto/update-last-read.dto';
 import { SearchChatMessageDto } from './dto/search-chat-message.dto';
 import { WorkspaceRole } from '../common/decorators/workspace-role.decorator';
-import { WorkspaceRoleGuard } from '../common/guard/workspace-role.guard';
+import { WorkspaceRoleGuard } from '../common/guards/workspace-role.guard';
 
 @ApiTags('ChatRoom (워크스페이스 내부의 채팅방)')
 @Controller('workspace')

@@ -2,10 +2,10 @@
 
 /**
  * Logger Module
- * 
+ *
  * @description
  * - Logger (Winston) Module
- * 
+ *
  * @author <nobody>
  * @date 2026-08-06
  */
@@ -16,9 +16,10 @@ import { createWinstonLogger } from './winston.config';
 
 @Global()
 @Module({
-    imports: [WinstonModule.forRoot({
-        instance: createWinstonLogger(),
+  imports: [
+    WinstonModule.forRoot({
+      instance: createWinstonLogger(),
     }),
-    ],
+  ],
 })
 export class LoggerModule {}

@@ -23,7 +23,7 @@ import { CreateWorkspaceDto } from './dto/create-workspace.dto';
 import { WorkspaceParamDto } from '../common/dto/workspace-param.dto';
 import { UpdateWorkspaceDto } from './dto/update-workspace.dto';
 import { DeleteWorkspaceDto } from './dto/delete-workspace.dto';
-import { WorkspaceGuardService } from '../common/guard/workspace-guard.service';
+import { WorkspaceGuardService } from '../common/guards/workspace-guard.service';
 
 @Injectable()
 export class WorkspaceService {

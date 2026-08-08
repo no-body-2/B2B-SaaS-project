@@ -13,10 +13,11 @@ import { WorkflowModule } from './workflow/workflow.module';
 import { ChannelModule } from './channel/channel.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { MailerModule } from './mailer/mailer.module';
-import { GuardModule } from './common/guard/guard.module';
+import { GuardModule } from './common/guards/guards.module';
 import { SchedulerModule } from './common/scheduler/scheduler.module';
 import { StorageModule } from './storage/storage.module';
 import { LoggerModule } from './common/logger/logger.module';
+import { AdminModule } from './admin/admin.module';
 
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
@@ -45,6 +46,7 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     SchedulerModule,
     StorageModule,
     LoggerModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [
@@ -55,4 +57,4 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

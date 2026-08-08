@@ -18,7 +18,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { WorkspaceGuardService } from '../common/guard/workspace-guard.service';
+import { WorkspaceGuardService } from '../common/guards/workspace-guard.service';
 import { NanoTreeHelper } from './utils/nano-tree.helper';
 import { WorkspaceParamDto } from '../common/dto/workspace-param.dto';
 import { CreateNanoDto } from './dto/create-nano.dto';

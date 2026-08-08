@@ -32,7 +32,7 @@ import { TargetMemberDto } from './dto/member/target-member.dto';
 import { UpdateMemberRoleDto } from './dto/member/update-role.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { WorkspaceRole } from '../common/decorators/workspace-role.decorator';
-import { WorkspaceRoleGuard } from '../common/guard/workspace-role.guard';
+import { WorkspaceRoleGuard } from '../common/guards/workspace-role.guard';
 import {
   ApiTags,
   ApiOperation,

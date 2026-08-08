@@ -130,6 +130,7 @@ exports.Prisma.UserScalarFieldEnum = {
   profileImage: 'profileImage',
   defaultNameDisplay: 'defaultNameDisplay',
   provider: 'provider',
+  systemRole: 'systemRole',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
@@ -284,6 +285,28 @@ exports.Prisma.FileAttachmentScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.AuditLogScalarFieldEnum = {
+  id: 'id',
+  adminId: 'adminId',
+  action: 'action',
+  targetId: 'targetId',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  details: 'details',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.SystemNoticeScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  content: 'content',
+  type: 'type',
+  isActive: 'isActive',
+  startAt: 'startAt',
+  endAt: 'endAt',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -326,7 +349,9 @@ exports.Prisma.ModelName = {
   ApprovalRequest: 'ApprovalRequest',
   PendingNano: 'PendingNano',
   RefreshToken: 'RefreshToken',
-  FileAttachment: 'FileAttachment'
+  FileAttachment: 'FileAttachment',
+  AuditLog: 'AuditLog',
+  SystemNotice: 'SystemNotice'
 };
 
 /**

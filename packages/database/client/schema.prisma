@@ -25,6 +25,9 @@ model User {
   defaultNameDisplay String  @default("NICKNAME") @map("default_name_display")
   provider           String  @default("local") @map("provider")
 
+  // Super Admin (시스템 자체의 관리자) 구분을 위한 필드
+  systemRole String @default("USER") @map("system_role")
+
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at") // Soft Delete 방식을 사용하기에 사용
@@ -36,6 +39,7 @@ model User {
   refreshTokens        RefreshToken[]
   nanoHistorys         NanoHistory[]
   joinRequests         WorkspaceJoinRequest[]
+  auditLogs            AuditLog[]
 
   @@map("users")
 }
@@ -353,4 +357,41 @@ model FileAttachment {
   @@index([uploaderId])
   @@index([workspaceId])
   @@map("file_attachments")
+}
+
+/// Admin 감사 로그
+/// @namespace System
+model AuditLog {
+  id      String @id @default(cuid()) @map("id")
+  adminId String @map("admin_id")
+
+  action   String  @map("action") // EX: USER_ROLE_UPDATE
+  targetId String? @map("target_id") // 작업의 대상 ID
+
+  ipAddress String? @map("ip_address")
+  userAgent String? @map("usre_agent")
+  details   Json?   @map("details")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  admin User @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model SystemNotice {
+  id       String  @id @default(cuid()) @map("id")
+  title    String  @map("title")
+  content  String  @map("content")
+  type     String  @default("INFO") @map("type") // INFO, WARN, MAINTENANCE
+  isActive Boolean @default(true) @map("is_active")
+
+  startAt   DateTime  @default(now()) @map("start_at")
+  endAt     DateTime? @map("end_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@map("system_notices")
 }

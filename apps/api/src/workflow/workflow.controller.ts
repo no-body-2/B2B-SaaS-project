@@ -35,7 +35,7 @@ import { DecideApprovalRequestDto } from './dto/decide-approval-request.dto';
 import { GetApprovalRequestListDto } from './dto/get-approval-request-list.dto';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { WorkspaceRole } from '../common/decorators/workspace-role.decorator';
-import { WorkspaceRoleGuard } from '../common/guard/workspace-role.guard';
+import { WorkspaceRoleGuard } from '../common/guards/workspace-role.guard';
 
 @ApiTags('Nano-Workflow')
 @Controller('workspace')

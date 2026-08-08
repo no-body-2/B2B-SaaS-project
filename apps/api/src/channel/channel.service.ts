@@ -18,7 +18,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { WorkspaceGuardService } from '../common/guard/workspace-guard.service';
+import { WorkspaceGuardService } from '../common/guards/workspace-guard.service';
 import { CreateChatRoomDto } from './dto/create-chat-room.dto';
 // import { JoinChatRoomDto } from './dto/join-chat-room.dto'; api v1에서는 사용하지 않음
 import { DelegateOwnerDto } from './dto/delegate-owner.dto';

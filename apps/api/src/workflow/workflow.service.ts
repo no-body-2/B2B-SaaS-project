@@ -19,7 +19,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { WorkspaceGuardService } from '../common/guard/workspace-guard.service';
+import { WorkspaceGuardService } from '../common/guards/workspace-guard.service';
 import { TargetNanoParamDto } from '../common/dto/target-nano-param.dto';
 import { CreateApprovalRequestDto } from './dto/create-approval-request.dto';
 import {

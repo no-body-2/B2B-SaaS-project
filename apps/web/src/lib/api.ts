@@ -929,3 +929,24 @@ export const apiClient = IS_MOCK
           realApi.patch(`/workspace/${workspaceId}/channels/${chatRoomId}/read`, dto),
       },
     };
+
+export const adminApi = {
+  getStats: () => realApi.get('/admin/stats'),
+  getHealth: () => realApi.get('/admin/health'),
+  getUsers: (params?: { page?: number; limit?: number; search?: string }) => realApi.get('/admin/users', { params }),
+  updateUserRole: (userId: string, systemRole: string, sudoVerifiedAt?: number) =>
+    realApi.patch(`/admin/users/${userId}/role`, { systemRole }, { headers: { 'x-sudo-verified-at': sudoVerifiedAt ? String(sudoVerifiedAt) : '' } }),
+  toggleUserStatus: (userId: string, sudoVerifiedAt?: number) =>
+    realApi.patch(`/admin/users/${userId}/status`, {}, { headers: { 'x-sudo-verified-at': sudoVerifiedAt ? String(sudoVerifiedAt) : '' } }),
+  impersonateUser: (userId: string, sudoVerifiedAt?: number) =>
+    realApi.post(`/admin/users/${userId}/impersonate`, {}, { headers: { 'x-sudo-verified-at': sudoVerifiedAt ? String(sudoVerifiedAt) : '' } }),
+  getWorkspaces: (params?: { page?: number; limit?: number; search?: string }) => realApi.get('/admin/workspaces', { params }),
+  toggleWorkspaceStatus: (workspaceId: string, sudoVerifiedAt?: number) =>
+    realApi.delete(`/admin/workspaces/${workspaceId}`, { headers: { 'x-sudo-verified-at': sudoVerifiedAt ? String(sudoVerifiedAt) : '' } }),
+  getAuditLogs: (params?: { page?: number; limit?: number; action?: string }) => realApi.get('/admin/audit-logs', { params }),
+  verifySudo: (password: string) => realApi.post('/admin/sudo', { password }),
+  createNotice: (dto: { title: string; content: string; type: 'INFO' | 'MAINTENANCE' }, sudoVerifiedAt?: number) =>
+    realApi.post('/admin/notice', dto, { headers: { 'x-sudo-verified-at': sudoVerifiedAt ? String(sudoVerifiedAt) : '' } }),
+  exportUsersCsvUrl: `${BASE_URL}/admin/users/csv`,
+};
+

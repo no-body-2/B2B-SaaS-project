@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { WorkspaceMemberService } from './workspace-member.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { WorkspaceGuardService } from '../common/guard/workspace-guard.service';
+import { WorkspaceGuardService } from '../common/guards/workspace-guard.service';
 import { MailerService } from '../mailer/mailer.service';
 import { dbMock } from '../prisma/__mocks__/prisma.service';
 import {

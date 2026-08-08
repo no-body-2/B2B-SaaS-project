@@ -1,4 +1,4 @@
-// src/common/guard/guard.module.ts
+// src/common/guards/guards.module.ts
 
 /**
  * Guard Module

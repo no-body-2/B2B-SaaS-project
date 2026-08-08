@@ -15,7 +15,7 @@ import { ChannelService } from './channel.service';
 import { ChannelController } from './channel.controller';
 import { ChannelGateway } from './channel.gateway';
 import { MailerModule } from '../mailer/mailer.module';
-import { GuardModule } from '../common/guard/guard.module';
+import { GuardModule } from '../common/guards/guards.module';
 
 @Module({
   imports: [MailerModule, GuardModule],
