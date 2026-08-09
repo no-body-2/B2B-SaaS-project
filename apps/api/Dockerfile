@@ -32,10 +32,14 @@ WORKDIR /app
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nestjs
-USER nestjs
 
-# Copy the entire standalone deployed package
-COPY --from=builder /app/pruned ./
+# Copy the entire standalone deployed package with ownership
+COPY --chown=nestjs:nodejs --from=builder /app/pruned ./
+
+# Create logs directory with write permissions for nestjs user
+RUN mkdir -p /app/logs && chown -R nestjs:nodejs /app/logs
+
+USER nestjs
 
 ENV NODE_ENV=production
 ENV PORT=4000

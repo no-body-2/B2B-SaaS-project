@@ -10,6 +10,7 @@
  * @date 2026-08-06
  */
 
+import * as path from 'path';
 import * as winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import { utilities as nestWinstonModuleUtilities } from 'nest-winston';
@@ -24,7 +25,7 @@ const dailyRotateFileOptions = (
   return new DailyRotateFile({
     level,
     datePattern: 'YYYY-MM-DD',
-    dirname: `logs/${filename}`,
+    dirname: path.join(process.cwd(), 'logs', filename),
     filename: `%DATE%.${filename}.log`,
     maxSize: '20m',
     maxFiles,
