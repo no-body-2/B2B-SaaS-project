@@ -125,6 +125,7 @@
 - v1.6.1 Google Redirect가 적용되지 않는 오류 해결
 - Next.js의 환경변수 관리는 Build 시에 적용되는 것들이 있음
 - v1.6.3 Google Redirect 후 서비스 로그인이 되지 않는 오류
+- v1.6.4 Fix Google OAuth Redirect Error and Release
 ---
 
 ## TODO

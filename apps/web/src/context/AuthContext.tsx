@@ -62,23 +62,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const fetchUser = async () => {
       try {
+        const existingToken = getAccessToken();
         if (IS_MOCK) {
-          const at = localStorage.getItem('accessToken');
-          if (at) {
-            setAccessToken(at);
+          if (existingToken) {
             const res = await apiClient.user.getMe();
             setUser(formatUser(res.data));
           }
         } else {
-          // Real 모드: 쿠키(refreshToken)를 활용한 Silent Refresh 호출 시도
+          // Real 모드: 기존 엑세스 토큰이 있으면 /user/me 먼저 시도 후, 없거나 실패 시 refresh 시도
+          if (existingToken) {
+            try {
+              const res = await apiClient.user.getMe();
+              setUser(formatUser(res.data));
+              return;
+            } catch (_meErr) {
+              // Access token expired, proceed to refresh below
+            }
+          }
+
+          // 쿠키(refreshToken)를 활용한 Silent Refresh 호출 시도
           const refreshRes = await apiClient.auth.refresh();
           const { accessToken, user: userPayload } = refreshRes.data;
           setAccessToken(accessToken);
           setUser(formatUser(userPayload));
         }
-      } catch (err) {
-        console.error('Failed to restore auth session:', err);
-        // 토큰이 유효하지 않으면 정리
+      } catch (_err) {
+        // 미인증 상태 시 세션 무소음 초기화
         setAccessToken(null);
         if (IS_MOCK) {
           localStorage.removeItem('accessToken');
