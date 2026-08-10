@@ -87,7 +87,7 @@ export const appConfig = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
       redirectUri:
         process.env.GOOGLE_REDIRECT_URI ||
-        'http://localhost:4000/auth/google/callback',
+        `${getFrontendUrl()}/auth/google/callback`,
     };
   },
 

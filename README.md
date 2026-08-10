@@ -122,6 +122,8 @@
 - v1.5.1 배포 환경에서 발견된 문제 (DATABASE 연결 오류)
 - v1.5.2 Release: DATABASE 연결 오류 해결 및 정상 작동 확인
 - v1.6.0 제작 시작 -> Google OAuth2 실서비스와 연동 시작
+- v1.6.1 Google Redirect가 적용되지 않는 오류 해결
+- Next.js의 환경변수 관리는 Build 시에 적용되는 것들이 있음
 ---
 
 ## TODO

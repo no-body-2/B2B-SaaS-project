@@ -26,43 +26,17 @@ export default function Home() {
     }
   }, [user, loading, router]);
 
-  // URL에서 Google OAuth 인가 코드(code) 파라미터가 유입되었는지 모니터링 및 처리
+  // URL OAuth 에러 모니터링
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
-      const code = urlParams.get('code');
-      if (code) {
-        // URL 클린업 (code 정보 노출 방지)
+      const errParam = urlParams.get('error');
+      if (errParam) {
         window.history.replaceState({}, document.title, window.location.pathname);
-        
-        const processGoogleLogin = async () => {
-          setErrorMsg('');
-          setSubmitting(true);
-          try {
-            await googleLogin(code);
-            router.push('/dashboard');
-          } catch (err: any) {
-            console.error(err);
-            const status = err.response?.status;
-            const rawMsg = err.response?.data?.message;
-            const parsedMsg = Array.isArray(rawMsg) ? rawMsg.join(', ') : rawMsg;
-            
-            if (!err.response) {
-              setErrorMsg('서버와 연결할 수 없습니다. 네트워크 상태를 확인해 주세요.');
-            } else if (status === 403) {
-              setErrorMsg(parsedMsg || '현재 탈퇴 대기 중인 계정은 Google 로그인을 이용할 수 없습니다.');
-            } else {
-              setErrorMsg(parsedMsg || 'Google 로그인 처리 도중 에러가 발생했습니다.');
-            }
-          } finally {
-            setSubmitting(false);
-          }
-        };
-        
-        processGoogleLogin();
+        setErrorMsg('Google 계정 인증이 취소되었거나 로그인 처리 도중 오류가 발생했습니다.');
       }
     }
-  }, [googleLogin, router]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -139,7 +113,7 @@ export default function Home() {
       }
 
       if (!redirectUri && typeof window !== 'undefined') {
-        redirectUri = window.location.origin;
+        redirectUri = `${window.location.origin}/auth/google/callback`;
       }
 
       // 환경 변수 및 동적 설정이 지정되지 않은 로컬 테스트 시 모의(Mock) 모드로 진입 시도
