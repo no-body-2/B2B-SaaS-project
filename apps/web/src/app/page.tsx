@@ -123,10 +123,19 @@ export default function Home() {
         return;
       }
 
-      // 실제 구글 로그인 공식 페이지로 리다이렉트
-      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(
-        redirectUri || 'http://localhost:3000',
-      )}&response_type=code&scope=openid%20profile%20email&access_type=offline&prompt=consent`;
+      const cleanClientId = clientId.trim();
+      const cleanRedirectUri = (redirectUri || `${window.location.origin}/auth/google/callback`).trim();
+
+      const params = new URLSearchParams({
+        client_id: cleanClientId,
+        redirect_uri: cleanRedirectUri,
+        response_type: 'code',
+        scope: 'openid profile email',
+        access_type: 'offline',
+        prompt: 'consent',
+      });
+
+      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
       window.location.href = googleAuthUrl;
     } catch (err: any) {
       console.error(err);
