@@ -8,9 +8,9 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "logs:api": "ssh ubuntu@web.luminano.xyz \"export KUBECONFIG=~/.kube/config; kubectl logs -f -l app=luminano-api --tail=100\"",
-    "logs:web": "ssh ubuntu@web.luminano.xyz \"export KUBECONFIG=~/.kube/config; kubectl logs -f -l app=luminano-web --tail=100\"",
-    "db:push:prod": "ssh ubuntu@web.luminano.xyz \"export KUBECONFIG=~/.kube/config; kubectl exec -i deployment/luminano-api -- pnpm --filter @luminano/database db:push\""
+    "logs:api": "ssh -i /Users/umtaekyun/Downloads/admin.pem ubuntu@web.luminano.xyz \"export KUBECONFIG=~/.kube/config; kubectl logs -f -l app=luminano-api --tail=100\"",
+    "logs:web": "ssh -i /Users/umtaekyun/Downloads/admin.pem ubuntu@web.luminano.xyz \"export KUBECONFIG=~/.kube/config; kubectl logs -f -l app=luminano-web --tail=100\"",
+    "db:push:prod": "ssh -i /Users/umtaekyun/Downloads/admin.pem ubuntu@web.luminano.xyz \"export KUBECONFIG=~/.kube/config; kubectl exec -i deployment/luminano-api -- /app/node_modules/.pnpm/node_modules/.bin/prisma db push --schema=/app/node_modules/.pnpm/@luminano+database@file+packages+database_prisma@7.8.0_@types+react-dom@19.2.2_@types+r_fa6051d4ba72abee07750a520c8af154/node_modules/@luminano/database/prisma/schema.prisma --url=\\\"postgresql://admin:social_jot_club_8767!@luminano-postgres-service:5432/luminano_db?schema=public\\\"\""
   },
   "devDependencies": {
     "prettier": "^3.7.4",

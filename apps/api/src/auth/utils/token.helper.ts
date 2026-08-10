@@ -41,7 +41,11 @@ export class TokenHelper {
     const refreshSecret = appConfig.jwtRefreshSecret;
 
     // 1. Payload에 비밀번호 등의 민감한 정보를 제외한 최소한의 식별자 전달
-    const accessTokenPayload = { sub: user.id, email: user.email };
+    const accessTokenPayload = {
+      sub: user.id,
+      email: user.email,
+      systemRole: user.systemRole,
+    };
 
     // 2. Access Token 생성 (1시간)
     const accessToken = await this.jwtService.signAsync(accessTokenPayload, {

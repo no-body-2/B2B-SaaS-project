@@ -34,10 +34,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
    * @param payload - JWT 디코딩을 통해 추출된 원본 데이터 객체
    * @returns 'req.user'에 할당되어 컨트롤러 계층으로 전달될 객체
    */
-  validate(payload: { sub: string; email: string }) {
+  validate(payload: { sub: string; email: string; systemRole?: string }) {
     return {
       userId: payload.sub,
       email: payload.email,
+      systemRole: payload.systemRole || 'USER',
     };
   }
 }
