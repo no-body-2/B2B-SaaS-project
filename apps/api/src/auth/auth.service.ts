@@ -232,12 +232,21 @@ export class AuthService {
 
     // 1. Google Server와의 통신부
     try {
+      const targetRedirectUri = (
+        dto.redirectUri || appConfig.google.redirectUri
+      )
+        .replace(/^["']|["']$/g, '')
+        .trim();
+
       const client = new OAuth2Client(
         appConfig.google.clientId,
         appConfig.google.clientSecret,
-        appConfig.google.redirectUri,
+        targetRedirectUri,
       );
-      const { tokens } = await client.getToken(dto.code);
+      const { tokens } = await client.getToken({
+        code: dto.code,
+        redirect_uri: targetRedirectUri,
+      });
       const ticket = await client.verifyIdToken({
         idToken: tokens.id_token!,
         audience: appConfig.google.clientId,

@@ -26,7 +26,12 @@ function GoogleCallbackContent() {
       if (isExecutingRef.current) return;
       isExecutingRef.current = true;
 
-      googleLogin(code)
+      const currentRedirectUri =
+        typeof window !== 'undefined'
+          ? `${window.location.origin}/auth/google/callback`
+          : undefined;
+
+      googleLogin(code, currentRedirectUri)
         .then(() => {
           router.replace('/dashboard');
         })

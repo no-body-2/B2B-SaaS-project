@@ -10,7 +10,7 @@
  * @date 2026-05-20
  */
 
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class GoogleLoginDto {
@@ -22,4 +22,14 @@ export class GoogleLoginDto {
   @IsString()
   @IsNotEmpty({ message: 'Google 인가 코드는 필수 항목입니다.' })
   code!: string;
+
+  @ApiProperty({
+    description:
+      'Google OAuth 리다이렉트 URI (선택 항목, 미지정 시 서버 기본값 사용)',
+    example: 'https://web.luminano.xyz/auth/google/callback',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  redirectUri?: string;
 }

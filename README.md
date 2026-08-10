@@ -124,6 +124,7 @@
 - v1.6.0 제작 시작 -> Google OAuth2 실서비스와 연동 시작
 - v1.6.1 Google Redirect가 적용되지 않는 오류 해결
 - Next.js의 환경변수 관리는 Build 시에 적용되는 것들이 있음
+- v1.6.3 Google Redirect 후 서비스 로그인이 되지 않는 오류
 ---
 
 ## TODO

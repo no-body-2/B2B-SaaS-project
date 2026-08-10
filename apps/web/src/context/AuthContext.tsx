@@ -22,7 +22,7 @@ interface AuthContextType {
   register: (email: string, password: string, name: string, nickname?: string) => Promise<void>;
   logout: () => Promise<void>;
   deleteAccount: () => Promise<void>;
-  googleLogin: (code: string) => Promise<void>;
+  googleLogin: (code: string, redirectUri?: string) => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
 
@@ -143,7 +143,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const googleLogin = async (code: string) => {
+  const googleLogin = async (code: string, redirectUri?: string) => {
     try {
       let userPayload;
       let accessToken;
@@ -160,7 +160,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         accessToken = `mock_google_at_${Date.now()}`;
         refreshToken = `mock_google_rt_${Date.now()}`;
       } else {
-        const res = await apiClient.auth.googleLogin({ code });
+        const res = await apiClient.auth.googleLogin({ code, redirectUri });
         userPayload = res.data.user;
         accessToken = res.data.accessToken;
         refreshToken = res.data.refreshToken;
