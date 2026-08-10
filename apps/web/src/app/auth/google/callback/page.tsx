@@ -10,6 +10,7 @@ function GoogleCallbackContent() {
   const searchParams = useSearchParams();
   const { googleLogin } = useAuth();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const isExecutingRef = React.useRef(false);
 
   useEffect(() => {
     const code = searchParams.get('code');
@@ -22,16 +23,19 @@ function GoogleCallbackContent() {
     }
 
     if (code) {
+      if (isExecutingRef.current) return;
+      isExecutingRef.current = true;
+
       googleLogin(code)
         .then(() => {
           router.replace('/dashboard');
         })
         .catch((err: any) => {
-          console.error('[Google OAuth Error]', err);
+          console.error('[Google OAuth Callback Error]', err);
           const rawMsg = err.response?.data?.message;
           const parsedMsg = Array.isArray(rawMsg) ? rawMsg.join(', ') : rawMsg;
           setErrorMsg(parsedMsg || 'Google 로그인 처리 중 오류가 발생했습니다.');
-          setTimeout(() => router.replace('/?error=google_auth_failed'), 2500);
+          setTimeout(() => router.replace('/?error=google_auth_failed'), 3000);
         });
     } else {
       router.replace('/');
