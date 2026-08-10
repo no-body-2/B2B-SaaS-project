@@ -272,8 +272,9 @@ export class AuthService {
     }
 
     const email = payload.email;
-    const firstName = payload.given_name || '';
-    const lastName = payload.family_name || '';
+    const firstName = payload.given_name || payload.name || email.split('@')[0];
+    const lastName = payload.family_name || undefined;
+    const profileImage = payload.picture || undefined;
 
     // 3. user 검증
     let user = await this.prisma.user.findUnique({
@@ -283,7 +284,13 @@ export class AuthService {
     // 4. 가입하지 않은 사용자의 경우 사용자 등록
     if (!user) {
       user = await this.prisma.user.create({
-        data: { email, firstName, lastName, provider: 'google' },
+        data: {
+          email,
+          firstName,
+          lastName,
+          profileImage,
+          provider: 'google',
+        },
       });
     } else {
       if (user.deletedAt !== null) {
