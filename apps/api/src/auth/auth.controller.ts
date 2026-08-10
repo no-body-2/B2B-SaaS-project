@@ -13,6 +13,7 @@
 import {
   Controller,
   Post,
+  Get,
   Body,
   Ip,
   Headers,
@@ -132,6 +133,25 @@ export class AuthController {
     const result = await this.authService.loginUser(loginDto, ip, userAgent);
     this.setRefreshTokenCookie(res, result.refreshToken);
     return result;
+  }
+
+  /**
+   * AUTH-SOCIAL-000
+   * @description
+   * - Google OAuth Public Config (Client ID 및 Redirect URI) 동적 조회
+   * @url GET /auth/google/config
+   * @returns Google Client ID 및 Redirect URI 객체
+   */
+  @Get('google/config')
+  @Public()
+  @ApiOperation({
+    summary: 'AUTH-SOCIAL-000 Google OAuth Config 조회',
+    description:
+      '프론트엔드가 Google OAuth를 시작할 때 사용할 Client ID 및 Redirect URI를 제공',
+  })
+  @ApiResponse({ status: 200, description: 'Google OAuth Config 조회 성공' })
+  getGoogleConfig() {
+    return this.authService.getGoogleConfig();
   }
 
   /**

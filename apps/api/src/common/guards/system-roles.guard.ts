@@ -50,7 +50,10 @@ export class SystemRolesGuard implements CanActivate {
     let systemRole = user.systemRole;
 
     // 토큰의 systemRole이 혜택 요건 미충족이거나 'USER'일 경우 DB 실시간 조회 Fallback
-    if (!systemRole || (systemRole === 'USER' && requiredRoles.includes('SUPER_ADMIN'))) {
+    if (
+      !systemRole ||
+      (systemRole === 'USER' && requiredRoles.includes('SUPER_ADMIN'))
+    ) {
       const dbUser = await this.prisma.user.findUnique({
         where: { id: user.userId },
         select: { systemRole: true },

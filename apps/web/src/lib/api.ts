@@ -307,6 +307,14 @@ const mockApi = {
       localStorage.setItem('currentUser', JSON.stringify({ userId: 'usr-1', email: 'owner@example.com', name: '김대포 (OWNER)' }));
       return { data: { accessToken, refreshToken, user: { id: 'usr-1', email: 'owner@example.com', name: '김대포 (OWNER)' } } };
     },
+    getGoogleConfig: async () => {
+      return {
+        data: {
+          clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || '',
+          redirectUri: process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI || 'http://localhost:3000',
+        },
+      };
+    },
     refresh: async () => {
       const rt = localStorage.getItem('refreshToken');
       if (!rt) throw { response: { status: 401 } };
@@ -846,6 +854,7 @@ export const apiClient = IS_MOCK
         login: (dto: any) => realApi.post('/auth/login', dto),
         logout: () => realApi.post('/auth/logout'),
         googleLogin: (dto: any) => realApi.post('/auth/google', dto),
+        getGoogleConfig: () => realApi.get('/auth/google/config'),
         refresh: () => realApi.post('/auth/refresh'),
       },
       storage: {

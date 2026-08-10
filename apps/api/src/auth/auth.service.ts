@@ -199,6 +199,19 @@ export class AuthService {
   }
 
   /**
+   * AUTH-SOCIAL-000
+   * @description
+   * - Google OAuth Public Config (clientId, redirectUri) 반환
+   * @returns Google Client ID 및 Redirect URI 객체
+   */
+  getGoogleConfig() {
+    return {
+      clientId: appConfig.google.clientId,
+      redirectUri: appConfig.google.redirectUri,
+    };
+  }
+
+  /**
    * AUTH-SOCIAL-001
    * @description
    * - Google OAuth를 통한 사용자 인증 (로그인) 및 서비스 접근을 위한 JWT Access Token 발급

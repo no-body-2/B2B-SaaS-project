@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
+import { apiClient } from '../lib/api';
 import LumiNanoIcon from '../components/LumiNanoIcon';
 import { Mail, Lock, User, Sparkles, ArrowRight, Loader2 } from 'lucide-react';
 
@@ -116,41 +117,61 @@ export default function Home() {
     }
   };
 
-  const handleGoogleLogin = () => {
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-    const redirectUri = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI || 'http://localhost:3000';
-    
-    // 환경 변수가 설정되지 않았다면 모의(Mock) 모드로 진입 시도
-    if (!clientId) {
-      setErrorMsg('');
-      setSubmitting(true);
-      googleLogin('mock-google-authorization-code-1234')
-        .then(() => {
-          router.push('/dashboard');
-        })
-        .catch((err: any) => {
-          console.error(err);
-          const status = err.response?.status;
-          const rawMsg = err.response?.data?.message;
-          const parsedMsg = Array.isArray(rawMsg) ? rawMsg.join(', ') : rawMsg;
-          
-          if (!err.response) {
-            setErrorMsg('서버와 연결할 수 없습니다. 네트워크 상태를 확인해 주세요.');
-          } else if (status === 403) {
-            setErrorMsg(parsedMsg || '현재 탈퇴 대기 중인 계정은 Google 로그인을 이용할 수 없습니다.');
-          } else {
-            setErrorMsg(parsedMsg || 'Google 로그인 처리 도중 에러가 발생했습니다.');
-          }
-        })
-        .finally(() => {
-          setSubmitting(false);
-        });
-      return;
-    }
+  const handleGoogleLogin = async () => {
+    setErrorMsg('');
+    setSubmitting(true);
 
-    // 실제 구글 로그인 창으로 리다이렉트
-    const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=openid%20profile%20email&access_type=offline&prompt=consent`;
-    window.location.href = googleAuthUrl;
+    try {
+      let clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+      let redirectUri = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI;
+
+      // 백엔드 API에서 Google Client ID 및 Redirect URI 동적 조회
+      try {
+        const configRes = await apiClient.auth.getGoogleConfig();
+        if (configRes.data?.clientId) {
+          clientId = configRes.data.clientId;
+        }
+        if (configRes.data?.redirectUri) {
+          redirectUri = configRes.data.redirectUri;
+        }
+      } catch (_err) {
+        console.warn('Failed to fetch dynamic Google config, falling back to env.');
+      }
+
+      if (!redirectUri && typeof window !== 'undefined') {
+        redirectUri = window.location.origin;
+      }
+
+      // 환경 변수 및 동적 설정이 지정되지 않은 로컬 테스트 시 모의(Mock) 모드로 진입 시도
+      if (!clientId) {
+        await googleLogin('mock-google-authorization-code-1234');
+        router.push('/dashboard');
+        return;
+      }
+
+      // 실제 구글 로그인 공식 페이지로 리다이렉트
+      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(
+        redirectUri || 'http://localhost:3000',
+      )}&response_type=code&scope=openid%20profile%20email&access_type=offline&prompt=consent`;
+      window.location.href = googleAuthUrl;
+    } catch (err: any) {
+      console.error(err);
+      const status = err.response?.status;
+      const rawMsg = err.response?.data?.message;
+      const parsedMsg = Array.isArray(rawMsg) ? rawMsg.join(', ') : rawMsg;
+
+      if (!err.response) {
+        setErrorMsg('서버와 연결할 수 없습니다. 네트워크 상태를 확인해 주세요.');
+      } else if (status === 403) {
+        setErrorMsg(
+          parsedMsg || '현재 탈퇴 대기 중인 계정은 Google 로그인을 이용할 수 없습니다.',
+        );
+      } else {
+        setErrorMsg(parsedMsg || 'Google 로그인 처리 도중 에러가 발생했습니다.');
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (loading) {
