@@ -243,10 +243,14 @@ export class AuthService {
         audience: appConfig.google.clientId,
       });
       payload = ticket.getPayload();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errDetail = err as {
+        response?: { data?: unknown };
+        message?: string;
+      };
       console.error(
         '[Google OAuth Token Exchange Error]',
-        err?.response?.data || err?.message || err,
+        errDetail?.response?.data || errDetail?.message || err,
       );
       throw new BadRequestException(
         '유효하지 않은 Google 인가 코드이거나 통신에 문제가 있습니다.',

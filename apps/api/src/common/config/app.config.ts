@@ -82,8 +82,11 @@ export const appConfig = {
 
   // 5. Google OAuth 설정
   get google(): GoogleOAuthConfig {
-    const clean = (val?: string) => (val ? val.replace(/^["']|["']$/g, '').trim() : '');
-    const rawRedirect = process.env.GOOGLE_REDIRECT_URI || `${getFrontendUrl()}/auth/google/callback`;
+    const clean = (val?: string) =>
+      val ? val.replace(/^["']|["']$/g, '').trim() : '';
+    const rawRedirect =
+      process.env.GOOGLE_REDIRECT_URI ||
+      `${getFrontendUrl()}/auth/google/callback`;
 
     return {
       clientId: clean(process.env.GOOGLE_CLIENT_ID),
