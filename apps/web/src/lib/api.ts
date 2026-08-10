@@ -17,16 +17,27 @@ let inMemoryAccessToken: string | null = null;
 
 export const setAccessToken = (token: string | null) => {
   inMemoryAccessToken = token;
+  if (typeof window !== 'undefined') {
+    if (token) {
+      localStorage.setItem('accessToken', token);
+    } else {
+      localStorage.removeItem('accessToken');
+    }
+  }
 };
 
 export const getAccessToken = (): string | null => {
-  return inMemoryAccessToken;
+  if (inMemoryAccessToken) return inMemoryAccessToken;
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('accessToken');
+  }
+  return null;
 };
 
-// 요청 인터셉터: Access Token 자동 주입 (인메모리 또는 Mock 모드 시 localStorage 폴백 참조)
+// 요청 인터셉터: Access Token 자동 주입 (인메모리 또는 localStorage 폴백 참조)
 realApi.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
-    const at = getAccessToken() || (IS_MOCK ? localStorage.getItem('accessToken') : null);
+    const at = getAccessToken();
     if (at && config.headers) {
       config.headers.Authorization = `Bearer ${at}`;
     }
