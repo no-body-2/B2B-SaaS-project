@@ -232,13 +232,22 @@ export class AuthService {
 
     // 1. Google Server와의 통신부
     try {
-      const { tokens } = await this.googleClient.getToken(dto.code);
-      const ticket = await this.googleClient.verifyIdToken({
+      const client = new OAuth2Client(
+        appConfig.google.clientId,
+        appConfig.google.clientSecret,
+        appConfig.google.redirectUri,
+      );
+      const { tokens } = await client.getToken(dto.code);
+      const ticket = await client.verifyIdToken({
         idToken: tokens.id_token!,
         audience: appConfig.google.clientId,
       });
       payload = ticket.getPayload();
-    } catch {
+    } catch (err: any) {
+      console.error(
+        '[Google OAuth Token Exchange Error]',
+        err?.response?.data || err?.message || err,
+      );
       throw new BadRequestException(
         '유효하지 않은 Google 인가 코드이거나 통신에 문제가 있습니다.',
       );
