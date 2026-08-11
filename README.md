@@ -126,6 +126,13 @@
 - Next.js의 환경변수 관리는 Build 시에 적용되는 것들이 있음
 - v1.6.3 Google Redirect 후 서비스 로그인이 되지 않는 오류
 - v1.6.4 Fix Google OAuth Redirect Error and Release
+
+### 2026-08-11
+- v1.7.0 배포
+- github OAuth 추가 및 연동
+- v1.8.0 제작 시작
+- AWS SES 적용으로 실제 이메일 전송 기능 구현
+- 현재 심사중으로 12-24시간 이후 다음 작업 진행
 ---
 
 ## TODO
