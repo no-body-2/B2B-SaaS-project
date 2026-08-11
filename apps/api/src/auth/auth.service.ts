@@ -23,9 +23,11 @@ import { LoginDto } from './dto/login.dto';
 import * as argon2 from 'argon2'; // bcrypt 대신 보안성이 더 훌륭한 (CPU 연산 뿐 아니라 RAM마저 소모해야함) argon2 사용
 import { OAuth2Client } from 'google-auth-library';
 import { GoogleLoginDto } from './dto/google-login.dto';
+import { GitHubLoginDto } from './dto/github-login.dto';
 import { TokenHelper } from './utils/token.helper';
 import { MailerService } from '../mailer/mailer.service';
 import { RedisService } from '../redis/redis.service';
+import axios from 'axios';
 
 import { appConfig } from '../common/config/app.config';
 
@@ -199,19 +201,6 @@ export class AuthService {
   }
 
   /**
-   * AUTH-SOCIAL-000
-   * @description
-   * - Google OAuth Public Config (clientId, redirectUri) 반환
-   * @returns Google Client ID 및 Redirect URI 객체
-   */
-  getGoogleConfig() {
-    return {
-      clientId: appConfig.google.clientId,
-      redirectUri: appConfig.google.redirectUri,
-    };
-  }
-
-  /**
    * AUTH-SOCIAL-001
    * @description
    * - Google OAuth를 통한 사용자 인증 (로그인) 및 서비스 접근을 위한 JWT Access Token 발급
@@ -298,6 +287,154 @@ export class AuthService {
       }
     }
 
+    return this.tokenHelper.generateAndSaveTokens(user, ipAddress, userAgent);
+  }
+
+  getGoogleConfig() {
+    return {
+      clientId: appConfig.google.clientId,
+      redirectUri: appConfig.google.redirectUri,
+    };
+  }
+
+  getGitHubConfig() {
+    return {
+      clientId: appConfig.github.clientId,
+      redirectUri: appConfig.github.redirectUri,
+    };
+  }
+
+  async githubLogin(
+    dto: GitHubLoginDto,
+    ipAddress?: string,
+    userAgent?: string,
+  ) {
+    let payload: {
+      email: string;
+      name?: string;
+      avatar_url?: string;
+      login: string;
+    };
+
+    try {
+      const targetRedirectUri = (
+        dto.redirectUri || appConfig.github.redirectUri
+      )
+        .replace(/^["']|["']$/g, '')
+        .trim();
+
+      // 1. GitHub Token Exchange
+      const tokenRes = await axios.post(
+        'https://github.com/login/oauth/access_token',
+        {
+          client_id: appConfig.github.clientId,
+          client_secret: appConfig.github.clientSecret,
+          code: dto.code,
+          redirect_uri: targetRedirectUri,
+        },
+        {
+          headers: { Accept: 'application/json' },
+        },
+      );
+
+      const {
+        access_token: ghAccessToken,
+        error,
+        error_description,
+      } = tokenRes.data as {
+        access_token?: string;
+        error?: string;
+        error_description?: string;
+      };
+
+      if (error || !ghAccessToken) {
+        throw new Error(error_description || error || 'GitHub 토큰 발급 실패');
+      }
+
+      // 2. GitHub Profile 요청
+      const profileRes = await axios.get('https://api.github.com/user', {
+        headers: { Authorization: `Bearer ${ghAccessToken}` },
+      });
+
+      const profileData = profileRes.data as {
+        email?: string;
+        name?: string;
+        avatar_url?: string;
+        login: string;
+      };
+
+      let email = profileData.email;
+
+      // 2-1. Email이 비공개인 경우 /user/emails 추가 요청
+      if (!email) {
+        const emailsRes = await axios.get(
+          'https://api.github.com/user/emails',
+          {
+            headers: { Authorization: `Bearer ${ghAccessToken}` },
+          },
+        );
+        const emailsData = (emailsRes.data || []) as Array<{
+          email: string;
+          primary: boolean;
+          verified: boolean;
+        }>;
+        const primaryEmailObj =
+          emailsData.find((e) => e.primary && e.verified) || emailsData[0];
+        email = primaryEmailObj?.email;
+      }
+
+      if (!email) {
+        throw new Error(
+          'GitHub 계정에서 이메일 정보를 불러올 수 없습니다. 설정을 확인해 주세요.',
+        );
+      }
+
+      payload = {
+        email,
+        name: profileData.name || profileData.login,
+        avatar_url: profileData.avatar_url,
+        login: profileData.login,
+      };
+    } catch (err: unknown) {
+      const errDetail = err as {
+        response?: { data?: unknown };
+        message?: string;
+      };
+      console.error(
+        '[GitHub OAuth Error]',
+        errDetail?.response?.data || errDetail?.message || err,
+      );
+      throw new BadRequestException(
+        `GitHub OAuth 인증 실패: ${errDetail?.message || '알 수 없는 오류'}`,
+      );
+    }
+
+    // 3. DB 사용자 조회 및 생성 (provider: 'github')
+    const email = payload.email;
+    const nameParts = (payload.name || payload.login).split(' ');
+    const firstName = nameParts[0] || payload.login;
+    const lastName = nameParts.slice(1).join(' ') || undefined;
+
+    let user = await this.prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      user = await this.prisma.user.create({
+        data: {
+          email,
+          firstName,
+          lastName,
+          nickname: payload.login,
+          profileImage: payload.avatar_url,
+          provider: 'github',
+        },
+      });
+    } else {
+      if (user.deletedAt !== null) {
+        throw new ForbiddenException('현재 탈퇴 대기 중인 사용자입니다.');
+      }
+    }
+
+    // 4. JWT 발급 및 세션 생성
     return this.tokenHelper.generateAndSaveTokens(user, ipAddress, userAgent);
   }
 

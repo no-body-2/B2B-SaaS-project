@@ -315,6 +315,23 @@ const mockApi = {
         },
       };
     },
+    githubLogin: async (dto: any) => {
+      const accessToken = `mock_at_github_${Date.now()}`;
+      const refreshToken = `mock_rt_github_${Date.now()}`;
+      setAccessToken(accessToken);
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+      localStorage.setItem('currentUser', JSON.stringify({ userId: 'usr-gh-1', email: 'github-owner@example.com', name: '깃허브유저' }));
+      return { data: { accessToken, refreshToken, user: { id: 'usr-gh-1', email: 'github-owner@example.com', name: '깃허브유저' } } };
+    },
+    getGitHubConfig: async () => {
+      return {
+        data: {
+          clientId: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID || '',
+          redirectUri: process.env.NEXT_PUBLIC_GITHUB_REDIRECT_URI || 'http://localhost:3000/auth/github/callback',
+        },
+      };
+    },
     refresh: async () => {
       const rt = localStorage.getItem('refreshToken');
       if (!rt) throw { response: { status: 401 } };
@@ -855,6 +872,8 @@ export const apiClient = IS_MOCK
         logout: () => realApi.post('/auth/logout'),
         googleLogin: (dto: any) => realApi.post('/auth/google', dto),
         getGoogleConfig: () => realApi.get('/auth/google/config'),
+        githubLogin: (dto: any) => realApi.post('/auth/github', dto),
+        getGitHubConfig: () => realApi.get('/auth/github/config'),
         refresh: () => realApi.post('/auth/refresh'),
       },
       storage: {

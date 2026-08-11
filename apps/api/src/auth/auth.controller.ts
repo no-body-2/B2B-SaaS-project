@@ -27,6 +27,7 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { GoogleLoginDto } from './dto/google-login.dto';
+import { GitHubLoginDto } from './dto/github-login.dto';
 import {
   ApiOperation,
   ApiResponse,
@@ -136,25 +137,6 @@ export class AuthController {
   }
 
   /**
-   * AUTH-SOCIAL-000
-   * @description
-   * - Google OAuth Public Config (Client ID 및 Redirect URI) 동적 조회
-   * @url GET /auth/google/config
-   * @returns Google Client ID 및 Redirect URI 객체
-   */
-  @Get('google/config')
-  @Public()
-  @ApiOperation({
-    summary: 'AUTH-SOCIAL-000 Google OAuth Config 조회',
-    description:
-      '프론트엔드가 Google OAuth를 시작할 때 사용할 Client ID 및 Redirect URI를 제공',
-  })
-  @ApiResponse({ status: 200, description: 'Google OAuth Config 조회 성공' })
-  getGoogleConfig() {
-    return this.authService.getGoogleConfig();
-  }
-
-  /**
    * AUTH-SOCIAL-001
    * @description
    * - Google OAuth 소셜 로그인 처리
@@ -199,6 +181,85 @@ export class AuthController {
     );
     this.setRefreshTokenCookie(res, result.refreshToken);
     return result;
+  }
+
+  /**
+   * AUTH-SOCIAL-002
+   * @description
+   * - Google OAuth Public Config (Client ID 및 Redirect URI) 동적 조회
+   * @url GET /auth/google/config
+   * @returns Google Client ID 및 Redirect URI 객체
+   */
+  @Get('google/config')
+  @Public()
+  @ApiOperation({
+    summary: 'AUTH-SOCIAL-000 Google OAuth Config 조회',
+    description:
+      '프론트엔드가 Google OAuth를 시작할 때 사용할 Client ID 및 Redirect URI를 제공',
+  })
+  @ApiResponse({ status: 200, description: 'Google OAuth Config 조회 성공' })
+  getGoogleConfig() {
+    return this.authService.getGoogleConfig();
+  }
+
+  /**
+   * AUTH-SOCIAL-003
+   * @description
+   * - GitHub OAuth 소셜 로그인 처리
+   * @url POST /auth/github
+   * @param githubLoginDto - Client가 GitHub을 통해 발급받은 인가 코드 (Authorization Code)
+   * @param ip - (서버 자동 추출) 접속 Client IP
+   * @param userAgent - (Header 추출) 접속 Client 브라우저 및 기기 정보
+   * @returns 사용자 정보, Access Token (1h), Refresh Token (7d)
+   */
+  @Post('github')
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'AUTH-SOCIAL-003 GitHub OAuth 로그인',
+    description: 'GitHub OAuth를 통해 인증을 수행하고 토큰을 발급',
+  })
+  @ApiHeader({
+    name: 'user-agent',
+    description: '접속한 Client 브라우저 및 기기 정보',
+    required: false,
+  })
+  @ApiResponse({ status: 200, description: '로그인 및 토큰 발급 성공' })
+  @ApiResponse({
+    status: 400,
+    description:
+      '유효하지 않은 GitHub 인가 코드 or GitHub API 서버와 통신 실패',
+  })
+  @ApiResponse({
+    status: 403,
+    description: '현재 탈퇴 대기 중인 상태로 인증 불가',
+  })
+  async githubLogin(
+    @Body() gitHubLoginDto: GitHubLoginDto,
+    @Res({ passthrough: true }) res: express.Response,
+    @Ip() ip?: string,
+    @Headers('user-agent') userAgent?: string,
+  ) {
+    const result = await this.authService.githubLogin(
+      gitHubLoginDto,
+      ip,
+      userAgent,
+    );
+    this.setRefreshTokenCookie(res, result.refreshToken);
+    return result;
+  }
+
+  /**
+   * AUTH-SOCIAL-004
+   * @description
+   * - GitHub OAuth Public Config (Client ID 및 Redirect URI) 동적 조회
+   * @url GET /auth/github/config
+   * @returns GitHub Client ID 및 Redirect URI 객체
+   */
+  @Get('github/config')
+  @Public()
+  getGitHubConfig() {
+    return this.authService.getGitHubConfig();
   }
 
   /**

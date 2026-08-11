@@ -23,6 +23,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   deleteAccount: () => Promise<void>;
   googleLogin: (code: string, redirectUri?: string) => Promise<void>;
+  githubLogin: (code: string, redirectUri?: string) => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
 
@@ -191,6 +192,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const githubLogin = async (code: string, redirectUri?: string) => {
+    try {
+      let userPayload;
+      let accessToken;
+      let refreshToken;
+
+      if (code.startsWith('mock-')) {
+        userPayload = {
+          id: 'usr-github-mock-1',
+          email: 'mock-github-user@example.com',
+          firstName: '모의깃허브',
+          lastName: '유저',
+        };
+        accessToken = `mock_github_at_${Date.now()}`;
+        refreshToken = `mock_github_rt_${Date.now()}`;
+      } else {
+        const res = await apiClient.auth.githubLogin({ code, redirectUri });
+        userPayload = res.data.user;
+        accessToken = res.data.accessToken;
+        refreshToken = res.data.refreshToken;
+      }
+      
+      setAccessToken(accessToken);
+      if (IS_MOCK) {
+        localStorage.setItem('accessToken', accessToken);
+        if (refreshToken) {
+          localStorage.setItem('refreshToken', refreshToken);
+        }
+        localStorage.setItem('currentUser', JSON.stringify(userPayload));
+      }
+      
+      setUser(formatUser(userPayload));
+    } catch (err) {
+      console.error('GitHub login failed:', err);
+      throw err;
+    }
+  };
+
   const logout = async () => {
     try {
       await apiClient.auth.logout();
@@ -234,7 +273,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, deleteAccount, googleLogin, refreshProfile }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, deleteAccount, googleLogin, githubLogin, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   );

@@ -29,6 +29,12 @@ export interface GoogleOAuthConfig {
   redirectUri: string;
 }
 
+export interface GitHubOAuthConfig {
+  clientId: string;
+  clientSecret: string;
+  redirectUri: string;
+}
+
 const getEnv = (): string => process.env.NODE_ENV || 'development';
 const getFrontendUrl = (): string =>
   process.env.FRONTEND_URL || 'http://localhost:3000';
@@ -80,7 +86,7 @@ export const appConfig = {
     return process.env.JWT_REFRESH_SECRET || 'luminano_default_refresh_secret';
   },
 
-  // 5. Google OAuth 설정
+  // 5-1. Google OAuth 설정
   get google(): GoogleOAuthConfig {
     const clean = (val?: string) =>
       val ? val.replace(/^["']|["']$/g, '').trim() : '';
@@ -91,6 +97,21 @@ export const appConfig = {
     return {
       clientId: clean(process.env.GOOGLE_CLIENT_ID),
       clientSecret: clean(process.env.GOOGLE_CLIENT_SECRET),
+      redirectUri: clean(rawRedirect),
+    };
+  },
+
+  // 5-2. Github OAuth 설정
+  get github(): GitHubOAuthConfig {
+    const clean = (val?: string) =>
+      val ? val.replace(/^["']|["']$/g, '').trim() : '';
+    const rawRedirect =
+      process.env.GITHUB_REDIRECT_URI ||
+      `${getFrontendUrl()}/auth/github/callback`;
+
+    return {
+      clientId: clean(process.env.GITHUB_CLIENT_ID),
+      clientSecret: clean(process.env.GITHUB_CLIENT_SECRET),
       redirectUri: clean(rawRedirect),
     };
   },
