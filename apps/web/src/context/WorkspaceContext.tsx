@@ -109,9 +109,10 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const formatMembers = useCallback((memberList: any[]): Member[] => {
     return memberList.map((m: any) => {
       const nameCombined = m.user?.name || 
-        `${m.lastname || m.user?.lastName || ''}${m.firstname || m.user?.firstName || ''}`.trim() || 
-        m.email || 
-        'Unknown Member';
+        m.nickname || m.user?.nickname ||
+        `${m.lastname || m.user?.lastName || ''} ${m.firstname || m.user?.firstName || ''}`.trim() || 
+        m.email || m.user?.email ||
+        '알 수 없음';
       return {
         userId: m.userId,
         role: m.role || 'MEMBER',
@@ -144,6 +145,8 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // 워크스페이스 세부 데이터 일괄 동기화
   const selectWorkspace = useCallback(async (workspaceId: string) => {
     setLoadingWorkspace(true);
+    setActiveNano(null);
+    setActiveChannel(null);
     try {
       // 1. 워크스페이스 상세 정보 및 내 권한 파악
       const wsRes = await apiClient.workspace.getDetail(workspaceId);

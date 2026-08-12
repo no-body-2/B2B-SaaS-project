@@ -488,6 +488,14 @@ export class ChannelService {
     }
 
     // FIXME: P2022 Exception -> Schema 파일에 type 부분을 추가하면 해결될 것으로 예상
+    const senderUser = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { nickname: true, firstName: true, lastName: true, email: true },
+    });
+    const senderName = senderUser
+      ? (senderUser.nickname || `${senderUser.lastName || ''} ${senderUser.firstName || ''}`.trim() || senderUser.email || '알 수 없음')
+      : '알 수 없음';
+
     // 3. 트랜잭션으로 작업 처리 -> 브로드캐스팅을 위해 결과 저장
     const result = await this.prisma.$transaction(async (tx) => {
       // 3-1. ChatMessage Table에 데이터 저장
@@ -513,6 +521,7 @@ export class ChannelService {
         messageId: newMessage.id,
         chatroomId: newMessage.chatroomId,
         senderId: newMessage.senderId,
+        senderName,
         type: newMessage.type,
         content: newMessage.content,
         createdAt: newMessage.createdAt,
@@ -615,6 +624,24 @@ export class ChannelService {
       orderBy: {
         createdAt: 'desc',
       },
+      include: {
+        sender: {
+          include: {
+            workspaceMember: {
+              include: {
+                user: {
+                  select: {
+                    nickname: true,
+                    firstName: true,
+                    lastName: true,
+                    email: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     };
 
     // 3-1. 클라이언트 측에서 cursor가 전달된 경우 cursor 이후 메시지 부터 조회
@@ -636,11 +663,16 @@ export class ChannelService {
 
     // 6. 반환할 데이터 정제 (역순 정렬을 위해 reverse 사용)
     const formattedMessageList = items
-      .map((msg) => {
+      .map((msg: any) => {
+        const u = msg.sender?.workspaceMember?.user;
+        const senderName = u
+          ? (u.nickname || `${u.lastName || ''} ${u.firstName || ''}`.trim() || u.email || '알 수 없음')
+          : '알 수 없음';
         return {
           messageId: msg.id,
           chatroomId: msg.chatroomId,
           senderId: msg.senderId,
+          senderName,
           type: msg.type,
           content: msg.content,
           createdAt: msg.createdAt,

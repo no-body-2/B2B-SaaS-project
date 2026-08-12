@@ -50,6 +50,11 @@ export default function ChatPanel() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const membersRef = React.useRef(members);
+  useEffect(() => {
+    membersRef.current = members;
+  }, [members]);
+
   // 초기 메시지 데이터 로드 및 소켓 이벤트 바인딩
   useEffect(() => {
     if (!activeWorkspace || !activeChannel) return;
@@ -67,12 +72,12 @@ export default function ChatPanel() {
         
         // messageId를 id로 맵핑하고, members에서 senderName 조회
         const formatted = list.map((m: any) => {
-          const sender = members.find((mem) => mem.userId === m.senderId);
+          const sender = membersRef.current.find((mem) => mem.userId === m.senderId);
           return {
             id: m.messageId || m.id,
             chatroomId: m.chatroomId,
             senderId: m.senderId,
-            senderName: sender?.user?.name || m.senderName || '알 수 없음',
+            senderName: m.senderName || sender?.user?.name || '알 수 없음',
             content: m.content || '',
             createdAt: m.createdAt,
             isEdited: m.isEdited ?? false,
@@ -103,12 +108,12 @@ export default function ChatPanel() {
       if (!msgId || !newMsg.content) return;
 
       if (newMsg.chatroomId === activeChannel.id) {
-        const sender = members.find((mem) => mem.userId === newMsg.senderId);
+        const sender = membersRef.current.find((mem) => mem.userId === newMsg.senderId);
         const formattedMsg: ChatMessage = {
           id: msgId,
           chatroomId: newMsg.chatroomId,
           senderId: newMsg.senderId,
-          senderName: sender?.user?.name || newMsg.senderName || '알 수 없음',
+          senderName: newMsg.senderName || sender?.user?.name || '알 수 없음',
           content: newMsg.content,
           createdAt: newMsg.createdAt || new Date().toISOString(),
           isEdited: newMsg.isEdited ?? false,
@@ -140,7 +145,7 @@ export default function ChatPanel() {
       socket.off('deleteMessage');
       socket.disconnect();
     };
-  }, [activeWorkspace, activeChannel, members]);
+  }, [activeWorkspace?.id, activeChannel?.id]);
 
   // 2. 메시지 전송
   const handleSend = async (e: React.FormEvent) => {
