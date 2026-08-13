@@ -32,6 +32,27 @@ import { SearchChatMessageDto } from './dto/search-chat-message.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ChannelGateway } from './channel.gateway';
 
+type ChatMessageWithSenderPayload = Prisma.ChatMessageGetPayload<{
+  include: {
+    sender: {
+      include: {
+        workspaceMember: {
+          include: {
+            user: {
+              select: {
+                nickname: true;
+                firstName: true;
+                lastName: true;
+                email: true;
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+}>;
+
 @Injectable()
 export class ChannelService {
   constructor(
@@ -493,7 +514,10 @@ export class ChannelService {
       select: { nickname: true, firstName: true, lastName: true, email: true },
     });
     const senderName = senderUser
-      ? (senderUser.nickname || `${senderUser.lastName || ''} ${senderUser.firstName || ''}`.trim() || senderUser.email || '알 수 없음')
+      ? senderUser.nickname ||
+        `${senderUser.lastName || ''} ${senderUser.firstName || ''}`.trim() ||
+        senderUser.email ||
+        '알 수 없음'
       : '알 수 없음';
 
     // 3. 트랜잭션으로 작업 처리 -> 브로드캐스팅을 위해 결과 저장
@@ -662,11 +686,14 @@ export class ChannelService {
       hasNext && items.length > 0 ? items[items.length - 1].id : null;
 
     // 6. 반환할 데이터 정제 (역순 정렬을 위해 reverse 사용)
-    const formattedMessageList = items
-      .map((msg: any) => {
+    const formattedMessageList = (items as ChatMessageWithSenderPayload[])
+      .map((msg: ChatMessageWithSenderPayload) => {
         const u = msg.sender?.workspaceMember?.user;
         const senderName = u
-          ? (u.nickname || `${u.lastName || ''} ${u.firstName || ''}`.trim() || u.email || '알 수 없음')
+          ? u.nickname ||
+            `${u.lastName || ''} ${u.firstName || ''}`.trim() ||
+            u.email ||
+            '알 수 없음'
           : '알 수 없음';
         return {
           messageId: msg.id,
