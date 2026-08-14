@@ -1,6 +1,6 @@
 {
   "name": "@luminano/api",
-  "version": "1.7.1",
+  "version": "1.8.0",
   "description": "B2B Luminano Service's API Package",
   "author": "no-body-2",
   "private": true,
@@ -44,6 +44,7 @@
     "axios": "^1.18.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
+    "crpyto": "0.0.1-security",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "google-auth-library": "^10.6.2",
@@ -57,6 +58,7 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "socket.io": "^4.8.3",
+    "vitest": "^4.1.10",
     "winston": "^3.19.0",
     "winston-daily-rotate-file": "^5.0.0"
   },
