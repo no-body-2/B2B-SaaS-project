@@ -188,6 +188,7 @@
 
 - v1.8.0 CI Error Fix
 - v1.9.0 Outbox Pattern 적용으로 시스템 안정성 향상
+- v1.10.0 분산 락 시스템 적용
 
 ---
 

@@ -51,7 +51,6 @@ export class RedisService implements OnModuleDestroy {
   /**
    * Redis Key 값 1 증가
    * @param key - 증가 대상 Key
-   * @returns 증가 후의 값
    */
   async incr(key: string): Promise<number> {
     return this.redisClient.incr(key);
@@ -69,5 +68,32 @@ export class RedisService implements OnModuleDestroy {
   // Application 종료 시 Redis 커넥션 종료
   onModuleDestroy() {
     this.redisClient.disconnect();
+  }
+
+  /**
+   * 락 획득 (SET NX PX)
+   */
+  async acquireLock(
+    key: string,
+    value: string,
+    ttlMs: number,
+  ): Promise<boolean> {
+    const result = await this.redisClient.set(key, value, 'PX', ttlMs, 'NX');
+    return result === 'OK';
+  }
+
+  /**
+   * 원자적 락 해제 (Lua Script EVAL)
+   */
+  async releaseLock(key: string, value: string): Promise<boolean> {
+    const luaScript = `
+    if redis.call("get", KEYS[1]) == ARGV[1] then 
+      return redis.call("del", KEYS[1])
+    else 
+      return 0
+    end
+    `;
+    const result = await this.redisClient.eval(luaScript, 1, key, value);
+    return result === 1;
   }
 }
