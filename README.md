@@ -184,6 +184,10 @@
 - v1.8.0 Release
 - Crypto Module 신설 및 단위 테스트 통과
 
+### 2026-08-15
+
+- v1.8.0 CI Error Fix
+
 ---
 
 ## TODO

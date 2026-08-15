@@ -107,8 +107,8 @@ export class CryptoService {
   generateBlindIndex(plaintext: string): string {
     if (!plaintext) return '';
 
-    // 공백 제거 및 소문자 정규화 후 HMAC 계산
-    const normalized = plaintext.trim().toLowerCase();
+    // 앞뒤/내부 연속 공백 제거 및 소문자 정규화 후 HMAC 계산
+    const normalized = plaintext.trim().toLowerCase().replace(/\s+/g, ' ');
     return crypto
       .createHmac('sha256', this.blindIndexSecret)
       .update(normalized)
