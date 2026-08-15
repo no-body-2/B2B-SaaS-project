@@ -76,7 +76,7 @@ describe('AuthService (Unit/Integration Test)', () => {
       // 이메일 중복 없음
       dbMock.user.findUnique.mockResolvedValue(null);
       // 저장 시 가상 응답
-      dbMock.user.create.mockImplementation((args: any) => {
+      (dbMock.user.create as any).mockImplementation((args: any) => {
         return Promise.resolve({
           id: 'new-cuid-1',
           email: args.data.email,
@@ -99,7 +99,7 @@ describe('AuthService (Unit/Integration Test)', () => {
       expect(mockCreateCalls.data.password).not.toBe(registerDto.password);
       expect(
         await argon2.verify(
-          mockCreateCalls.data.password,
+          mockCreateCalls.data.password!,
           registerDto.password,
         ),
       ).toBe(true);

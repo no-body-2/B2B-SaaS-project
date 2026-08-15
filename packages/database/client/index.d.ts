@@ -111,9 +111,22 @@ export type FileAttachment = $Result.DefaultSelection<Prisma.$FileAttachmentPayl
 export type AuditLog = $Result.DefaultSelection<Prisma.$AuditLogPayload>
 /**
  * Model SystemNotice
- * 
+ * 최고 관리자의 전역 공지 시스템
+ * @namespace System
  */
 export type SystemNotice = $Result.DefaultSelection<Prisma.$SystemNoticePayload>
+/**
+ * Model OutboxEvent
+ * Outbox 패턴을 위한 이벤트
+ * @namespace System
+ */
+export type OutboxEvent = $Result.DefaultSelection<Prisma.$OutboxEventPayload>
+/**
+ * Model WorkspaceTagAnalytics
+ * Workspace 통계
+ * @namespace Statistcs
+ */
+export type WorkspaceTagAnalytics = $Result.DefaultSelection<Prisma.$WorkspaceTagAnalyticsPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -405,6 +418,26 @@ export class PrismaClient<
     * ```
     */
   get systemNotice(): Prisma.SystemNoticeDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.outboxEvent`: Exposes CRUD operations for the **OutboxEvent** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more OutboxEvents
+    * const outboxEvents = await prisma.outboxEvent.findMany()
+    * ```
+    */
+  get outboxEvent(): Prisma.OutboxEventDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.workspaceTagAnalytics`: Exposes CRUD operations for the **WorkspaceTagAnalytics** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more WorkspaceTagAnalytics
+    * const workspaceTagAnalytics = await prisma.workspaceTagAnalytics.findMany()
+    * ```
+    */
+  get workspaceTagAnalytics(): Prisma.WorkspaceTagAnalyticsDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -855,7 +888,9 @@ export namespace Prisma {
     RefreshToken: 'RefreshToken',
     FileAttachment: 'FileAttachment',
     AuditLog: 'AuditLog',
-    SystemNotice: 'SystemNotice'
+    SystemNotice: 'SystemNotice',
+    OutboxEvent: 'OutboxEvent',
+    WorkspaceTagAnalytics: 'WorkspaceTagAnalytics'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -871,7 +906,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "userPreference" | "workspace" | "workspaceInvitation" | "workspaceJoinRequest" | "workspaceMember" | "chatroom" | "chatroomMember" | "chatMessage" | "nano" | "nanoHistory" | "approvalRequest" | "pendingNano" | "refreshToken" | "fileAttachment" | "auditLog" | "systemNotice"
+      modelProps: "user" | "userPreference" | "workspace" | "workspaceInvitation" | "workspaceJoinRequest" | "workspaceMember" | "chatroom" | "chatroomMember" | "chatMessage" | "nano" | "nanoHistory" | "approvalRequest" | "pendingNano" | "refreshToken" | "fileAttachment" | "auditLog" | "systemNotice" | "outboxEvent" | "workspaceTagAnalytics"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2133,6 +2168,154 @@ export namespace Prisma {
           }
         }
       }
+      OutboxEvent: {
+        payload: Prisma.$OutboxEventPayload<ExtArgs>
+        fields: Prisma.OutboxEventFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.OutboxEventFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OutboxEventPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OutboxEventFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OutboxEventPayload>
+          }
+          findFirst: {
+            args: Prisma.OutboxEventFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OutboxEventPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OutboxEventFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OutboxEventPayload>
+          }
+          findMany: {
+            args: Prisma.OutboxEventFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OutboxEventPayload>[]
+          }
+          create: {
+            args: Prisma.OutboxEventCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OutboxEventPayload>
+          }
+          createMany: {
+            args: Prisma.OutboxEventCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.OutboxEventCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OutboxEventPayload>[]
+          }
+          delete: {
+            args: Prisma.OutboxEventDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OutboxEventPayload>
+          }
+          update: {
+            args: Prisma.OutboxEventUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OutboxEventPayload>
+          }
+          deleteMany: {
+            args: Prisma.OutboxEventDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OutboxEventUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.OutboxEventUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OutboxEventPayload>[]
+          }
+          upsert: {
+            args: Prisma.OutboxEventUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$OutboxEventPayload>
+          }
+          aggregate: {
+            args: Prisma.OutboxEventAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOutboxEvent>
+          }
+          groupBy: {
+            args: Prisma.OutboxEventGroupByArgs<ExtArgs>
+            result: $Utils.Optional<OutboxEventGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OutboxEventCountArgs<ExtArgs>
+            result: $Utils.Optional<OutboxEventCountAggregateOutputType> | number
+          }
+        }
+      }
+      WorkspaceTagAnalytics: {
+        payload: Prisma.$WorkspaceTagAnalyticsPayload<ExtArgs>
+        fields: Prisma.WorkspaceTagAnalyticsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.WorkspaceTagAnalyticsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceTagAnalyticsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.WorkspaceTagAnalyticsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceTagAnalyticsPayload>
+          }
+          findFirst: {
+            args: Prisma.WorkspaceTagAnalyticsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceTagAnalyticsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.WorkspaceTagAnalyticsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceTagAnalyticsPayload>
+          }
+          findMany: {
+            args: Prisma.WorkspaceTagAnalyticsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceTagAnalyticsPayload>[]
+          }
+          create: {
+            args: Prisma.WorkspaceTagAnalyticsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceTagAnalyticsPayload>
+          }
+          createMany: {
+            args: Prisma.WorkspaceTagAnalyticsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.WorkspaceTagAnalyticsCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceTagAnalyticsPayload>[]
+          }
+          delete: {
+            args: Prisma.WorkspaceTagAnalyticsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceTagAnalyticsPayload>
+          }
+          update: {
+            args: Prisma.WorkspaceTagAnalyticsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceTagAnalyticsPayload>
+          }
+          deleteMany: {
+            args: Prisma.WorkspaceTagAnalyticsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.WorkspaceTagAnalyticsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.WorkspaceTagAnalyticsUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceTagAnalyticsPayload>[]
+          }
+          upsert: {
+            args: Prisma.WorkspaceTagAnalyticsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkspaceTagAnalyticsPayload>
+          }
+          aggregate: {
+            args: Prisma.WorkspaceTagAnalyticsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWorkspaceTagAnalytics>
+          }
+          groupBy: {
+            args: Prisma.WorkspaceTagAnalyticsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WorkspaceTagAnalyticsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.WorkspaceTagAnalyticsCountArgs<ExtArgs>
+            result: $Utils.Optional<WorkspaceTagAnalyticsCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2258,6 +2441,8 @@ export namespace Prisma {
     fileAttachment?: FileAttachmentOmit
     auditLog?: AuditLogOmit
     systemNotice?: SystemNoticeOmit
+    outboxEvent?: OutboxEventOmit
+    workspaceTagAnalytics?: WorkspaceTagAnalyticsOmit
   }
 
   /* Types for Logging */
@@ -22061,6 +22246,2135 @@ export namespace Prisma {
 
 
   /**
+   * Model OutboxEvent
+   */
+
+  export type AggregateOutboxEvent = {
+    _count: OutboxEventCountAggregateOutputType | null
+    _avg: OutboxEventAvgAggregateOutputType | null
+    _sum: OutboxEventSumAggregateOutputType | null
+    _min: OutboxEventMinAggregateOutputType | null
+    _max: OutboxEventMaxAggregateOutputType | null
+  }
+
+  export type OutboxEventAvgAggregateOutputType = {
+    retryCount: number | null
+  }
+
+  export type OutboxEventSumAggregateOutputType = {
+    retryCount: number | null
+  }
+
+  export type OutboxEventMinAggregateOutputType = {
+    id: string | null
+    aggregateType: string | null
+    aggregateId: string | null
+    eventType: string | null
+    status: string | null
+    retryCount: number | null
+    errorLog: string | null
+    createdAt: Date | null
+    processedAt: Date | null
+  }
+
+  export type OutboxEventMaxAggregateOutputType = {
+    id: string | null
+    aggregateType: string | null
+    aggregateId: string | null
+    eventType: string | null
+    status: string | null
+    retryCount: number | null
+    errorLog: string | null
+    createdAt: Date | null
+    processedAt: Date | null
+  }
+
+  export type OutboxEventCountAggregateOutputType = {
+    id: number
+    aggregateType: number
+    aggregateId: number
+    eventType: number
+    payload: number
+    status: number
+    retryCount: number
+    errorLog: number
+    createdAt: number
+    processedAt: number
+    _all: number
+  }
+
+
+  export type OutboxEventAvgAggregateInputType = {
+    retryCount?: true
+  }
+
+  export type OutboxEventSumAggregateInputType = {
+    retryCount?: true
+  }
+
+  export type OutboxEventMinAggregateInputType = {
+    id?: true
+    aggregateType?: true
+    aggregateId?: true
+    eventType?: true
+    status?: true
+    retryCount?: true
+    errorLog?: true
+    createdAt?: true
+    processedAt?: true
+  }
+
+  export type OutboxEventMaxAggregateInputType = {
+    id?: true
+    aggregateType?: true
+    aggregateId?: true
+    eventType?: true
+    status?: true
+    retryCount?: true
+    errorLog?: true
+    createdAt?: true
+    processedAt?: true
+  }
+
+  export type OutboxEventCountAggregateInputType = {
+    id?: true
+    aggregateType?: true
+    aggregateId?: true
+    eventType?: true
+    payload?: true
+    status?: true
+    retryCount?: true
+    errorLog?: true
+    createdAt?: true
+    processedAt?: true
+    _all?: true
+  }
+
+  export type OutboxEventAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OutboxEvent to aggregate.
+     */
+    where?: OutboxEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OutboxEvents to fetch.
+     */
+    orderBy?: OutboxEventOrderByWithRelationInput | OutboxEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OutboxEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OutboxEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OutboxEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned OutboxEvents
+    **/
+    _count?: true | OutboxEventCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: OutboxEventAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: OutboxEventSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OutboxEventMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OutboxEventMaxAggregateInputType
+  }
+
+  export type GetOutboxEventAggregateType<T extends OutboxEventAggregateArgs> = {
+        [P in keyof T & keyof AggregateOutboxEvent]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOutboxEvent[P]>
+      : GetScalarType<T[P], AggregateOutboxEvent[P]>
+  }
+
+
+
+
+  export type OutboxEventGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: OutboxEventWhereInput
+    orderBy?: OutboxEventOrderByWithAggregationInput | OutboxEventOrderByWithAggregationInput[]
+    by: OutboxEventScalarFieldEnum[] | OutboxEventScalarFieldEnum
+    having?: OutboxEventScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OutboxEventCountAggregateInputType | true
+    _avg?: OutboxEventAvgAggregateInputType
+    _sum?: OutboxEventSumAggregateInputType
+    _min?: OutboxEventMinAggregateInputType
+    _max?: OutboxEventMaxAggregateInputType
+  }
+
+  export type OutboxEventGroupByOutputType = {
+    id: string
+    aggregateType: string
+    aggregateId: string
+    eventType: string
+    payload: JsonValue
+    status: string
+    retryCount: number
+    errorLog: string | null
+    createdAt: Date
+    processedAt: Date | null
+    _count: OutboxEventCountAggregateOutputType | null
+    _avg: OutboxEventAvgAggregateOutputType | null
+    _sum: OutboxEventSumAggregateOutputType | null
+    _min: OutboxEventMinAggregateOutputType | null
+    _max: OutboxEventMaxAggregateOutputType | null
+  }
+
+  type GetOutboxEventGroupByPayload<T extends OutboxEventGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<OutboxEventGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OutboxEventGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OutboxEventGroupByOutputType[P]>
+            : GetScalarType<T[P], OutboxEventGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OutboxEventSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    aggregateType?: boolean
+    aggregateId?: boolean
+    eventType?: boolean
+    payload?: boolean
+    status?: boolean
+    retryCount?: boolean
+    errorLog?: boolean
+    createdAt?: boolean
+    processedAt?: boolean
+  }, ExtArgs["result"]["outboxEvent"]>
+
+  export type OutboxEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    aggregateType?: boolean
+    aggregateId?: boolean
+    eventType?: boolean
+    payload?: boolean
+    status?: boolean
+    retryCount?: boolean
+    errorLog?: boolean
+    createdAt?: boolean
+    processedAt?: boolean
+  }, ExtArgs["result"]["outboxEvent"]>
+
+  export type OutboxEventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    aggregateType?: boolean
+    aggregateId?: boolean
+    eventType?: boolean
+    payload?: boolean
+    status?: boolean
+    retryCount?: boolean
+    errorLog?: boolean
+    createdAt?: boolean
+    processedAt?: boolean
+  }, ExtArgs["result"]["outboxEvent"]>
+
+  export type OutboxEventSelectScalar = {
+    id?: boolean
+    aggregateType?: boolean
+    aggregateId?: boolean
+    eventType?: boolean
+    payload?: boolean
+    status?: boolean
+    retryCount?: boolean
+    errorLog?: boolean
+    createdAt?: boolean
+    processedAt?: boolean
+  }
+
+  export type OutboxEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "aggregateType" | "aggregateId" | "eventType" | "payload" | "status" | "retryCount" | "errorLog" | "createdAt" | "processedAt", ExtArgs["result"]["outboxEvent"]>
+
+  export type $OutboxEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "OutboxEvent"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      aggregateType: string
+      aggregateId: string
+      eventType: string
+      payload: Prisma.JsonValue
+      status: string
+      retryCount: number
+      errorLog: string | null
+      createdAt: Date
+      processedAt: Date | null
+    }, ExtArgs["result"]["outboxEvent"]>
+    composites: {}
+  }
+
+  type OutboxEventGetPayload<S extends boolean | null | undefined | OutboxEventDefaultArgs> = $Result.GetResult<Prisma.$OutboxEventPayload, S>
+
+  type OutboxEventCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<OutboxEventFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: OutboxEventCountAggregateInputType | true
+    }
+
+  export interface OutboxEventDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['OutboxEvent'], meta: { name: 'OutboxEvent' } }
+    /**
+     * Find zero or one OutboxEvent that matches the filter.
+     * @param {OutboxEventFindUniqueArgs} args - Arguments to find a OutboxEvent
+     * @example
+     * // Get one OutboxEvent
+     * const outboxEvent = await prisma.outboxEvent.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends OutboxEventFindUniqueArgs>(args: SelectSubset<T, OutboxEventFindUniqueArgs<ExtArgs>>): Prisma__OutboxEventClient<$Result.GetResult<Prisma.$OutboxEventPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one OutboxEvent that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {OutboxEventFindUniqueOrThrowArgs} args - Arguments to find a OutboxEvent
+     * @example
+     * // Get one OutboxEvent
+     * const outboxEvent = await prisma.outboxEvent.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends OutboxEventFindUniqueOrThrowArgs>(args: SelectSubset<T, OutboxEventFindUniqueOrThrowArgs<ExtArgs>>): Prisma__OutboxEventClient<$Result.GetResult<Prisma.$OutboxEventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OutboxEvent that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OutboxEventFindFirstArgs} args - Arguments to find a OutboxEvent
+     * @example
+     * // Get one OutboxEvent
+     * const outboxEvent = await prisma.outboxEvent.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends OutboxEventFindFirstArgs>(args?: SelectSubset<T, OutboxEventFindFirstArgs<ExtArgs>>): Prisma__OutboxEventClient<$Result.GetResult<Prisma.$OutboxEventPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first OutboxEvent that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OutboxEventFindFirstOrThrowArgs} args - Arguments to find a OutboxEvent
+     * @example
+     * // Get one OutboxEvent
+     * const outboxEvent = await prisma.outboxEvent.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends OutboxEventFindFirstOrThrowArgs>(args?: SelectSubset<T, OutboxEventFindFirstOrThrowArgs<ExtArgs>>): Prisma__OutboxEventClient<$Result.GetResult<Prisma.$OutboxEventPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more OutboxEvents that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OutboxEventFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all OutboxEvents
+     * const outboxEvents = await prisma.outboxEvent.findMany()
+     * 
+     * // Get first 10 OutboxEvents
+     * const outboxEvents = await prisma.outboxEvent.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const outboxEventWithIdOnly = await prisma.outboxEvent.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends OutboxEventFindManyArgs>(args?: SelectSubset<T, OutboxEventFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OutboxEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a OutboxEvent.
+     * @param {OutboxEventCreateArgs} args - Arguments to create a OutboxEvent.
+     * @example
+     * // Create one OutboxEvent
+     * const OutboxEvent = await prisma.outboxEvent.create({
+     *   data: {
+     *     // ... data to create a OutboxEvent
+     *   }
+     * })
+     * 
+     */
+    create<T extends OutboxEventCreateArgs>(args: SelectSubset<T, OutboxEventCreateArgs<ExtArgs>>): Prisma__OutboxEventClient<$Result.GetResult<Prisma.$OutboxEventPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many OutboxEvents.
+     * @param {OutboxEventCreateManyArgs} args - Arguments to create many OutboxEvents.
+     * @example
+     * // Create many OutboxEvents
+     * const outboxEvent = await prisma.outboxEvent.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends OutboxEventCreateManyArgs>(args?: SelectSubset<T, OutboxEventCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many OutboxEvents and returns the data saved in the database.
+     * @param {OutboxEventCreateManyAndReturnArgs} args - Arguments to create many OutboxEvents.
+     * @example
+     * // Create many OutboxEvents
+     * const outboxEvent = await prisma.outboxEvent.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many OutboxEvents and only return the `id`
+     * const outboxEventWithIdOnly = await prisma.outboxEvent.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends OutboxEventCreateManyAndReturnArgs>(args?: SelectSubset<T, OutboxEventCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OutboxEventPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a OutboxEvent.
+     * @param {OutboxEventDeleteArgs} args - Arguments to delete one OutboxEvent.
+     * @example
+     * // Delete one OutboxEvent
+     * const OutboxEvent = await prisma.outboxEvent.delete({
+     *   where: {
+     *     // ... filter to delete one OutboxEvent
+     *   }
+     * })
+     * 
+     */
+    delete<T extends OutboxEventDeleteArgs>(args: SelectSubset<T, OutboxEventDeleteArgs<ExtArgs>>): Prisma__OutboxEventClient<$Result.GetResult<Prisma.$OutboxEventPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one OutboxEvent.
+     * @param {OutboxEventUpdateArgs} args - Arguments to update one OutboxEvent.
+     * @example
+     * // Update one OutboxEvent
+     * const outboxEvent = await prisma.outboxEvent.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends OutboxEventUpdateArgs>(args: SelectSubset<T, OutboxEventUpdateArgs<ExtArgs>>): Prisma__OutboxEventClient<$Result.GetResult<Prisma.$OutboxEventPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more OutboxEvents.
+     * @param {OutboxEventDeleteManyArgs} args - Arguments to filter OutboxEvents to delete.
+     * @example
+     * // Delete a few OutboxEvents
+     * const { count } = await prisma.outboxEvent.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends OutboxEventDeleteManyArgs>(args?: SelectSubset<T, OutboxEventDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OutboxEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OutboxEventUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many OutboxEvents
+     * const outboxEvent = await prisma.outboxEvent.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends OutboxEventUpdateManyArgs>(args: SelectSubset<T, OutboxEventUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more OutboxEvents and returns the data updated in the database.
+     * @param {OutboxEventUpdateManyAndReturnArgs} args - Arguments to update many OutboxEvents.
+     * @example
+     * // Update many OutboxEvents
+     * const outboxEvent = await prisma.outboxEvent.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more OutboxEvents and only return the `id`
+     * const outboxEventWithIdOnly = await prisma.outboxEvent.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends OutboxEventUpdateManyAndReturnArgs>(args: SelectSubset<T, OutboxEventUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OutboxEventPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one OutboxEvent.
+     * @param {OutboxEventUpsertArgs} args - Arguments to update or create a OutboxEvent.
+     * @example
+     * // Update or create a OutboxEvent
+     * const outboxEvent = await prisma.outboxEvent.upsert({
+     *   create: {
+     *     // ... data to create a OutboxEvent
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the OutboxEvent we want to update
+     *   }
+     * })
+     */
+    upsert<T extends OutboxEventUpsertArgs>(args: SelectSubset<T, OutboxEventUpsertArgs<ExtArgs>>): Prisma__OutboxEventClient<$Result.GetResult<Prisma.$OutboxEventPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of OutboxEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OutboxEventCountArgs} args - Arguments to filter OutboxEvents to count.
+     * @example
+     * // Count the number of OutboxEvents
+     * const count = await prisma.outboxEvent.count({
+     *   where: {
+     *     // ... the filter for the OutboxEvents we want to count
+     *   }
+     * })
+    **/
+    count<T extends OutboxEventCountArgs>(
+      args?: Subset<T, OutboxEventCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OutboxEventCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a OutboxEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OutboxEventAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OutboxEventAggregateArgs>(args: Subset<T, OutboxEventAggregateArgs>): Prisma.PrismaPromise<GetOutboxEventAggregateType<T>>
+
+    /**
+     * Group by OutboxEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OutboxEventGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OutboxEventGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OutboxEventGroupByArgs['orderBy'] }
+        : { orderBy?: OutboxEventGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OutboxEventGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOutboxEventGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the OutboxEvent model
+   */
+  readonly fields: OutboxEventFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for OutboxEvent.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__OutboxEventClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the OutboxEvent model
+   */
+  interface OutboxEventFieldRefs {
+    readonly id: FieldRef<"OutboxEvent", 'String'>
+    readonly aggregateType: FieldRef<"OutboxEvent", 'String'>
+    readonly aggregateId: FieldRef<"OutboxEvent", 'String'>
+    readonly eventType: FieldRef<"OutboxEvent", 'String'>
+    readonly payload: FieldRef<"OutboxEvent", 'Json'>
+    readonly status: FieldRef<"OutboxEvent", 'String'>
+    readonly retryCount: FieldRef<"OutboxEvent", 'Int'>
+    readonly errorLog: FieldRef<"OutboxEvent", 'String'>
+    readonly createdAt: FieldRef<"OutboxEvent", 'DateTime'>
+    readonly processedAt: FieldRef<"OutboxEvent", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * OutboxEvent findUnique
+   */
+  export type OutboxEventFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutboxEvent
+     */
+    select?: OutboxEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutboxEvent
+     */
+    omit?: OutboxEventOmit<ExtArgs> | null
+    /**
+     * Filter, which OutboxEvent to fetch.
+     */
+    where: OutboxEventWhereUniqueInput
+  }
+
+  /**
+   * OutboxEvent findUniqueOrThrow
+   */
+  export type OutboxEventFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutboxEvent
+     */
+    select?: OutboxEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutboxEvent
+     */
+    omit?: OutboxEventOmit<ExtArgs> | null
+    /**
+     * Filter, which OutboxEvent to fetch.
+     */
+    where: OutboxEventWhereUniqueInput
+  }
+
+  /**
+   * OutboxEvent findFirst
+   */
+  export type OutboxEventFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutboxEvent
+     */
+    select?: OutboxEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutboxEvent
+     */
+    omit?: OutboxEventOmit<ExtArgs> | null
+    /**
+     * Filter, which OutboxEvent to fetch.
+     */
+    where?: OutboxEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OutboxEvents to fetch.
+     */
+    orderBy?: OutboxEventOrderByWithRelationInput | OutboxEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OutboxEvents.
+     */
+    cursor?: OutboxEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OutboxEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OutboxEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OutboxEvents.
+     */
+    distinct?: OutboxEventScalarFieldEnum | OutboxEventScalarFieldEnum[]
+  }
+
+  /**
+   * OutboxEvent findFirstOrThrow
+   */
+  export type OutboxEventFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutboxEvent
+     */
+    select?: OutboxEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutboxEvent
+     */
+    omit?: OutboxEventOmit<ExtArgs> | null
+    /**
+     * Filter, which OutboxEvent to fetch.
+     */
+    where?: OutboxEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OutboxEvents to fetch.
+     */
+    orderBy?: OutboxEventOrderByWithRelationInput | OutboxEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for OutboxEvents.
+     */
+    cursor?: OutboxEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OutboxEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OutboxEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OutboxEvents.
+     */
+    distinct?: OutboxEventScalarFieldEnum | OutboxEventScalarFieldEnum[]
+  }
+
+  /**
+   * OutboxEvent findMany
+   */
+  export type OutboxEventFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutboxEvent
+     */
+    select?: OutboxEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutboxEvent
+     */
+    omit?: OutboxEventOmit<ExtArgs> | null
+    /**
+     * Filter, which OutboxEvents to fetch.
+     */
+    where?: OutboxEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of OutboxEvents to fetch.
+     */
+    orderBy?: OutboxEventOrderByWithRelationInput | OutboxEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing OutboxEvents.
+     */
+    cursor?: OutboxEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` OutboxEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` OutboxEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of OutboxEvents.
+     */
+    distinct?: OutboxEventScalarFieldEnum | OutboxEventScalarFieldEnum[]
+  }
+
+  /**
+   * OutboxEvent create
+   */
+  export type OutboxEventCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutboxEvent
+     */
+    select?: OutboxEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutboxEvent
+     */
+    omit?: OutboxEventOmit<ExtArgs> | null
+    /**
+     * The data needed to create a OutboxEvent.
+     */
+    data: XOR<OutboxEventCreateInput, OutboxEventUncheckedCreateInput>
+  }
+
+  /**
+   * OutboxEvent createMany
+   */
+  export type OutboxEventCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many OutboxEvents.
+     */
+    data: OutboxEventCreateManyInput | OutboxEventCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OutboxEvent createManyAndReturn
+   */
+  export type OutboxEventCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutboxEvent
+     */
+    select?: OutboxEventSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutboxEvent
+     */
+    omit?: OutboxEventOmit<ExtArgs> | null
+    /**
+     * The data used to create many OutboxEvents.
+     */
+    data: OutboxEventCreateManyInput | OutboxEventCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * OutboxEvent update
+   */
+  export type OutboxEventUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutboxEvent
+     */
+    select?: OutboxEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutboxEvent
+     */
+    omit?: OutboxEventOmit<ExtArgs> | null
+    /**
+     * The data needed to update a OutboxEvent.
+     */
+    data: XOR<OutboxEventUpdateInput, OutboxEventUncheckedUpdateInput>
+    /**
+     * Choose, which OutboxEvent to update.
+     */
+    where: OutboxEventWhereUniqueInput
+  }
+
+  /**
+   * OutboxEvent updateMany
+   */
+  export type OutboxEventUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update OutboxEvents.
+     */
+    data: XOR<OutboxEventUpdateManyMutationInput, OutboxEventUncheckedUpdateManyInput>
+    /**
+     * Filter which OutboxEvents to update
+     */
+    where?: OutboxEventWhereInput
+    /**
+     * Limit how many OutboxEvents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OutboxEvent updateManyAndReturn
+   */
+  export type OutboxEventUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutboxEvent
+     */
+    select?: OutboxEventSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutboxEvent
+     */
+    omit?: OutboxEventOmit<ExtArgs> | null
+    /**
+     * The data used to update OutboxEvents.
+     */
+    data: XOR<OutboxEventUpdateManyMutationInput, OutboxEventUncheckedUpdateManyInput>
+    /**
+     * Filter which OutboxEvents to update
+     */
+    where?: OutboxEventWhereInput
+    /**
+     * Limit how many OutboxEvents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * OutboxEvent upsert
+   */
+  export type OutboxEventUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutboxEvent
+     */
+    select?: OutboxEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutboxEvent
+     */
+    omit?: OutboxEventOmit<ExtArgs> | null
+    /**
+     * The filter to search for the OutboxEvent to update in case it exists.
+     */
+    where: OutboxEventWhereUniqueInput
+    /**
+     * In case the OutboxEvent found by the `where` argument doesn't exist, create a new OutboxEvent with this data.
+     */
+    create: XOR<OutboxEventCreateInput, OutboxEventUncheckedCreateInput>
+    /**
+     * In case the OutboxEvent was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OutboxEventUpdateInput, OutboxEventUncheckedUpdateInput>
+  }
+
+  /**
+   * OutboxEvent delete
+   */
+  export type OutboxEventDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutboxEvent
+     */
+    select?: OutboxEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutboxEvent
+     */
+    omit?: OutboxEventOmit<ExtArgs> | null
+    /**
+     * Filter which OutboxEvent to delete.
+     */
+    where: OutboxEventWhereUniqueInput
+  }
+
+  /**
+   * OutboxEvent deleteMany
+   */
+  export type OutboxEventDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which OutboxEvents to delete
+     */
+    where?: OutboxEventWhereInput
+    /**
+     * Limit how many OutboxEvents to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * OutboxEvent without action
+   */
+  export type OutboxEventDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OutboxEvent
+     */
+    select?: OutboxEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the OutboxEvent
+     */
+    omit?: OutboxEventOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model WorkspaceTagAnalytics
+   */
+
+  export type AggregateWorkspaceTagAnalytics = {
+    _count: WorkspaceTagAnalyticsCountAggregateOutputType | null
+    _avg: WorkspaceTagAnalyticsAvgAggregateOutputType | null
+    _sum: WorkspaceTagAnalyticsSumAggregateOutputType | null
+    _min: WorkspaceTagAnalyticsMinAggregateOutputType | null
+    _max: WorkspaceTagAnalyticsMaxAggregateOutputType | null
+  }
+
+  export type WorkspaceTagAnalyticsAvgAggregateOutputType = {
+    count: number | null
+  }
+
+  export type WorkspaceTagAnalyticsSumAggregateOutputType = {
+    count: number | null
+  }
+
+  export type WorkspaceTagAnalyticsMinAggregateOutputType = {
+    id: string | null
+    workspaceId: string | null
+    tag: string | null
+    count: number | null
+    updatedAt: Date | null
+  }
+
+  export type WorkspaceTagAnalyticsMaxAggregateOutputType = {
+    id: string | null
+    workspaceId: string | null
+    tag: string | null
+    count: number | null
+    updatedAt: Date | null
+  }
+
+  export type WorkspaceTagAnalyticsCountAggregateOutputType = {
+    id: number
+    workspaceId: number
+    tag: number
+    count: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type WorkspaceTagAnalyticsAvgAggregateInputType = {
+    count?: true
+  }
+
+  export type WorkspaceTagAnalyticsSumAggregateInputType = {
+    count?: true
+  }
+
+  export type WorkspaceTagAnalyticsMinAggregateInputType = {
+    id?: true
+    workspaceId?: true
+    tag?: true
+    count?: true
+    updatedAt?: true
+  }
+
+  export type WorkspaceTagAnalyticsMaxAggregateInputType = {
+    id?: true
+    workspaceId?: true
+    tag?: true
+    count?: true
+    updatedAt?: true
+  }
+
+  export type WorkspaceTagAnalyticsCountAggregateInputType = {
+    id?: true
+    workspaceId?: true
+    tag?: true
+    count?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type WorkspaceTagAnalyticsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WorkspaceTagAnalytics to aggregate.
+     */
+    where?: WorkspaceTagAnalyticsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkspaceTagAnalytics to fetch.
+     */
+    orderBy?: WorkspaceTagAnalyticsOrderByWithRelationInput | WorkspaceTagAnalyticsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: WorkspaceTagAnalyticsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkspaceTagAnalytics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkspaceTagAnalytics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned WorkspaceTagAnalytics
+    **/
+    _count?: true | WorkspaceTagAnalyticsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: WorkspaceTagAnalyticsAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: WorkspaceTagAnalyticsSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: WorkspaceTagAnalyticsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: WorkspaceTagAnalyticsMaxAggregateInputType
+  }
+
+  export type GetWorkspaceTagAnalyticsAggregateType<T extends WorkspaceTagAnalyticsAggregateArgs> = {
+        [P in keyof T & keyof AggregateWorkspaceTagAnalytics]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWorkspaceTagAnalytics[P]>
+      : GetScalarType<T[P], AggregateWorkspaceTagAnalytics[P]>
+  }
+
+
+
+
+  export type WorkspaceTagAnalyticsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WorkspaceTagAnalyticsWhereInput
+    orderBy?: WorkspaceTagAnalyticsOrderByWithAggregationInput | WorkspaceTagAnalyticsOrderByWithAggregationInput[]
+    by: WorkspaceTagAnalyticsScalarFieldEnum[] | WorkspaceTagAnalyticsScalarFieldEnum
+    having?: WorkspaceTagAnalyticsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: WorkspaceTagAnalyticsCountAggregateInputType | true
+    _avg?: WorkspaceTagAnalyticsAvgAggregateInputType
+    _sum?: WorkspaceTagAnalyticsSumAggregateInputType
+    _min?: WorkspaceTagAnalyticsMinAggregateInputType
+    _max?: WorkspaceTagAnalyticsMaxAggregateInputType
+  }
+
+  export type WorkspaceTagAnalyticsGroupByOutputType = {
+    id: string
+    workspaceId: string
+    tag: string
+    count: number
+    updatedAt: Date
+    _count: WorkspaceTagAnalyticsCountAggregateOutputType | null
+    _avg: WorkspaceTagAnalyticsAvgAggregateOutputType | null
+    _sum: WorkspaceTagAnalyticsSumAggregateOutputType | null
+    _min: WorkspaceTagAnalyticsMinAggregateOutputType | null
+    _max: WorkspaceTagAnalyticsMaxAggregateOutputType | null
+  }
+
+  type GetWorkspaceTagAnalyticsGroupByPayload<T extends WorkspaceTagAnalyticsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<WorkspaceTagAnalyticsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof WorkspaceTagAnalyticsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], WorkspaceTagAnalyticsGroupByOutputType[P]>
+            : GetScalarType<T[P], WorkspaceTagAnalyticsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type WorkspaceTagAnalyticsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    workspaceId?: boolean
+    tag?: boolean
+    count?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["workspaceTagAnalytics"]>
+
+  export type WorkspaceTagAnalyticsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    workspaceId?: boolean
+    tag?: boolean
+    count?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["workspaceTagAnalytics"]>
+
+  export type WorkspaceTagAnalyticsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    workspaceId?: boolean
+    tag?: boolean
+    count?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["workspaceTagAnalytics"]>
+
+  export type WorkspaceTagAnalyticsSelectScalar = {
+    id?: boolean
+    workspaceId?: boolean
+    tag?: boolean
+    count?: boolean
+    updatedAt?: boolean
+  }
+
+  export type WorkspaceTagAnalyticsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "workspaceId" | "tag" | "count" | "updatedAt", ExtArgs["result"]["workspaceTagAnalytics"]>
+
+  export type $WorkspaceTagAnalyticsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "WorkspaceTagAnalytics"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      workspaceId: string
+      tag: string
+      count: number
+      updatedAt: Date
+    }, ExtArgs["result"]["workspaceTagAnalytics"]>
+    composites: {}
+  }
+
+  type WorkspaceTagAnalyticsGetPayload<S extends boolean | null | undefined | WorkspaceTagAnalyticsDefaultArgs> = $Result.GetResult<Prisma.$WorkspaceTagAnalyticsPayload, S>
+
+  type WorkspaceTagAnalyticsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<WorkspaceTagAnalyticsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: WorkspaceTagAnalyticsCountAggregateInputType | true
+    }
+
+  export interface WorkspaceTagAnalyticsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['WorkspaceTagAnalytics'], meta: { name: 'WorkspaceTagAnalytics' } }
+    /**
+     * Find zero or one WorkspaceTagAnalytics that matches the filter.
+     * @param {WorkspaceTagAnalyticsFindUniqueArgs} args - Arguments to find a WorkspaceTagAnalytics
+     * @example
+     * // Get one WorkspaceTagAnalytics
+     * const workspaceTagAnalytics = await prisma.workspaceTagAnalytics.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends WorkspaceTagAnalyticsFindUniqueArgs>(args: SelectSubset<T, WorkspaceTagAnalyticsFindUniqueArgs<ExtArgs>>): Prisma__WorkspaceTagAnalyticsClient<$Result.GetResult<Prisma.$WorkspaceTagAnalyticsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one WorkspaceTagAnalytics that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {WorkspaceTagAnalyticsFindUniqueOrThrowArgs} args - Arguments to find a WorkspaceTagAnalytics
+     * @example
+     * // Get one WorkspaceTagAnalytics
+     * const workspaceTagAnalytics = await prisma.workspaceTagAnalytics.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends WorkspaceTagAnalyticsFindUniqueOrThrowArgs>(args: SelectSubset<T, WorkspaceTagAnalyticsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WorkspaceTagAnalyticsClient<$Result.GetResult<Prisma.$WorkspaceTagAnalyticsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WorkspaceTagAnalytics that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceTagAnalyticsFindFirstArgs} args - Arguments to find a WorkspaceTagAnalytics
+     * @example
+     * // Get one WorkspaceTagAnalytics
+     * const workspaceTagAnalytics = await prisma.workspaceTagAnalytics.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends WorkspaceTagAnalyticsFindFirstArgs>(args?: SelectSubset<T, WorkspaceTagAnalyticsFindFirstArgs<ExtArgs>>): Prisma__WorkspaceTagAnalyticsClient<$Result.GetResult<Prisma.$WorkspaceTagAnalyticsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first WorkspaceTagAnalytics that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceTagAnalyticsFindFirstOrThrowArgs} args - Arguments to find a WorkspaceTagAnalytics
+     * @example
+     * // Get one WorkspaceTagAnalytics
+     * const workspaceTagAnalytics = await prisma.workspaceTagAnalytics.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends WorkspaceTagAnalyticsFindFirstOrThrowArgs>(args?: SelectSubset<T, WorkspaceTagAnalyticsFindFirstOrThrowArgs<ExtArgs>>): Prisma__WorkspaceTagAnalyticsClient<$Result.GetResult<Prisma.$WorkspaceTagAnalyticsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more WorkspaceTagAnalytics that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceTagAnalyticsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all WorkspaceTagAnalytics
+     * const workspaceTagAnalytics = await prisma.workspaceTagAnalytics.findMany()
+     * 
+     * // Get first 10 WorkspaceTagAnalytics
+     * const workspaceTagAnalytics = await prisma.workspaceTagAnalytics.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const workspaceTagAnalyticsWithIdOnly = await prisma.workspaceTagAnalytics.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends WorkspaceTagAnalyticsFindManyArgs>(args?: SelectSubset<T, WorkspaceTagAnalyticsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceTagAnalyticsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a WorkspaceTagAnalytics.
+     * @param {WorkspaceTagAnalyticsCreateArgs} args - Arguments to create a WorkspaceTagAnalytics.
+     * @example
+     * // Create one WorkspaceTagAnalytics
+     * const WorkspaceTagAnalytics = await prisma.workspaceTagAnalytics.create({
+     *   data: {
+     *     // ... data to create a WorkspaceTagAnalytics
+     *   }
+     * })
+     * 
+     */
+    create<T extends WorkspaceTagAnalyticsCreateArgs>(args: SelectSubset<T, WorkspaceTagAnalyticsCreateArgs<ExtArgs>>): Prisma__WorkspaceTagAnalyticsClient<$Result.GetResult<Prisma.$WorkspaceTagAnalyticsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many WorkspaceTagAnalytics.
+     * @param {WorkspaceTagAnalyticsCreateManyArgs} args - Arguments to create many WorkspaceTagAnalytics.
+     * @example
+     * // Create many WorkspaceTagAnalytics
+     * const workspaceTagAnalytics = await prisma.workspaceTagAnalytics.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends WorkspaceTagAnalyticsCreateManyArgs>(args?: SelectSubset<T, WorkspaceTagAnalyticsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many WorkspaceTagAnalytics and returns the data saved in the database.
+     * @param {WorkspaceTagAnalyticsCreateManyAndReturnArgs} args - Arguments to create many WorkspaceTagAnalytics.
+     * @example
+     * // Create many WorkspaceTagAnalytics
+     * const workspaceTagAnalytics = await prisma.workspaceTagAnalytics.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many WorkspaceTagAnalytics and only return the `id`
+     * const workspaceTagAnalyticsWithIdOnly = await prisma.workspaceTagAnalytics.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends WorkspaceTagAnalyticsCreateManyAndReturnArgs>(args?: SelectSubset<T, WorkspaceTagAnalyticsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceTagAnalyticsPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a WorkspaceTagAnalytics.
+     * @param {WorkspaceTagAnalyticsDeleteArgs} args - Arguments to delete one WorkspaceTagAnalytics.
+     * @example
+     * // Delete one WorkspaceTagAnalytics
+     * const WorkspaceTagAnalytics = await prisma.workspaceTagAnalytics.delete({
+     *   where: {
+     *     // ... filter to delete one WorkspaceTagAnalytics
+     *   }
+     * })
+     * 
+     */
+    delete<T extends WorkspaceTagAnalyticsDeleteArgs>(args: SelectSubset<T, WorkspaceTagAnalyticsDeleteArgs<ExtArgs>>): Prisma__WorkspaceTagAnalyticsClient<$Result.GetResult<Prisma.$WorkspaceTagAnalyticsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one WorkspaceTagAnalytics.
+     * @param {WorkspaceTagAnalyticsUpdateArgs} args - Arguments to update one WorkspaceTagAnalytics.
+     * @example
+     * // Update one WorkspaceTagAnalytics
+     * const workspaceTagAnalytics = await prisma.workspaceTagAnalytics.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends WorkspaceTagAnalyticsUpdateArgs>(args: SelectSubset<T, WorkspaceTagAnalyticsUpdateArgs<ExtArgs>>): Prisma__WorkspaceTagAnalyticsClient<$Result.GetResult<Prisma.$WorkspaceTagAnalyticsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more WorkspaceTagAnalytics.
+     * @param {WorkspaceTagAnalyticsDeleteManyArgs} args - Arguments to filter WorkspaceTagAnalytics to delete.
+     * @example
+     * // Delete a few WorkspaceTagAnalytics
+     * const { count } = await prisma.workspaceTagAnalytics.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends WorkspaceTagAnalyticsDeleteManyArgs>(args?: SelectSubset<T, WorkspaceTagAnalyticsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WorkspaceTagAnalytics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceTagAnalyticsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many WorkspaceTagAnalytics
+     * const workspaceTagAnalytics = await prisma.workspaceTagAnalytics.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends WorkspaceTagAnalyticsUpdateManyArgs>(args: SelectSubset<T, WorkspaceTagAnalyticsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more WorkspaceTagAnalytics and returns the data updated in the database.
+     * @param {WorkspaceTagAnalyticsUpdateManyAndReturnArgs} args - Arguments to update many WorkspaceTagAnalytics.
+     * @example
+     * // Update many WorkspaceTagAnalytics
+     * const workspaceTagAnalytics = await prisma.workspaceTagAnalytics.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more WorkspaceTagAnalytics and only return the `id`
+     * const workspaceTagAnalyticsWithIdOnly = await prisma.workspaceTagAnalytics.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends WorkspaceTagAnalyticsUpdateManyAndReturnArgs>(args: SelectSubset<T, WorkspaceTagAnalyticsUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceTagAnalyticsPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one WorkspaceTagAnalytics.
+     * @param {WorkspaceTagAnalyticsUpsertArgs} args - Arguments to update or create a WorkspaceTagAnalytics.
+     * @example
+     * // Update or create a WorkspaceTagAnalytics
+     * const workspaceTagAnalytics = await prisma.workspaceTagAnalytics.upsert({
+     *   create: {
+     *     // ... data to create a WorkspaceTagAnalytics
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the WorkspaceTagAnalytics we want to update
+     *   }
+     * })
+     */
+    upsert<T extends WorkspaceTagAnalyticsUpsertArgs>(args: SelectSubset<T, WorkspaceTagAnalyticsUpsertArgs<ExtArgs>>): Prisma__WorkspaceTagAnalyticsClient<$Result.GetResult<Prisma.$WorkspaceTagAnalyticsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of WorkspaceTagAnalytics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceTagAnalyticsCountArgs} args - Arguments to filter WorkspaceTagAnalytics to count.
+     * @example
+     * // Count the number of WorkspaceTagAnalytics
+     * const count = await prisma.workspaceTagAnalytics.count({
+     *   where: {
+     *     // ... the filter for the WorkspaceTagAnalytics we want to count
+     *   }
+     * })
+    **/
+    count<T extends WorkspaceTagAnalyticsCountArgs>(
+      args?: Subset<T, WorkspaceTagAnalyticsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], WorkspaceTagAnalyticsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a WorkspaceTagAnalytics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceTagAnalyticsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends WorkspaceTagAnalyticsAggregateArgs>(args: Subset<T, WorkspaceTagAnalyticsAggregateArgs>): Prisma.PrismaPromise<GetWorkspaceTagAnalyticsAggregateType<T>>
+
+    /**
+     * Group by WorkspaceTagAnalytics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkspaceTagAnalyticsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends WorkspaceTagAnalyticsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: WorkspaceTagAnalyticsGroupByArgs['orderBy'] }
+        : { orderBy?: WorkspaceTagAnalyticsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, WorkspaceTagAnalyticsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWorkspaceTagAnalyticsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the WorkspaceTagAnalytics model
+   */
+  readonly fields: WorkspaceTagAnalyticsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for WorkspaceTagAnalytics.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__WorkspaceTagAnalyticsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the WorkspaceTagAnalytics model
+   */
+  interface WorkspaceTagAnalyticsFieldRefs {
+    readonly id: FieldRef<"WorkspaceTagAnalytics", 'String'>
+    readonly workspaceId: FieldRef<"WorkspaceTagAnalytics", 'String'>
+    readonly tag: FieldRef<"WorkspaceTagAnalytics", 'String'>
+    readonly count: FieldRef<"WorkspaceTagAnalytics", 'Int'>
+    readonly updatedAt: FieldRef<"WorkspaceTagAnalytics", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * WorkspaceTagAnalytics findUnique
+   */
+  export type WorkspaceTagAnalyticsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceTagAnalytics
+     */
+    select?: WorkspaceTagAnalyticsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceTagAnalytics
+     */
+    omit?: WorkspaceTagAnalyticsOmit<ExtArgs> | null
+    /**
+     * Filter, which WorkspaceTagAnalytics to fetch.
+     */
+    where: WorkspaceTagAnalyticsWhereUniqueInput
+  }
+
+  /**
+   * WorkspaceTagAnalytics findUniqueOrThrow
+   */
+  export type WorkspaceTagAnalyticsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceTagAnalytics
+     */
+    select?: WorkspaceTagAnalyticsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceTagAnalytics
+     */
+    omit?: WorkspaceTagAnalyticsOmit<ExtArgs> | null
+    /**
+     * Filter, which WorkspaceTagAnalytics to fetch.
+     */
+    where: WorkspaceTagAnalyticsWhereUniqueInput
+  }
+
+  /**
+   * WorkspaceTagAnalytics findFirst
+   */
+  export type WorkspaceTagAnalyticsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceTagAnalytics
+     */
+    select?: WorkspaceTagAnalyticsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceTagAnalytics
+     */
+    omit?: WorkspaceTagAnalyticsOmit<ExtArgs> | null
+    /**
+     * Filter, which WorkspaceTagAnalytics to fetch.
+     */
+    where?: WorkspaceTagAnalyticsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkspaceTagAnalytics to fetch.
+     */
+    orderBy?: WorkspaceTagAnalyticsOrderByWithRelationInput | WorkspaceTagAnalyticsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WorkspaceTagAnalytics.
+     */
+    cursor?: WorkspaceTagAnalyticsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkspaceTagAnalytics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkspaceTagAnalytics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WorkspaceTagAnalytics.
+     */
+    distinct?: WorkspaceTagAnalyticsScalarFieldEnum | WorkspaceTagAnalyticsScalarFieldEnum[]
+  }
+
+  /**
+   * WorkspaceTagAnalytics findFirstOrThrow
+   */
+  export type WorkspaceTagAnalyticsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceTagAnalytics
+     */
+    select?: WorkspaceTagAnalyticsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceTagAnalytics
+     */
+    omit?: WorkspaceTagAnalyticsOmit<ExtArgs> | null
+    /**
+     * Filter, which WorkspaceTagAnalytics to fetch.
+     */
+    where?: WorkspaceTagAnalyticsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkspaceTagAnalytics to fetch.
+     */
+    orderBy?: WorkspaceTagAnalyticsOrderByWithRelationInput | WorkspaceTagAnalyticsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for WorkspaceTagAnalytics.
+     */
+    cursor?: WorkspaceTagAnalyticsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkspaceTagAnalytics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkspaceTagAnalytics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WorkspaceTagAnalytics.
+     */
+    distinct?: WorkspaceTagAnalyticsScalarFieldEnum | WorkspaceTagAnalyticsScalarFieldEnum[]
+  }
+
+  /**
+   * WorkspaceTagAnalytics findMany
+   */
+  export type WorkspaceTagAnalyticsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceTagAnalytics
+     */
+    select?: WorkspaceTagAnalyticsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceTagAnalytics
+     */
+    omit?: WorkspaceTagAnalyticsOmit<ExtArgs> | null
+    /**
+     * Filter, which WorkspaceTagAnalytics to fetch.
+     */
+    where?: WorkspaceTagAnalyticsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of WorkspaceTagAnalytics to fetch.
+     */
+    orderBy?: WorkspaceTagAnalyticsOrderByWithRelationInput | WorkspaceTagAnalyticsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing WorkspaceTagAnalytics.
+     */
+    cursor?: WorkspaceTagAnalyticsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` WorkspaceTagAnalytics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` WorkspaceTagAnalytics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of WorkspaceTagAnalytics.
+     */
+    distinct?: WorkspaceTagAnalyticsScalarFieldEnum | WorkspaceTagAnalyticsScalarFieldEnum[]
+  }
+
+  /**
+   * WorkspaceTagAnalytics create
+   */
+  export type WorkspaceTagAnalyticsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceTagAnalytics
+     */
+    select?: WorkspaceTagAnalyticsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceTagAnalytics
+     */
+    omit?: WorkspaceTagAnalyticsOmit<ExtArgs> | null
+    /**
+     * The data needed to create a WorkspaceTagAnalytics.
+     */
+    data: XOR<WorkspaceTagAnalyticsCreateInput, WorkspaceTagAnalyticsUncheckedCreateInput>
+  }
+
+  /**
+   * WorkspaceTagAnalytics createMany
+   */
+  export type WorkspaceTagAnalyticsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many WorkspaceTagAnalytics.
+     */
+    data: WorkspaceTagAnalyticsCreateManyInput | WorkspaceTagAnalyticsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WorkspaceTagAnalytics createManyAndReturn
+   */
+  export type WorkspaceTagAnalyticsCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceTagAnalytics
+     */
+    select?: WorkspaceTagAnalyticsSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceTagAnalytics
+     */
+    omit?: WorkspaceTagAnalyticsOmit<ExtArgs> | null
+    /**
+     * The data used to create many WorkspaceTagAnalytics.
+     */
+    data: WorkspaceTagAnalyticsCreateManyInput | WorkspaceTagAnalyticsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * WorkspaceTagAnalytics update
+   */
+  export type WorkspaceTagAnalyticsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceTagAnalytics
+     */
+    select?: WorkspaceTagAnalyticsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceTagAnalytics
+     */
+    omit?: WorkspaceTagAnalyticsOmit<ExtArgs> | null
+    /**
+     * The data needed to update a WorkspaceTagAnalytics.
+     */
+    data: XOR<WorkspaceTagAnalyticsUpdateInput, WorkspaceTagAnalyticsUncheckedUpdateInput>
+    /**
+     * Choose, which WorkspaceTagAnalytics to update.
+     */
+    where: WorkspaceTagAnalyticsWhereUniqueInput
+  }
+
+  /**
+   * WorkspaceTagAnalytics updateMany
+   */
+  export type WorkspaceTagAnalyticsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update WorkspaceTagAnalytics.
+     */
+    data: XOR<WorkspaceTagAnalyticsUpdateManyMutationInput, WorkspaceTagAnalyticsUncheckedUpdateManyInput>
+    /**
+     * Filter which WorkspaceTagAnalytics to update
+     */
+    where?: WorkspaceTagAnalyticsWhereInput
+    /**
+     * Limit how many WorkspaceTagAnalytics to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * WorkspaceTagAnalytics updateManyAndReturn
+   */
+  export type WorkspaceTagAnalyticsUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceTagAnalytics
+     */
+    select?: WorkspaceTagAnalyticsSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceTagAnalytics
+     */
+    omit?: WorkspaceTagAnalyticsOmit<ExtArgs> | null
+    /**
+     * The data used to update WorkspaceTagAnalytics.
+     */
+    data: XOR<WorkspaceTagAnalyticsUpdateManyMutationInput, WorkspaceTagAnalyticsUncheckedUpdateManyInput>
+    /**
+     * Filter which WorkspaceTagAnalytics to update
+     */
+    where?: WorkspaceTagAnalyticsWhereInput
+    /**
+     * Limit how many WorkspaceTagAnalytics to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * WorkspaceTagAnalytics upsert
+   */
+  export type WorkspaceTagAnalyticsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceTagAnalytics
+     */
+    select?: WorkspaceTagAnalyticsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceTagAnalytics
+     */
+    omit?: WorkspaceTagAnalyticsOmit<ExtArgs> | null
+    /**
+     * The filter to search for the WorkspaceTagAnalytics to update in case it exists.
+     */
+    where: WorkspaceTagAnalyticsWhereUniqueInput
+    /**
+     * In case the WorkspaceTagAnalytics found by the `where` argument doesn't exist, create a new WorkspaceTagAnalytics with this data.
+     */
+    create: XOR<WorkspaceTagAnalyticsCreateInput, WorkspaceTagAnalyticsUncheckedCreateInput>
+    /**
+     * In case the WorkspaceTagAnalytics was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<WorkspaceTagAnalyticsUpdateInput, WorkspaceTagAnalyticsUncheckedUpdateInput>
+  }
+
+  /**
+   * WorkspaceTagAnalytics delete
+   */
+  export type WorkspaceTagAnalyticsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceTagAnalytics
+     */
+    select?: WorkspaceTagAnalyticsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceTagAnalytics
+     */
+    omit?: WorkspaceTagAnalyticsOmit<ExtArgs> | null
+    /**
+     * Filter which WorkspaceTagAnalytics to delete.
+     */
+    where: WorkspaceTagAnalyticsWhereUniqueInput
+  }
+
+  /**
+   * WorkspaceTagAnalytics deleteMany
+   */
+  export type WorkspaceTagAnalyticsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which WorkspaceTagAnalytics to delete
+     */
+    where?: WorkspaceTagAnalyticsWhereInput
+    /**
+     * Limit how many WorkspaceTagAnalytics to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * WorkspaceTagAnalytics without action
+   */
+  export type WorkspaceTagAnalyticsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the WorkspaceTagAnalytics
+     */
+    select?: WorkspaceTagAnalyticsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the WorkspaceTagAnalytics
+     */
+    omit?: WorkspaceTagAnalyticsOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -22312,6 +24626,33 @@ export namespace Prisma {
   export type SystemNoticeScalarFieldEnum = (typeof SystemNoticeScalarFieldEnum)[keyof typeof SystemNoticeScalarFieldEnum]
 
 
+  export const OutboxEventScalarFieldEnum: {
+    id: 'id',
+    aggregateType: 'aggregateType',
+    aggregateId: 'aggregateId',
+    eventType: 'eventType',
+    payload: 'payload',
+    status: 'status',
+    retryCount: 'retryCount',
+    errorLog: 'errorLog',
+    createdAt: 'createdAt',
+    processedAt: 'processedAt'
+  };
+
+  export type OutboxEventScalarFieldEnum = (typeof OutboxEventScalarFieldEnum)[keyof typeof OutboxEventScalarFieldEnum]
+
+
+  export const WorkspaceTagAnalyticsScalarFieldEnum: {
+    id: 'id',
+    workspaceId: 'workspaceId',
+    tag: 'tag',
+    count: 'count',
+    updatedAt: 'updatedAt'
+  };
+
+  export type WorkspaceTagAnalyticsScalarFieldEnum = (typeof WorkspaceTagAnalyticsScalarFieldEnum)[keyof typeof WorkspaceTagAnalyticsScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -22326,6 +24667,13 @@ export namespace Prisma {
   };
 
   export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+  export const JsonNullValueInput: {
+    JsonNull: typeof JsonNull
+  };
+
+  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
   export const QueryMode: {
@@ -23713,6 +26061,140 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"SystemNotice"> | Date | string
   }
 
+  export type OutboxEventWhereInput = {
+    AND?: OutboxEventWhereInput | OutboxEventWhereInput[]
+    OR?: OutboxEventWhereInput[]
+    NOT?: OutboxEventWhereInput | OutboxEventWhereInput[]
+    id?: StringFilter<"OutboxEvent"> | string
+    aggregateType?: StringFilter<"OutboxEvent"> | string
+    aggregateId?: StringFilter<"OutboxEvent"> | string
+    eventType?: StringFilter<"OutboxEvent"> | string
+    payload?: JsonFilter<"OutboxEvent">
+    status?: StringFilter<"OutboxEvent"> | string
+    retryCount?: IntFilter<"OutboxEvent"> | number
+    errorLog?: StringNullableFilter<"OutboxEvent"> | string | null
+    createdAt?: DateTimeFilter<"OutboxEvent"> | Date | string
+    processedAt?: DateTimeNullableFilter<"OutboxEvent"> | Date | string | null
+  }
+
+  export type OutboxEventOrderByWithRelationInput = {
+    id?: SortOrder
+    aggregateType?: SortOrder
+    aggregateId?: SortOrder
+    eventType?: SortOrder
+    payload?: SortOrder
+    status?: SortOrder
+    retryCount?: SortOrder
+    errorLog?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    processedAt?: SortOrderInput | SortOrder
+  }
+
+  export type OutboxEventWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: OutboxEventWhereInput | OutboxEventWhereInput[]
+    OR?: OutboxEventWhereInput[]
+    NOT?: OutboxEventWhereInput | OutboxEventWhereInput[]
+    aggregateType?: StringFilter<"OutboxEvent"> | string
+    aggregateId?: StringFilter<"OutboxEvent"> | string
+    eventType?: StringFilter<"OutboxEvent"> | string
+    payload?: JsonFilter<"OutboxEvent">
+    status?: StringFilter<"OutboxEvent"> | string
+    retryCount?: IntFilter<"OutboxEvent"> | number
+    errorLog?: StringNullableFilter<"OutboxEvent"> | string | null
+    createdAt?: DateTimeFilter<"OutboxEvent"> | Date | string
+    processedAt?: DateTimeNullableFilter<"OutboxEvent"> | Date | string | null
+  }, "id">
+
+  export type OutboxEventOrderByWithAggregationInput = {
+    id?: SortOrder
+    aggregateType?: SortOrder
+    aggregateId?: SortOrder
+    eventType?: SortOrder
+    payload?: SortOrder
+    status?: SortOrder
+    retryCount?: SortOrder
+    errorLog?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    processedAt?: SortOrderInput | SortOrder
+    _count?: OutboxEventCountOrderByAggregateInput
+    _avg?: OutboxEventAvgOrderByAggregateInput
+    _max?: OutboxEventMaxOrderByAggregateInput
+    _min?: OutboxEventMinOrderByAggregateInput
+    _sum?: OutboxEventSumOrderByAggregateInput
+  }
+
+  export type OutboxEventScalarWhereWithAggregatesInput = {
+    AND?: OutboxEventScalarWhereWithAggregatesInput | OutboxEventScalarWhereWithAggregatesInput[]
+    OR?: OutboxEventScalarWhereWithAggregatesInput[]
+    NOT?: OutboxEventScalarWhereWithAggregatesInput | OutboxEventScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"OutboxEvent"> | string
+    aggregateType?: StringWithAggregatesFilter<"OutboxEvent"> | string
+    aggregateId?: StringWithAggregatesFilter<"OutboxEvent"> | string
+    eventType?: StringWithAggregatesFilter<"OutboxEvent"> | string
+    payload?: JsonWithAggregatesFilter<"OutboxEvent">
+    status?: StringWithAggregatesFilter<"OutboxEvent"> | string
+    retryCount?: IntWithAggregatesFilter<"OutboxEvent"> | number
+    errorLog?: StringNullableWithAggregatesFilter<"OutboxEvent"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"OutboxEvent"> | Date | string
+    processedAt?: DateTimeNullableWithAggregatesFilter<"OutboxEvent"> | Date | string | null
+  }
+
+  export type WorkspaceTagAnalyticsWhereInput = {
+    AND?: WorkspaceTagAnalyticsWhereInput | WorkspaceTagAnalyticsWhereInput[]
+    OR?: WorkspaceTagAnalyticsWhereInput[]
+    NOT?: WorkspaceTagAnalyticsWhereInput | WorkspaceTagAnalyticsWhereInput[]
+    id?: StringFilter<"WorkspaceTagAnalytics"> | string
+    workspaceId?: StringFilter<"WorkspaceTagAnalytics"> | string
+    tag?: StringFilter<"WorkspaceTagAnalytics"> | string
+    count?: IntFilter<"WorkspaceTagAnalytics"> | number
+    updatedAt?: DateTimeFilter<"WorkspaceTagAnalytics"> | Date | string
+  }
+
+  export type WorkspaceTagAnalyticsOrderByWithRelationInput = {
+    id?: SortOrder
+    workspaceId?: SortOrder
+    tag?: SortOrder
+    count?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WorkspaceTagAnalyticsWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    workspaceId_tag?: WorkspaceTagAnalyticsWorkspaceIdTagCompoundUniqueInput
+    AND?: WorkspaceTagAnalyticsWhereInput | WorkspaceTagAnalyticsWhereInput[]
+    OR?: WorkspaceTagAnalyticsWhereInput[]
+    NOT?: WorkspaceTagAnalyticsWhereInput | WorkspaceTagAnalyticsWhereInput[]
+    workspaceId?: StringFilter<"WorkspaceTagAnalytics"> | string
+    tag?: StringFilter<"WorkspaceTagAnalytics"> | string
+    count?: IntFilter<"WorkspaceTagAnalytics"> | number
+    updatedAt?: DateTimeFilter<"WorkspaceTagAnalytics"> | Date | string
+  }, "id" | "workspaceId_tag">
+
+  export type WorkspaceTagAnalyticsOrderByWithAggregationInput = {
+    id?: SortOrder
+    workspaceId?: SortOrder
+    tag?: SortOrder
+    count?: SortOrder
+    updatedAt?: SortOrder
+    _count?: WorkspaceTagAnalyticsCountOrderByAggregateInput
+    _avg?: WorkspaceTagAnalyticsAvgOrderByAggregateInput
+    _max?: WorkspaceTagAnalyticsMaxOrderByAggregateInput
+    _min?: WorkspaceTagAnalyticsMinOrderByAggregateInput
+    _sum?: WorkspaceTagAnalyticsSumOrderByAggregateInput
+  }
+
+  export type WorkspaceTagAnalyticsScalarWhereWithAggregatesInput = {
+    AND?: WorkspaceTagAnalyticsScalarWhereWithAggregatesInput | WorkspaceTagAnalyticsScalarWhereWithAggregatesInput[]
+    OR?: WorkspaceTagAnalyticsScalarWhereWithAggregatesInput[]
+    NOT?: WorkspaceTagAnalyticsScalarWhereWithAggregatesInput | WorkspaceTagAnalyticsScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"WorkspaceTagAnalytics"> | string
+    workspaceId?: StringWithAggregatesFilter<"WorkspaceTagAnalytics"> | string
+    tag?: StringWithAggregatesFilter<"WorkspaceTagAnalytics"> | string
+    count?: IntWithAggregatesFilter<"WorkspaceTagAnalytics"> | number
+    updatedAt?: DateTimeWithAggregatesFilter<"WorkspaceTagAnalytics"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     email?: string | null
@@ -25079,6 +27561,153 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type OutboxEventCreateInput = {
+    id?: string
+    aggregateType: string
+    aggregateId: string
+    eventType: string
+    payload: JsonNullValueInput | InputJsonValue
+    status?: string
+    retryCount?: number
+    errorLog?: string | null
+    createdAt?: Date | string
+    processedAt?: Date | string | null
+  }
+
+  export type OutboxEventUncheckedCreateInput = {
+    id?: string
+    aggregateType: string
+    aggregateId: string
+    eventType: string
+    payload: JsonNullValueInput | InputJsonValue
+    status?: string
+    retryCount?: number
+    errorLog?: string | null
+    createdAt?: Date | string
+    processedAt?: Date | string | null
+  }
+
+  export type OutboxEventUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    aggregateType?: StringFieldUpdateOperationsInput | string
+    aggregateId?: StringFieldUpdateOperationsInput | string
+    eventType?: StringFieldUpdateOperationsInput | string
+    payload?: JsonNullValueInput | InputJsonValue
+    status?: StringFieldUpdateOperationsInput | string
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorLog?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type OutboxEventUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    aggregateType?: StringFieldUpdateOperationsInput | string
+    aggregateId?: StringFieldUpdateOperationsInput | string
+    eventType?: StringFieldUpdateOperationsInput | string
+    payload?: JsonNullValueInput | InputJsonValue
+    status?: StringFieldUpdateOperationsInput | string
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorLog?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type OutboxEventCreateManyInput = {
+    id?: string
+    aggregateType: string
+    aggregateId: string
+    eventType: string
+    payload: JsonNullValueInput | InputJsonValue
+    status?: string
+    retryCount?: number
+    errorLog?: string | null
+    createdAt?: Date | string
+    processedAt?: Date | string | null
+  }
+
+  export type OutboxEventUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    aggregateType?: StringFieldUpdateOperationsInput | string
+    aggregateId?: StringFieldUpdateOperationsInput | string
+    eventType?: StringFieldUpdateOperationsInput | string
+    payload?: JsonNullValueInput | InputJsonValue
+    status?: StringFieldUpdateOperationsInput | string
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorLog?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type OutboxEventUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    aggregateType?: StringFieldUpdateOperationsInput | string
+    aggregateId?: StringFieldUpdateOperationsInput | string
+    eventType?: StringFieldUpdateOperationsInput | string
+    payload?: JsonNullValueInput | InputJsonValue
+    status?: StringFieldUpdateOperationsInput | string
+    retryCount?: IntFieldUpdateOperationsInput | number
+    errorLog?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type WorkspaceTagAnalyticsCreateInput = {
+    id?: string
+    workspaceId: string
+    tag: string
+    count?: number
+    updatedAt?: Date | string
+  }
+
+  export type WorkspaceTagAnalyticsUncheckedCreateInput = {
+    id?: string
+    workspaceId: string
+    tag: string
+    count?: number
+    updatedAt?: Date | string
+  }
+
+  export type WorkspaceTagAnalyticsUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceId?: StringFieldUpdateOperationsInput | string
+    tag?: StringFieldUpdateOperationsInput | string
+    count?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WorkspaceTagAnalyticsUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceId?: StringFieldUpdateOperationsInput | string
+    tag?: StringFieldUpdateOperationsInput | string
+    count?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WorkspaceTagAnalyticsCreateManyInput = {
+    id?: string
+    workspaceId: string
+    tag: string
+    count?: number
+    updatedAt?: Date | string
+  }
+
+  export type WorkspaceTagAnalyticsUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceId?: StringFieldUpdateOperationsInput | string
+    tag?: StringFieldUpdateOperationsInput | string
+    count?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type WorkspaceTagAnalyticsUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceId?: StringFieldUpdateOperationsInput | string
+    tag?: StringFieldUpdateOperationsInput | string
+    count?: IntFieldUpdateOperationsInput | number
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -26114,6 +28743,137 @@ export namespace Prisma {
     startAt?: SortOrder
     endAt?: SortOrder
     createdAt?: SortOrder
+  }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type OutboxEventCountOrderByAggregateInput = {
+    id?: SortOrder
+    aggregateType?: SortOrder
+    aggregateId?: SortOrder
+    eventType?: SortOrder
+    payload?: SortOrder
+    status?: SortOrder
+    retryCount?: SortOrder
+    errorLog?: SortOrder
+    createdAt?: SortOrder
+    processedAt?: SortOrder
+  }
+
+  export type OutboxEventAvgOrderByAggregateInput = {
+    retryCount?: SortOrder
+  }
+
+  export type OutboxEventMaxOrderByAggregateInput = {
+    id?: SortOrder
+    aggregateType?: SortOrder
+    aggregateId?: SortOrder
+    eventType?: SortOrder
+    status?: SortOrder
+    retryCount?: SortOrder
+    errorLog?: SortOrder
+    createdAt?: SortOrder
+    processedAt?: SortOrder
+  }
+
+  export type OutboxEventMinOrderByAggregateInput = {
+    id?: SortOrder
+    aggregateType?: SortOrder
+    aggregateId?: SortOrder
+    eventType?: SortOrder
+    status?: SortOrder
+    retryCount?: SortOrder
+    errorLog?: SortOrder
+    createdAt?: SortOrder
+    processedAt?: SortOrder
+  }
+
+  export type OutboxEventSumOrderByAggregateInput = {
+    retryCount?: SortOrder
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
+  }
+
+  export type WorkspaceTagAnalyticsWorkspaceIdTagCompoundUniqueInput = {
+    workspaceId: string
+    tag: string
+  }
+
+  export type WorkspaceTagAnalyticsCountOrderByAggregateInput = {
+    id?: SortOrder
+    workspaceId?: SortOrder
+    tag?: SortOrder
+    count?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WorkspaceTagAnalyticsAvgOrderByAggregateInput = {
+    count?: SortOrder
+  }
+
+  export type WorkspaceTagAnalyticsMaxOrderByAggregateInput = {
+    id?: SortOrder
+    workspaceId?: SortOrder
+    tag?: SortOrder
+    count?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WorkspaceTagAnalyticsMinOrderByAggregateInput = {
+    id?: SortOrder
+    workspaceId?: SortOrder
+    tag?: SortOrder
+    count?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type WorkspaceTagAnalyticsSumOrderByAggregateInput = {
+    count?: SortOrder
   }
 
   export type UserPreferenceCreateNestedOneWithoutUserInput = {
@@ -27544,6 +30304,29 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
+  }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type UserPreferenceCreateWithoutUserInput = {

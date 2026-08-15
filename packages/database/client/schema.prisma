@@ -382,6 +382,8 @@ model AuditLog {
   @@map("audit_logs")
 }
 
+/// 최고 관리자의 전역 공지 시스템
+/// @namespace System
 model SystemNotice {
   id       String  @id @default(cuid()) @map("id")
   title    String  @map("title")
@@ -394,4 +396,37 @@ model SystemNotice {
   createdAt DateTime  @default(now()) @map("created_at")
 
   @@map("system_notices")
+}
+
+/// Outbox 패턴을 위한 이벤트
+/// @namespace System
+model OutboxEvent {
+  id            String @id @default(cuid()) @map("id")
+  aggregateType String @map("aggregate_type")
+  aggregateId   String @map("aggregate_id")
+  eventType     String @map("event_type")
+  payload       Json   @map("payload")
+  status        String @default("PENDING") @map("status")
+
+  retryCount Int     @default(0) @map("retry_count")
+  errorLog   String? @map("error_log")
+
+  createdAt   DateTime  @default(now()) @map("created_at")
+  processedAt DateTime? @map("processed_at")
+
+  @@index([status, createdAt])
+  @@map("outbox_events")
+}
+
+/// Workspace 통계
+/// @namespace Statistcs
+model WorkspaceTagAnalytics {
+  id          String   @id @default(cuid()) @map("id")
+  workspaceId String   @map("workspace_id")
+  tag         String   @map("tag")
+  count       Int      @default(1) @map("count")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([workspaceId, tag])
+  @@map("workspace_tag_analytics")
 }

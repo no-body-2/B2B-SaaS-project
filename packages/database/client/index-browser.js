@@ -307,6 +307,27 @@ exports.Prisma.SystemNoticeScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.OutboxEventScalarFieldEnum = {
+  id: 'id',
+  aggregateType: 'aggregateType',
+  aggregateId: 'aggregateId',
+  eventType: 'eventType',
+  payload: 'payload',
+  status: 'status',
+  retryCount: 'retryCount',
+  errorLog: 'errorLog',
+  createdAt: 'createdAt',
+  processedAt: 'processedAt'
+};
+
+exports.Prisma.WorkspaceTagAnalyticsScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  tag: 'tag',
+  count: 'count',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -314,6 +335,10 @@ exports.Prisma.SortOrder = {
 
 exports.Prisma.NullableJsonNullValueInput = {
   DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.JsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
 
@@ -351,7 +376,9 @@ exports.Prisma.ModelName = {
   RefreshToken: 'RefreshToken',
   FileAttachment: 'FileAttachment',
   AuditLog: 'AuditLog',
-  SystemNotice: 'SystemNotice'
+  SystemNotice: 'SystemNotice',
+  OutboxEvent: 'OutboxEvent',
+  WorkspaceTagAnalytics: 'WorkspaceTagAnalytics'
 };
 
 /**

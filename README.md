@@ -187,6 +187,7 @@
 ### 2026-08-15
 
 - v1.8.0 CI Error Fix
+- v1.9.0 Outbox Pattern 적용으로 시스템 안정성 향상
 
 ---
 
