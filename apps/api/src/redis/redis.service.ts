@@ -51,6 +51,7 @@ export class RedisService implements OnModuleDestroy {
   /**
    * Redis Key 값 1 증가
    * @param key - 증가 대상 Key
+   * @returns 증가 후의 값
    */
   async incr(key: string): Promise<number> {
     return this.redisClient.incr(key);
@@ -90,10 +91,30 @@ export class RedisService implements OnModuleDestroy {
     if redis.call("get", KEYS[1]) == ARGV[1] then 
       return redis.call("del", KEYS[1])
     else 
-      return 0
+        return 0
     end
     `;
     const result = await this.redisClient.eval(luaScript, 1, key, value);
     return result === 1;
+  }
+
+  /**
+   * Redis Pub/Sub Publish
+   */
+  async publish(channel: string, message: string): Promise<number> {
+    return this.redisClient.publish(channel, message);
+  }
+
+  /**
+   * Redis Pub/Sub Subscribe
+   */
+  subscribe(channel: string, callback: (message: string) => void): void {
+    const subClient = this.redisClient.duplicate();
+    void subClient.subscribe(channel);
+    subClient.on('message', (ch, msg) => {
+      if (ch === channel) {
+        callback(msg);
+      }
+    });
   }
 }
