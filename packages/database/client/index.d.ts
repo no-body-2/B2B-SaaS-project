@@ -124,7 +124,7 @@ export type OutboxEvent = $Result.DefaultSelection<Prisma.$OutboxEventPayload>
 /**
  * Model WorkspaceTagAnalytics
  * Workspace 통계
- * @namespace Statistcs
+ * @namespace Statistics
  */
 export type WorkspaceTagAnalytics = $Result.DefaultSelection<Prisma.$WorkspaceTagAnalyticsPayload>
 
@@ -23353,18 +23353,25 @@ export namespace Prisma {
   }
 
   export type WorkspaceTagAnalyticsAvgAggregateOutputType = {
-    count: number | null
+    userCount: number | null
+    nanoCount: number | null
+    growthRate: number | null
   }
 
   export type WorkspaceTagAnalyticsSumAggregateOutputType = {
-    count: number | null
+    userCount: number | null
+    nanoCount: number | null
+    growthRate: number | null
   }
 
   export type WorkspaceTagAnalyticsMinAggregateOutputType = {
     id: string | null
     workspaceId: string | null
     tag: string | null
-    count: number | null
+    userCount: number | null
+    nanoCount: number | null
+    growthRate: number | null
+    isHyped: boolean | null
     updatedAt: Date | null
   }
 
@@ -23372,7 +23379,10 @@ export namespace Prisma {
     id: string | null
     workspaceId: string | null
     tag: string | null
-    count: number | null
+    userCount: number | null
+    nanoCount: number | null
+    growthRate: number | null
+    isHyped: boolean | null
     updatedAt: Date | null
   }
 
@@ -23380,25 +23390,35 @@ export namespace Prisma {
     id: number
     workspaceId: number
     tag: number
-    count: number
+    userCount: number
+    nanoCount: number
+    growthRate: number
+    isHyped: number
     updatedAt: number
     _all: number
   }
 
 
   export type WorkspaceTagAnalyticsAvgAggregateInputType = {
-    count?: true
+    userCount?: true
+    nanoCount?: true
+    growthRate?: true
   }
 
   export type WorkspaceTagAnalyticsSumAggregateInputType = {
-    count?: true
+    userCount?: true
+    nanoCount?: true
+    growthRate?: true
   }
 
   export type WorkspaceTagAnalyticsMinAggregateInputType = {
     id?: true
     workspaceId?: true
     tag?: true
-    count?: true
+    userCount?: true
+    nanoCount?: true
+    growthRate?: true
+    isHyped?: true
     updatedAt?: true
   }
 
@@ -23406,7 +23426,10 @@ export namespace Prisma {
     id?: true
     workspaceId?: true
     tag?: true
-    count?: true
+    userCount?: true
+    nanoCount?: true
+    growthRate?: true
+    isHyped?: true
     updatedAt?: true
   }
 
@@ -23414,7 +23437,10 @@ export namespace Prisma {
     id?: true
     workspaceId?: true
     tag?: true
-    count?: true
+    userCount?: true
+    nanoCount?: true
+    growthRate?: true
+    isHyped?: true
     updatedAt?: true
     _all?: true
   }
@@ -23509,7 +23535,10 @@ export namespace Prisma {
     id: string
     workspaceId: string
     tag: string
-    count: number
+    userCount: number
+    nanoCount: number
+    growthRate: number
+    isHyped: boolean
     updatedAt: Date
     _count: WorkspaceTagAnalyticsCountAggregateOutputType | null
     _avg: WorkspaceTagAnalyticsAvgAggregateOutputType | null
@@ -23536,7 +23565,10 @@ export namespace Prisma {
     id?: boolean
     workspaceId?: boolean
     tag?: boolean
-    count?: boolean
+    userCount?: boolean
+    nanoCount?: boolean
+    growthRate?: boolean
+    isHyped?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["workspaceTagAnalytics"]>
 
@@ -23544,7 +23576,10 @@ export namespace Prisma {
     id?: boolean
     workspaceId?: boolean
     tag?: boolean
-    count?: boolean
+    userCount?: boolean
+    nanoCount?: boolean
+    growthRate?: boolean
+    isHyped?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["workspaceTagAnalytics"]>
 
@@ -23552,7 +23587,10 @@ export namespace Prisma {
     id?: boolean
     workspaceId?: boolean
     tag?: boolean
-    count?: boolean
+    userCount?: boolean
+    nanoCount?: boolean
+    growthRate?: boolean
+    isHyped?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["workspaceTagAnalytics"]>
 
@@ -23560,11 +23598,14 @@ export namespace Prisma {
     id?: boolean
     workspaceId?: boolean
     tag?: boolean
-    count?: boolean
+    userCount?: boolean
+    nanoCount?: boolean
+    growthRate?: boolean
+    isHyped?: boolean
     updatedAt?: boolean
   }
 
-  export type WorkspaceTagAnalyticsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "workspaceId" | "tag" | "count" | "updatedAt", ExtArgs["result"]["workspaceTagAnalytics"]>
+  export type WorkspaceTagAnalyticsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "workspaceId" | "tag" | "userCount" | "nanoCount" | "growthRate" | "isHyped" | "updatedAt", ExtArgs["result"]["workspaceTagAnalytics"]>
 
   export type $WorkspaceTagAnalyticsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "WorkspaceTagAnalytics"
@@ -23573,7 +23614,10 @@ export namespace Prisma {
       id: string
       workspaceId: string
       tag: string
-      count: number
+      userCount: number
+      nanoCount: number
+      growthRate: number
+      isHyped: boolean
       updatedAt: Date
     }, ExtArgs["result"]["workspaceTagAnalytics"]>
     composites: {}
@@ -24001,7 +24045,10 @@ export namespace Prisma {
     readonly id: FieldRef<"WorkspaceTagAnalytics", 'String'>
     readonly workspaceId: FieldRef<"WorkspaceTagAnalytics", 'String'>
     readonly tag: FieldRef<"WorkspaceTagAnalytics", 'String'>
-    readonly count: FieldRef<"WorkspaceTagAnalytics", 'Int'>
+    readonly userCount: FieldRef<"WorkspaceTagAnalytics", 'Int'>
+    readonly nanoCount: FieldRef<"WorkspaceTagAnalytics", 'Int'>
+    readonly growthRate: FieldRef<"WorkspaceTagAnalytics", 'Float'>
+    readonly isHyped: FieldRef<"WorkspaceTagAnalytics", 'Boolean'>
     readonly updatedAt: FieldRef<"WorkspaceTagAnalytics", 'DateTime'>
   }
     
@@ -24646,7 +24693,10 @@ export namespace Prisma {
     id: 'id',
     workspaceId: 'workspaceId',
     tag: 'tag',
-    count: 'count',
+    userCount: 'userCount',
+    nanoCount: 'nanoCount',
+    growthRate: 'growthRate',
+    isHyped: 'isHyped',
     updatedAt: 'updatedAt'
   };
 
@@ -26147,7 +26197,10 @@ export namespace Prisma {
     id?: StringFilter<"WorkspaceTagAnalytics"> | string
     workspaceId?: StringFilter<"WorkspaceTagAnalytics"> | string
     tag?: StringFilter<"WorkspaceTagAnalytics"> | string
-    count?: IntFilter<"WorkspaceTagAnalytics"> | number
+    userCount?: IntFilter<"WorkspaceTagAnalytics"> | number
+    nanoCount?: IntFilter<"WorkspaceTagAnalytics"> | number
+    growthRate?: FloatFilter<"WorkspaceTagAnalytics"> | number
+    isHyped?: BoolFilter<"WorkspaceTagAnalytics"> | boolean
     updatedAt?: DateTimeFilter<"WorkspaceTagAnalytics"> | Date | string
   }
 
@@ -26155,7 +26208,10 @@ export namespace Prisma {
     id?: SortOrder
     workspaceId?: SortOrder
     tag?: SortOrder
-    count?: SortOrder
+    userCount?: SortOrder
+    nanoCount?: SortOrder
+    growthRate?: SortOrder
+    isHyped?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -26167,7 +26223,10 @@ export namespace Prisma {
     NOT?: WorkspaceTagAnalyticsWhereInput | WorkspaceTagAnalyticsWhereInput[]
     workspaceId?: StringFilter<"WorkspaceTagAnalytics"> | string
     tag?: StringFilter<"WorkspaceTagAnalytics"> | string
-    count?: IntFilter<"WorkspaceTagAnalytics"> | number
+    userCount?: IntFilter<"WorkspaceTagAnalytics"> | number
+    nanoCount?: IntFilter<"WorkspaceTagAnalytics"> | number
+    growthRate?: FloatFilter<"WorkspaceTagAnalytics"> | number
+    isHyped?: BoolFilter<"WorkspaceTagAnalytics"> | boolean
     updatedAt?: DateTimeFilter<"WorkspaceTagAnalytics"> | Date | string
   }, "id" | "workspaceId_tag">
 
@@ -26175,7 +26234,10 @@ export namespace Prisma {
     id?: SortOrder
     workspaceId?: SortOrder
     tag?: SortOrder
-    count?: SortOrder
+    userCount?: SortOrder
+    nanoCount?: SortOrder
+    growthRate?: SortOrder
+    isHyped?: SortOrder
     updatedAt?: SortOrder
     _count?: WorkspaceTagAnalyticsCountOrderByAggregateInput
     _avg?: WorkspaceTagAnalyticsAvgOrderByAggregateInput
@@ -26191,7 +26253,10 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"WorkspaceTagAnalytics"> | string
     workspaceId?: StringWithAggregatesFilter<"WorkspaceTagAnalytics"> | string
     tag?: StringWithAggregatesFilter<"WorkspaceTagAnalytics"> | string
-    count?: IntWithAggregatesFilter<"WorkspaceTagAnalytics"> | number
+    userCount?: IntWithAggregatesFilter<"WorkspaceTagAnalytics"> | number
+    nanoCount?: IntWithAggregatesFilter<"WorkspaceTagAnalytics"> | number
+    growthRate?: FloatWithAggregatesFilter<"WorkspaceTagAnalytics"> | number
+    isHyped?: BoolWithAggregatesFilter<"WorkspaceTagAnalytics"> | boolean
     updatedAt?: DateTimeWithAggregatesFilter<"WorkspaceTagAnalytics"> | Date | string
   }
 
@@ -27656,7 +27721,10 @@ export namespace Prisma {
     id?: string
     workspaceId: string
     tag: string
-    count?: number
+    userCount?: number
+    nanoCount?: number
+    growthRate?: number
+    isHyped?: boolean
     updatedAt?: Date | string
   }
 
@@ -27664,7 +27732,10 @@ export namespace Prisma {
     id?: string
     workspaceId: string
     tag: string
-    count?: number
+    userCount?: number
+    nanoCount?: number
+    growthRate?: number
+    isHyped?: boolean
     updatedAt?: Date | string
   }
 
@@ -27672,7 +27743,10 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     workspaceId?: StringFieldUpdateOperationsInput | string
     tag?: StringFieldUpdateOperationsInput | string
-    count?: IntFieldUpdateOperationsInput | number
+    userCount?: IntFieldUpdateOperationsInput | number
+    nanoCount?: IntFieldUpdateOperationsInput | number
+    growthRate?: FloatFieldUpdateOperationsInput | number
+    isHyped?: BoolFieldUpdateOperationsInput | boolean
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -27680,7 +27754,10 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     workspaceId?: StringFieldUpdateOperationsInput | string
     tag?: StringFieldUpdateOperationsInput | string
-    count?: IntFieldUpdateOperationsInput | number
+    userCount?: IntFieldUpdateOperationsInput | number
+    nanoCount?: IntFieldUpdateOperationsInput | number
+    growthRate?: FloatFieldUpdateOperationsInput | number
+    isHyped?: BoolFieldUpdateOperationsInput | boolean
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -27688,7 +27765,10 @@ export namespace Prisma {
     id?: string
     workspaceId: string
     tag: string
-    count?: number
+    userCount?: number
+    nanoCount?: number
+    growthRate?: number
+    isHyped?: boolean
     updatedAt?: Date | string
   }
 
@@ -27696,7 +27776,10 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     workspaceId?: StringFieldUpdateOperationsInput | string
     tag?: StringFieldUpdateOperationsInput | string
-    count?: IntFieldUpdateOperationsInput | number
+    userCount?: IntFieldUpdateOperationsInput | number
+    nanoCount?: IntFieldUpdateOperationsInput | number
+    growthRate?: FloatFieldUpdateOperationsInput | number
+    isHyped?: BoolFieldUpdateOperationsInput | boolean
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -27704,7 +27787,10 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     workspaceId?: StringFieldUpdateOperationsInput | string
     tag?: StringFieldUpdateOperationsInput | string
-    count?: IntFieldUpdateOperationsInput | number
+    userCount?: IntFieldUpdateOperationsInput | number
+    nanoCount?: IntFieldUpdateOperationsInput | number
+    growthRate?: FloatFieldUpdateOperationsInput | number
+    isHyped?: BoolFieldUpdateOperationsInput | boolean
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -28848,19 +28934,27 @@ export namespace Prisma {
     id?: SortOrder
     workspaceId?: SortOrder
     tag?: SortOrder
-    count?: SortOrder
+    userCount?: SortOrder
+    nanoCount?: SortOrder
+    growthRate?: SortOrder
+    isHyped?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type WorkspaceTagAnalyticsAvgOrderByAggregateInput = {
-    count?: SortOrder
+    userCount?: SortOrder
+    nanoCount?: SortOrder
+    growthRate?: SortOrder
   }
 
   export type WorkspaceTagAnalyticsMaxOrderByAggregateInput = {
     id?: SortOrder
     workspaceId?: SortOrder
     tag?: SortOrder
-    count?: SortOrder
+    userCount?: SortOrder
+    nanoCount?: SortOrder
+    growthRate?: SortOrder
+    isHyped?: SortOrder
     updatedAt?: SortOrder
   }
 
@@ -28868,12 +28962,17 @@ export namespace Prisma {
     id?: SortOrder
     workspaceId?: SortOrder
     tag?: SortOrder
-    count?: SortOrder
+    userCount?: SortOrder
+    nanoCount?: SortOrder
+    growthRate?: SortOrder
+    isHyped?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type WorkspaceTagAnalyticsSumOrderByAggregateInput = {
-    count?: SortOrder
+    userCount?: SortOrder
+    nanoCount?: SortOrder
+    growthRate?: SortOrder
   }
 
   export type UserPreferenceCreateNestedOneWithoutUserInput = {

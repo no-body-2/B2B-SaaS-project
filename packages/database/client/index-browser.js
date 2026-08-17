@@ -324,7 +324,10 @@ exports.Prisma.WorkspaceTagAnalyticsScalarFieldEnum = {
   id: 'id',
   workspaceId: 'workspaceId',
   tag: 'tag',
-  count: 'count',
+  userCount: 'userCount',
+  nanoCount: 'nanoCount',
+  growthRate: 'growthRate',
+  isHyped: 'isHyped',
   updatedAt: 'updatedAt'
 };
 

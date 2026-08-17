@@ -419,14 +419,22 @@ model OutboxEvent {
 }
 
 /// Workspace 통계
-/// @namespace Statistcs
+/// @namespace Statistics
 model WorkspaceTagAnalytics {
   id String @id @default(cuid()) @map("id")
   workspaceId String @map("workspace_id")
   tag String @map("tag")
-  count Int @default(1) @map("count")
+  userCount Int @default(0) @map("user_count")
+  nanoCount Int @default(0) @map("nano_count")
+  growthRate Float @default(0.0) @map("growth_rate")
+
+  isHyped Boolean @default(false) @map("is_hyped")
+
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([workspaceId, tag])
+  @@index([workspaceId])
+  @@index([tag])
+  @@index([isHyped, growthRate(sort: Desc)])
   @@map("workspace_tag_analytics")
 }
