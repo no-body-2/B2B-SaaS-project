@@ -198,6 +198,10 @@
 
 - v1.12.0 실 서비스형 (Naver Cafe 등의 기능을 참고하여 구현) 커뮤니티 탐색 & 태그 분석 분산 배치 스케줄러 적용 완료
 
+### 2026-08-18
+
+- v1.13.0 Lexicographical Fractional Indexing D&D 트리 & 테마 스위처 시스템 적용 완료
+
 ---
 
 ## TODO

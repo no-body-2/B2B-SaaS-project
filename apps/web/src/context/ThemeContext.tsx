@@ -1,62 +1,62 @@
+// apps/web/src/context/ThemeContext.tsx
+
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-
-type Theme = 'light' | 'dark';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { ThemePreset, FontFamilyOption, ThemeUtil } from '../utils/theme.util';
 
 interface ThemeContextType {
-  theme: Theme;
+  theme: ThemePreset;
+  font: FontFamilyOption;
+  setTheme: (theme: ThemePreset) => void;
+  setFont: (font: FontFamilyOption) => void;
   toggleTheme: () => void;
-  setTheme: (theme: Theme) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('dark'); // 기본 테마는 다크
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [theme, setThemeState] = useState<ThemePreset>('light');
+  const [font, setFontState] = useState<FontFamilyOption>('inter');
 
   useEffect(() => {
-    // 마운트 시 브라우저 로컬 스토리지에서 테마 복원
-    const savedTheme = localStorage.getItem('theme') as Theme;
-    if (savedTheme === 'light' || savedTheme === 'dark') {
-      setThemeState(savedTheme);
-      applyTheme(savedTheme);
-    } else {
-      applyTheme('dark');
-    }
+    // LocalStorage에서 저장된 테마/폰트 로드
+    const savedTheme = (localStorage.getItem('luminano_theme') as ThemePreset) || 'light';
+    const savedFont = (localStorage.getItem('luminano_font') as FontFamilyOption) || 'inter';
+
+    setThemeState(savedTheme);
+    setFontState(savedFont);
+    ThemeUtil.applyTheme(savedTheme, savedFont);
   }, []);
 
-  const applyTheme = (t: Theme) => {
-    const root = document.documentElement;
-    if (t === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
+  const setTheme = (newTheme: ThemePreset) => {
+    setThemeState(newTheme);
+    localStorage.setItem('luminano_theme', newTheme);
+    ThemeUtil.applyTheme(newTheme, font);
   };
 
-  const setTheme = (t: Theme) => {
-    setThemeState(t);
-    localStorage.setItem('theme', t);
-    applyTheme(t);
+  const setFont = (newFont: FontFamilyOption) => {
+    setFontState(newFont);
+    localStorage.setItem('luminano_font', newFont);
+    ThemeUtil.applyTheme(theme, newFont);
   };
 
   const toggleTheme = () => {
-    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    const nextTheme: ThemePreset = theme === 'light' ? 'dark' : 'light';
     setTheme(nextTheme);
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, font, setTheme, setFont, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
-}
+};
 
-export function useTheme() {
+export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (!context) {
-    throw new Error('useTheme must be used within a ThemeProvider');
+    throw new Error('useTheme은 ThemeProvider 내부에서만 사용할 수 있습니다.');
   }
   return context;
-}
+};
