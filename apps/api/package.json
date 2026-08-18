@@ -1,6 +1,6 @@
 {
   "name": "@luminano/api",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "description": "B2B Luminano Service's API Package",
   "author": "no-body-2",
   "private": true,
@@ -23,6 +23,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1101.0",
     "@aws-sdk/s3-request-presigner": "^3.1101.0",
+    "@hocuspocus/server": "^4.6.0",
     "@luminano/database": "workspace:*",
     "@nestjs-modules/mailer": "^2.3.6",
     "@nestjs/common": "^11.0.1",
@@ -60,7 +61,8 @@
     "socket.io": "^4.8.3",
     "vitest": "^4.1.10",
     "winston": "^3.19.0",
-    "winston-daily-rotate-file": "^5.0.0"
+    "winston-daily-rotate-file": "^5.0.0",
+    "yjs": "^13.6.32"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

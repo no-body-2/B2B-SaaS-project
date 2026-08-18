@@ -43,7 +43,7 @@
 
 ## Frontend
 
-### 2026-07-01
+### 2026-07-01-2
 
 - Mock -> Backend Api 호출 구조로 변경
 
@@ -201,6 +201,7 @@
 ### 2026-08-18
 
 - v1.13.0 Lexicographical Fractional Indexing D&D 트리 & 테마 스위처 시스템 적용 완료
+- v1.14.0 Hocuspocus & markdown editer
 
 ---
 

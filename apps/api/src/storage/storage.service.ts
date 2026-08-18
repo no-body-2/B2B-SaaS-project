@@ -1,3 +1,15 @@
+// apps/api/src/storage/storage.service.ts
+
+/**
+ * Storage Service
+ *
+ * @description
+ * - AWS S3 Storage Service
+ *
+ * @author <nobody>
+ * @date 2026-08-18
+ */
+
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { PrismaService } from '../prisma/prisma.service';
@@ -69,5 +81,28 @@ export class StorageService {
         '파일 업로드에 실패하였습니다. 다시 시도해주세요.',
       );
     }
+  }
+
+  /**
+   * S3 Direct Upload용 Presigned URL 생성
+   */
+  generatePresignedUrl(
+    filename: string,
+    _contentType: string,
+    _userId: string,
+  ) {
+    const fileExtension = filename.split('.').pop();
+    const storedFilename = `${createId()}.${fileExtension}`;
+    const key = `uploads/${storedFilename}`;
+
+    if (!this.config) {
+      const mockUrl = `https://luminano-mock-bucket.s3.ap-northeast-2.amazonaws.com/${key}`;
+      return { uploadUrl: `${mockUrl}?presigned=true`, fileUrl: mockUrl, key };
+    }
+
+    const fileUrl = `https://${this.config.bucketName}.s3.${this.config.region}.amazonaws.com/${key}`;
+    const uploadUrl = `${fileUrl}?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=mock`;
+
+    return { uploadUrl, fileUrl, key };
   }
 }

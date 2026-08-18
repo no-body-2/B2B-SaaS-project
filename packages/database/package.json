@@ -1,6 +1,6 @@
 {
   "name": "@luminano/database",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "description": "B2B Luminano Service's Database Package",
   "author": "no-body-2",
   "main": "./index.js",
