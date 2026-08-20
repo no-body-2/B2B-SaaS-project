@@ -203,6 +203,10 @@
 - v1.13.0 Lexicographical Fractional Indexing D&D 트리 & 테마 스위처 시스템 적용 완료
 - v1.14.0 Hocuspocus & markdown editer
 
+### 2026-08-19
+
+- v1.15.0 AI System & Circuit Breaker & BullMQ WebSocket 구현
+
 ---
 
 ## TODO
