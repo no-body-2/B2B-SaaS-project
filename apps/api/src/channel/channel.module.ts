@@ -13,7 +13,7 @@
 import { Module } from '@nestjs/common';
 import { ChannelService } from './channel.service';
 import { ChannelController } from './channel.controller';
-import { ChannelGateway } from './channel.gateway';
+import { ChannelGateway } from './gateway/channel.gateway';
 import { MailerModule } from '../mailer/mailer.module';
 import { GuardModule } from '../common/guards/guards.module';
 

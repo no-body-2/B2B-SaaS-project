@@ -30,7 +30,7 @@ import { Prisma } from '@luminano/database';
 import { UpdateLastReadDto } from './dto/update-last-read.dto';
 import { SearchChatMessageDto } from './dto/search-chat-message.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { ChannelGateway } from './channel.gateway';
+import { ChannelGateway } from './gateway/channel.gateway';
 
 type ChatMessageWithSenderPayload = Prisma.ChatMessageGetPayload<{
   include: {

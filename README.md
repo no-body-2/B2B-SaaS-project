@@ -205,7 +205,12 @@
 
 ### 2026-08-19
 
-- v1.15.0 AI System & Circuit Breaker & BullMQ WebSocket 구현
+- v1.15.0 AI System & Circuit Breaker & BullMQ WebSocket 구현 시작
+
+### 2026-08-20
+
+- v1.15.0 AI System & Circuit Breaker & BullMQ WebSocket 구현 완료
+- v1.16.0 WebSocket 기능 보완 (Gateway 추가 및 Redis Pub/Sub 기능 적용)
 
 ---
 
@@ -228,4 +233,4 @@
 - Owner & Admin & Member의 권한에 따른 색상 차이를 두어 UX 향상
 - 몇몇 Approval Request에서 기안자가 Unknown 으로 확인되는 현상 수정할 것
 - Nano 생성 시 즉시 내용 또한 입력할 수 있는 창을 열어주고 그 내용을 기반으로 초기 버전의 문서를 생성할 것
-- 현재 web.luminano.xyz 도메인을 최종 제출 용 버전으로 확정지을 시 www. 으로 수정할 것
+- 현재 web.luminano.xyz 도메인을 최종 제출 용 버전으로 확정지을 시 "www." 으로 수정할 것
