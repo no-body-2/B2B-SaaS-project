@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ChannelService } from './channel.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { WorkspaceGuardService } from '../common/guards/workspace-guard.service';
-import { ChannelGateway } from './channel.gateway';
+import { ChannelGateway } from './gateway/channel.gateway';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { dbMock } from '../prisma/__mocks__/prisma.service';
 import {

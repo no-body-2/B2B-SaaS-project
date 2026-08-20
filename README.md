@@ -211,6 +211,7 @@
 
 - v1.15.0 AI System & Circuit Breaker & BullMQ WebSocket 구현 완료
 - v1.16.0 WebSocket 기능 보완 (Gateway 추가 및 Redis Pub/Sub 기능 적용)
+- v1.16.1 WebSocket Gateway 단위 테스트 import 경로 핫픽스
 
 ---
 
