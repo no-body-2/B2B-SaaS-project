@@ -32,7 +32,8 @@ export function useAiSseStream(jobId: string | null): UseAiSseStreamResult {
     setStreamedText('');
     setError(null);
 
-    const eventSource = new EventSource(`/api/v1/ai/stream/${jobId}`);
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+    const eventSource = new EventSource(`${apiBaseUrl}/api/v1/ai/stream/${jobId}`);
 
     eventSource.onmessage = (event) => {
       try {

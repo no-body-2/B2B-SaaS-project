@@ -331,6 +331,19 @@ exports.Prisma.WorkspaceTagAnalyticsScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.InquiryScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  content: 'content',
+  isSecret: 'isSecret',
+  status: 'status',
+  answer: 'answer',
+  answeredAt: 'answeredAt',
+  authorId: 'authorId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -381,7 +394,8 @@ exports.Prisma.ModelName = {
   AuditLog: 'AuditLog',
   SystemNotice: 'SystemNotice',
   OutboxEvent: 'OutboxEvent',
-  WorkspaceTagAnalytics: 'WorkspaceTagAnalytics'
+  WorkspaceTagAnalytics: 'WorkspaceTagAnalytics',
+  Inquiry: 'Inquiry'
 };
 
 /**

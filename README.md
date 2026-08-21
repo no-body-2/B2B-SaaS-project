@@ -216,6 +216,8 @@
 ### 2026-08-21
 
 - v2.0.0 Luminano B2B SaaS Major Production Milestone Release (Pure TypeScript 100% Unification, Zero-any Hardening, Gemini AI Custom Prompt Builder, k6 1,000 VU Load Testing & K8s Helm Deployment Ready)
+- v2.0.1 Deep Code Audit & Refactoring Hardening (Async Event Mailer, Proxy IP Sanitization, Guard Type Safety, Technical Interview Master Guide)
+- v2.0.2 Support Inquiry Board Feature Release (Inquiry Model, Secret Post Masking, SUPER_ADMIN Answer System, UI Pages)
 
 ---
 

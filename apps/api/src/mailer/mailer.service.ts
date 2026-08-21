@@ -39,8 +39,12 @@ export class MailerService {
    * @description
    * - 워크스페이스 초대장 메일 발송 위임
    */
-  sendInvitationMail(to: string, workspaceName: string, inviteLink: string) {
-    this.eventEmitter.emit(
+  async sendInvitationMail(
+    to: string,
+    workspaceName: string,
+    inviteLink: string,
+  ): Promise<unknown[]> {
+    return this.eventEmitter.emitAsync(
       'mail.send',
       new SendMailEvent(
         to,

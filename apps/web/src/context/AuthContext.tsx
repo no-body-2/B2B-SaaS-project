@@ -13,6 +13,8 @@ interface User {
   profileImage?: string;
   defaultNameDisplay?: string;
   displayName?: string;
+  systemRole?: string;
+  userId?: string;
 }
 
 interface AuthContextType {

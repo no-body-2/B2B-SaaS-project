@@ -131,7 +131,7 @@ export class WorkspaceMemberService {
     const verifiedLink = `${appConfig.workspaceInvitationUrl}?token=${invitationToken}&workspaceId=${workspaceId}`;
 
     // 9. 이메일 전송
-    this.mailerService.sendInvitationMail(
+    await this.mailerService.sendInvitationMail(
       dto.email,
       workspaceName?.name ?? 'Unknown Workspace',
       verifiedLink,

@@ -18,6 +18,7 @@ import { SchedulerModule } from './common/scheduler/scheduler.module';
 import { StorageModule } from './storage/storage.module';
 import { LoggerModule } from './common/logger/logger.module';
 import { AdminModule } from './admin/admin.module';
+import { InquiryModule } from './inquiry/inquiry.module';
 
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
@@ -47,6 +48,7 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
     StorageModule,
     LoggerModule,
     AdminModule,
+    InquiryModule,
   ],
   controllers: [AppController],
   providers: [

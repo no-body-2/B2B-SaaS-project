@@ -40,6 +40,7 @@ model User {
   nanoHistorys         NanoHistory[]
   joinRequests         WorkspaceJoinRequest[]
   auditLogs            AuditLog[]
+  inquiries            Inquiry[]
 
   @@map("users")
 }
@@ -437,4 +438,27 @@ model WorkspaceTagAnalytics {
   @@index([tag])
   @@index([isHyped, growthRate(sort: Desc)])
   @@map("workspace_tag_analytics")
+}
+
+/// 1:1 문의사항 게시글
+/// @namespace Support
+model Inquiry {
+  id       String  @id @default(cuid()) @map("id")
+  title    String  @map("title")
+  content  String  @map("content")
+  isSecret Boolean @default(false) @map("is_secret")
+  status   String  @default("PENDING") @map("status") // PENDING (답변대기), ANSWERED (답변완료)
+
+  answer     String?   @map("answer")
+  answeredAt DateTime? @map("answered_at")
+
+  authorId String @map("author_id")
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([authorId])
+  @@index([status, createdAt(sort: Desc)])
+  @@map("inquiries")
 }

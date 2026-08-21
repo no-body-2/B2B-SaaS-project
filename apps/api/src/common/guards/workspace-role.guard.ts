@@ -55,9 +55,9 @@ export class WorkspaceRoleGuard implements CanActivate {
       request.query?.workspaceId ||
       request.body?.workspaceId;
 
-    if (!workspaceId) {
+    if (!workspaceId || typeof workspaceId !== 'string') {
       throw new BadRequestException(
-        '워크스페이스 식별자(workspaceId)가 필요합니다.',
+        '유효한 워크스페이스 식별자(workspaceId)가 필요합니다.',
       );
     }
 

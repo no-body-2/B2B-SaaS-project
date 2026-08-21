@@ -14,10 +14,11 @@ export class RateLimitGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
-    const ip =
+    const rawIp =
       request.ip ||
       (request.headers['x-forwarded-for'] as string) ||
       '127.0.0.1';
+    const ip = rawIp.split(',')[0].trim();
     const path = request.path;
 
     // IP와 경로 기준으로 제한 Key 생성 (예: ratelimit:127.0.0.1:/auth/login)

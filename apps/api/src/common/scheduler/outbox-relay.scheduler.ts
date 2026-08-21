@@ -80,7 +80,7 @@ export class OutboxRelayScheduler {
           const workspaceName = payload?.workspaceName;
 
           if (targetEmail && workspaceName && invitationToken) {
-            this.mailerService.sendInvitationMail(
+            await this.mailerService.sendInvitationMail(
               targetEmail,
               workspaceName,
               invitationToken,

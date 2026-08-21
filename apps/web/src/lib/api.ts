@@ -989,3 +989,13 @@ export const adminApi = {
   exportUsersCsvUrl: `${BASE_URL}/admin/users/csv`,
 };
 
+export const inquiryApi = {
+  create: (dto: { title: string; content: string; isSecret?: boolean }) =>
+    realApi.post('/inquiries', dto),
+  list: () => realApi.get('/inquiries'),
+  getDetail: (id: string) => realApi.get(`/inquiries/${id}`),
+  answer: (id: string, answer: string) =>
+    realApi.patch(`/inquiries/${id}/answer`, { answer }),
+  delete: (id: string) => realApi.delete(`/inquiries/${id}`),
+};
+

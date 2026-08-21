@@ -6,7 +6,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import LumiNanoIcon from '../../components/LumiNanoIcon';
 import { apiClient } from '../../lib/api';
-import { Building2, Plus, LogOut, Trash2, ArrowRight, Loader2, Sparkles, ChevronDown, User as UserIcon, Settings } from 'lucide-react';
+import { Building2, Plus, LogOut, Trash2, ArrowRight, Loader2, Sparkles, ChevronDown, User as UserIcon, Settings, HelpCircle } from 'lucide-react';
+import Link from 'next/link';
 import UserProfileSettings from '../../components/UserProfileSettings';
 
 export default function Dashboard() {
@@ -148,6 +149,14 @@ export default function Dashboard() {
           <span className="font-bold text-lg tracking-tight text-foreground">LumiNano</span>
         </div>
         <div className="flex items-center gap-4 relative">
+          <Link
+            href="/inquiries"
+            className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-indigo-400 transition px-3 py-1.5 rounded-full border border-luminano-border hover:bg-slate-800/20"
+          >
+            <HelpCircle className="w-4 h-4 text-indigo-400" />
+            <span>문의사항</span>
+          </Link>
+
           <div 
             onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
             className="flex items-center gap-2.5 bg-slate-800/20 dark:bg-slate-800/40 px-3 py-1.5 rounded-full border border-luminano-border cursor-pointer hover:bg-slate-800/30 transition select-none"

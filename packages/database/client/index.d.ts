@@ -127,6 +127,12 @@ export type OutboxEvent = $Result.DefaultSelection<Prisma.$OutboxEventPayload>
  * @namespace Statistics
  */
 export type WorkspaceTagAnalytics = $Result.DefaultSelection<Prisma.$WorkspaceTagAnalyticsPayload>
+/**
+ * Model Inquiry
+ * 1:1 문의사항 게시글
+ * @namespace Support
+ */
+export type Inquiry = $Result.DefaultSelection<Prisma.$InquiryPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -438,6 +444,16 @@ export class PrismaClient<
     * ```
     */
   get workspaceTagAnalytics(): Prisma.WorkspaceTagAnalyticsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.inquiry`: Exposes CRUD operations for the **Inquiry** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Inquiries
+    * const inquiries = await prisma.inquiry.findMany()
+    * ```
+    */
+  get inquiry(): Prisma.InquiryDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -890,7 +906,8 @@ export namespace Prisma {
     AuditLog: 'AuditLog',
     SystemNotice: 'SystemNotice',
     OutboxEvent: 'OutboxEvent',
-    WorkspaceTagAnalytics: 'WorkspaceTagAnalytics'
+    WorkspaceTagAnalytics: 'WorkspaceTagAnalytics',
+    Inquiry: 'Inquiry'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -906,7 +923,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "userPreference" | "workspace" | "workspaceInvitation" | "workspaceJoinRequest" | "workspaceMember" | "chatroom" | "chatroomMember" | "chatMessage" | "nano" | "nanoHistory" | "approvalRequest" | "pendingNano" | "refreshToken" | "fileAttachment" | "auditLog" | "systemNotice" | "outboxEvent" | "workspaceTagAnalytics"
+      modelProps: "user" | "userPreference" | "workspace" | "workspaceInvitation" | "workspaceJoinRequest" | "workspaceMember" | "chatroom" | "chatroomMember" | "chatMessage" | "nano" | "nanoHistory" | "approvalRequest" | "pendingNano" | "refreshToken" | "fileAttachment" | "auditLog" | "systemNotice" | "outboxEvent" | "workspaceTagAnalytics" | "inquiry"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2316,6 +2333,80 @@ export namespace Prisma {
           }
         }
       }
+      Inquiry: {
+        payload: Prisma.$InquiryPayload<ExtArgs>
+        fields: Prisma.InquiryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.InquiryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InquiryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.InquiryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InquiryPayload>
+          }
+          findFirst: {
+            args: Prisma.InquiryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InquiryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.InquiryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InquiryPayload>
+          }
+          findMany: {
+            args: Prisma.InquiryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InquiryPayload>[]
+          }
+          create: {
+            args: Prisma.InquiryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InquiryPayload>
+          }
+          createMany: {
+            args: Prisma.InquiryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.InquiryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InquiryPayload>[]
+          }
+          delete: {
+            args: Prisma.InquiryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InquiryPayload>
+          }
+          update: {
+            args: Prisma.InquiryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InquiryPayload>
+          }
+          deleteMany: {
+            args: Prisma.InquiryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.InquiryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.InquiryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InquiryPayload>[]
+          }
+          upsert: {
+            args: Prisma.InquiryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$InquiryPayload>
+          }
+          aggregate: {
+            args: Prisma.InquiryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateInquiry>
+          }
+          groupBy: {
+            args: Prisma.InquiryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<InquiryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.InquiryCountArgs<ExtArgs>
+            result: $Utils.Optional<InquiryCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2443,6 +2534,7 @@ export namespace Prisma {
     systemNotice?: SystemNoticeOmit
     outboxEvent?: OutboxEventOmit
     workspaceTagAnalytics?: WorkspaceTagAnalyticsOmit
+    inquiry?: InquiryOmit
   }
 
   /* Types for Logging */
@@ -2529,6 +2621,7 @@ export namespace Prisma {
     nanoHistorys: number
     joinRequests: number
     auditLogs: number
+    inquiries: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2538,6 +2631,7 @@ export namespace Prisma {
     nanoHistorys?: boolean | UserCountOutputTypeCountNanoHistorysArgs
     joinRequests?: boolean | UserCountOutputTypeCountJoinRequestsArgs
     auditLogs?: boolean | UserCountOutputTypeCountAuditLogsArgs
+    inquiries?: boolean | UserCountOutputTypeCountInquiriesArgs
   }
 
   // Custom InputTypes
@@ -2591,6 +2685,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountAuditLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AuditLogWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountInquiriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InquiryWhereInput
   }
 
 
@@ -3082,6 +3183,7 @@ export namespace Prisma {
     nanoHistorys?: boolean | User$nanoHistorysArgs<ExtArgs>
     joinRequests?: boolean | User$joinRequestsArgs<ExtArgs>
     auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
+    inquiries?: boolean | User$inquiriesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -3142,6 +3244,7 @@ export namespace Prisma {
     nanoHistorys?: boolean | User$nanoHistorysArgs<ExtArgs>
     joinRequests?: boolean | User$joinRequestsArgs<ExtArgs>
     auditLogs?: boolean | User$auditLogsArgs<ExtArgs>
+    inquiries?: boolean | User$inquiriesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -3157,6 +3260,7 @@ export namespace Prisma {
       nanoHistorys: Prisma.$NanoHistoryPayload<ExtArgs>[]
       joinRequests: Prisma.$WorkspaceJoinRequestPayload<ExtArgs>[]
       auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
+      inquiries: Prisma.$InquiryPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3573,6 +3677,7 @@ export namespace Prisma {
     nanoHistorys<T extends User$nanoHistorysArgs<ExtArgs> = {}>(args?: Subset<T, User$nanoHistorysArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NanoHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     joinRequests<T extends User$joinRequestsArgs<ExtArgs> = {}>(args?: Subset<T, User$joinRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkspaceJoinRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     auditLogs<T extends User$auditLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    inquiries<T extends User$inquiriesArgs<ExtArgs> = {}>(args?: Subset<T, User$inquiriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InquiryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4168,6 +4273,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: AuditLogScalarFieldEnum | AuditLogScalarFieldEnum[]
+  }
+
+  /**
+   * User.inquiries
+   */
+  export type User$inquiriesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Inquiry
+     */
+    select?: InquirySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Inquiry
+     */
+    omit?: InquiryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InquiryInclude<ExtArgs> | null
+    where?: InquiryWhereInput
+    orderBy?: InquiryOrderByWithRelationInput | InquiryOrderByWithRelationInput[]
+    cursor?: InquiryWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: InquiryScalarFieldEnum | InquiryScalarFieldEnum[]
   }
 
   /**
@@ -24422,6 +24551,1134 @@ export namespace Prisma {
 
 
   /**
+   * Model Inquiry
+   */
+
+  export type AggregateInquiry = {
+    _count: InquiryCountAggregateOutputType | null
+    _min: InquiryMinAggregateOutputType | null
+    _max: InquiryMaxAggregateOutputType | null
+  }
+
+  export type InquiryMinAggregateOutputType = {
+    id: string | null
+    title: string | null
+    content: string | null
+    isSecret: boolean | null
+    status: string | null
+    answer: string | null
+    answeredAt: Date | null
+    authorId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type InquiryMaxAggregateOutputType = {
+    id: string | null
+    title: string | null
+    content: string | null
+    isSecret: boolean | null
+    status: string | null
+    answer: string | null
+    answeredAt: Date | null
+    authorId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type InquiryCountAggregateOutputType = {
+    id: number
+    title: number
+    content: number
+    isSecret: number
+    status: number
+    answer: number
+    answeredAt: number
+    authorId: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type InquiryMinAggregateInputType = {
+    id?: true
+    title?: true
+    content?: true
+    isSecret?: true
+    status?: true
+    answer?: true
+    answeredAt?: true
+    authorId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type InquiryMaxAggregateInputType = {
+    id?: true
+    title?: true
+    content?: true
+    isSecret?: true
+    status?: true
+    answer?: true
+    answeredAt?: true
+    authorId?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type InquiryCountAggregateInputType = {
+    id?: true
+    title?: true
+    content?: true
+    isSecret?: true
+    status?: true
+    answer?: true
+    answeredAt?: true
+    authorId?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type InquiryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Inquiry to aggregate.
+     */
+    where?: InquiryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Inquiries to fetch.
+     */
+    orderBy?: InquiryOrderByWithRelationInput | InquiryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: InquiryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Inquiries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Inquiries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Inquiries
+    **/
+    _count?: true | InquiryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: InquiryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: InquiryMaxAggregateInputType
+  }
+
+  export type GetInquiryAggregateType<T extends InquiryAggregateArgs> = {
+        [P in keyof T & keyof AggregateInquiry]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateInquiry[P]>
+      : GetScalarType<T[P], AggregateInquiry[P]>
+  }
+
+
+
+
+  export type InquiryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: InquiryWhereInput
+    orderBy?: InquiryOrderByWithAggregationInput | InquiryOrderByWithAggregationInput[]
+    by: InquiryScalarFieldEnum[] | InquiryScalarFieldEnum
+    having?: InquiryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: InquiryCountAggregateInputType | true
+    _min?: InquiryMinAggregateInputType
+    _max?: InquiryMaxAggregateInputType
+  }
+
+  export type InquiryGroupByOutputType = {
+    id: string
+    title: string
+    content: string
+    isSecret: boolean
+    status: string
+    answer: string | null
+    answeredAt: Date | null
+    authorId: string
+    createdAt: Date
+    updatedAt: Date
+    _count: InquiryCountAggregateOutputType | null
+    _min: InquiryMinAggregateOutputType | null
+    _max: InquiryMaxAggregateOutputType | null
+  }
+
+  type GetInquiryGroupByPayload<T extends InquiryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<InquiryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof InquiryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], InquiryGroupByOutputType[P]>
+            : GetScalarType<T[P], InquiryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type InquirySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    content?: boolean
+    isSecret?: boolean
+    status?: boolean
+    answer?: boolean
+    answeredAt?: boolean
+    authorId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    author?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["inquiry"]>
+
+  export type InquirySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    content?: boolean
+    isSecret?: boolean
+    status?: boolean
+    answer?: boolean
+    answeredAt?: boolean
+    authorId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    author?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["inquiry"]>
+
+  export type InquirySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    content?: boolean
+    isSecret?: boolean
+    status?: boolean
+    answer?: boolean
+    answeredAt?: boolean
+    authorId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    author?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["inquiry"]>
+
+  export type InquirySelectScalar = {
+    id?: boolean
+    title?: boolean
+    content?: boolean
+    isSecret?: boolean
+    status?: boolean
+    answer?: boolean
+    answeredAt?: boolean
+    authorId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type InquiryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "content" | "isSecret" | "status" | "answer" | "answeredAt" | "authorId" | "createdAt" | "updatedAt", ExtArgs["result"]["inquiry"]>
+  export type InquiryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    author?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type InquiryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    author?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type InquiryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    author?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $InquiryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Inquiry"
+    objects: {
+      author: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      title: string
+      content: string
+      isSecret: boolean
+      status: string
+      answer: string | null
+      answeredAt: Date | null
+      authorId: string
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["inquiry"]>
+    composites: {}
+  }
+
+  type InquiryGetPayload<S extends boolean | null | undefined | InquiryDefaultArgs> = $Result.GetResult<Prisma.$InquiryPayload, S>
+
+  type InquiryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<InquiryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: InquiryCountAggregateInputType | true
+    }
+
+  export interface InquiryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Inquiry'], meta: { name: 'Inquiry' } }
+    /**
+     * Find zero or one Inquiry that matches the filter.
+     * @param {InquiryFindUniqueArgs} args - Arguments to find a Inquiry
+     * @example
+     * // Get one Inquiry
+     * const inquiry = await prisma.inquiry.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends InquiryFindUniqueArgs>(args: SelectSubset<T, InquiryFindUniqueArgs<ExtArgs>>): Prisma__InquiryClient<$Result.GetResult<Prisma.$InquiryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Inquiry that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {InquiryFindUniqueOrThrowArgs} args - Arguments to find a Inquiry
+     * @example
+     * // Get one Inquiry
+     * const inquiry = await prisma.inquiry.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends InquiryFindUniqueOrThrowArgs>(args: SelectSubset<T, InquiryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__InquiryClient<$Result.GetResult<Prisma.$InquiryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Inquiry that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InquiryFindFirstArgs} args - Arguments to find a Inquiry
+     * @example
+     * // Get one Inquiry
+     * const inquiry = await prisma.inquiry.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends InquiryFindFirstArgs>(args?: SelectSubset<T, InquiryFindFirstArgs<ExtArgs>>): Prisma__InquiryClient<$Result.GetResult<Prisma.$InquiryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Inquiry that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InquiryFindFirstOrThrowArgs} args - Arguments to find a Inquiry
+     * @example
+     * // Get one Inquiry
+     * const inquiry = await prisma.inquiry.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends InquiryFindFirstOrThrowArgs>(args?: SelectSubset<T, InquiryFindFirstOrThrowArgs<ExtArgs>>): Prisma__InquiryClient<$Result.GetResult<Prisma.$InquiryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Inquiries that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InquiryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Inquiries
+     * const inquiries = await prisma.inquiry.findMany()
+     * 
+     * // Get first 10 Inquiries
+     * const inquiries = await prisma.inquiry.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const inquiryWithIdOnly = await prisma.inquiry.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends InquiryFindManyArgs>(args?: SelectSubset<T, InquiryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InquiryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Inquiry.
+     * @param {InquiryCreateArgs} args - Arguments to create a Inquiry.
+     * @example
+     * // Create one Inquiry
+     * const Inquiry = await prisma.inquiry.create({
+     *   data: {
+     *     // ... data to create a Inquiry
+     *   }
+     * })
+     * 
+     */
+    create<T extends InquiryCreateArgs>(args: SelectSubset<T, InquiryCreateArgs<ExtArgs>>): Prisma__InquiryClient<$Result.GetResult<Prisma.$InquiryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Inquiries.
+     * @param {InquiryCreateManyArgs} args - Arguments to create many Inquiries.
+     * @example
+     * // Create many Inquiries
+     * const inquiry = await prisma.inquiry.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends InquiryCreateManyArgs>(args?: SelectSubset<T, InquiryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Inquiries and returns the data saved in the database.
+     * @param {InquiryCreateManyAndReturnArgs} args - Arguments to create many Inquiries.
+     * @example
+     * // Create many Inquiries
+     * const inquiry = await prisma.inquiry.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Inquiries and only return the `id`
+     * const inquiryWithIdOnly = await prisma.inquiry.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends InquiryCreateManyAndReturnArgs>(args?: SelectSubset<T, InquiryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InquiryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Inquiry.
+     * @param {InquiryDeleteArgs} args - Arguments to delete one Inquiry.
+     * @example
+     * // Delete one Inquiry
+     * const Inquiry = await prisma.inquiry.delete({
+     *   where: {
+     *     // ... filter to delete one Inquiry
+     *   }
+     * })
+     * 
+     */
+    delete<T extends InquiryDeleteArgs>(args: SelectSubset<T, InquiryDeleteArgs<ExtArgs>>): Prisma__InquiryClient<$Result.GetResult<Prisma.$InquiryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Inquiry.
+     * @param {InquiryUpdateArgs} args - Arguments to update one Inquiry.
+     * @example
+     * // Update one Inquiry
+     * const inquiry = await prisma.inquiry.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends InquiryUpdateArgs>(args: SelectSubset<T, InquiryUpdateArgs<ExtArgs>>): Prisma__InquiryClient<$Result.GetResult<Prisma.$InquiryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Inquiries.
+     * @param {InquiryDeleteManyArgs} args - Arguments to filter Inquiries to delete.
+     * @example
+     * // Delete a few Inquiries
+     * const { count } = await prisma.inquiry.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends InquiryDeleteManyArgs>(args?: SelectSubset<T, InquiryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Inquiries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InquiryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Inquiries
+     * const inquiry = await prisma.inquiry.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends InquiryUpdateManyArgs>(args: SelectSubset<T, InquiryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Inquiries and returns the data updated in the database.
+     * @param {InquiryUpdateManyAndReturnArgs} args - Arguments to update many Inquiries.
+     * @example
+     * // Update many Inquiries
+     * const inquiry = await prisma.inquiry.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Inquiries and only return the `id`
+     * const inquiryWithIdOnly = await prisma.inquiry.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends InquiryUpdateManyAndReturnArgs>(args: SelectSubset<T, InquiryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InquiryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Inquiry.
+     * @param {InquiryUpsertArgs} args - Arguments to update or create a Inquiry.
+     * @example
+     * // Update or create a Inquiry
+     * const inquiry = await prisma.inquiry.upsert({
+     *   create: {
+     *     // ... data to create a Inquiry
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Inquiry we want to update
+     *   }
+     * })
+     */
+    upsert<T extends InquiryUpsertArgs>(args: SelectSubset<T, InquiryUpsertArgs<ExtArgs>>): Prisma__InquiryClient<$Result.GetResult<Prisma.$InquiryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Inquiries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InquiryCountArgs} args - Arguments to filter Inquiries to count.
+     * @example
+     * // Count the number of Inquiries
+     * const count = await prisma.inquiry.count({
+     *   where: {
+     *     // ... the filter for the Inquiries we want to count
+     *   }
+     * })
+    **/
+    count<T extends InquiryCountArgs>(
+      args?: Subset<T, InquiryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], InquiryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Inquiry.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InquiryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends InquiryAggregateArgs>(args: Subset<T, InquiryAggregateArgs>): Prisma.PrismaPromise<GetInquiryAggregateType<T>>
+
+    /**
+     * Group by Inquiry.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {InquiryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends InquiryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: InquiryGroupByArgs['orderBy'] }
+        : { orderBy?: InquiryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, InquiryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetInquiryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Inquiry model
+   */
+  readonly fields: InquiryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Inquiry.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__InquiryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    author<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Inquiry model
+   */
+  interface InquiryFieldRefs {
+    readonly id: FieldRef<"Inquiry", 'String'>
+    readonly title: FieldRef<"Inquiry", 'String'>
+    readonly content: FieldRef<"Inquiry", 'String'>
+    readonly isSecret: FieldRef<"Inquiry", 'Boolean'>
+    readonly status: FieldRef<"Inquiry", 'String'>
+    readonly answer: FieldRef<"Inquiry", 'String'>
+    readonly answeredAt: FieldRef<"Inquiry", 'DateTime'>
+    readonly authorId: FieldRef<"Inquiry", 'String'>
+    readonly createdAt: FieldRef<"Inquiry", 'DateTime'>
+    readonly updatedAt: FieldRef<"Inquiry", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Inquiry findUnique
+   */
+  export type InquiryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Inquiry
+     */
+    select?: InquirySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Inquiry
+     */
+    omit?: InquiryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InquiryInclude<ExtArgs> | null
+    /**
+     * Filter, which Inquiry to fetch.
+     */
+    where: InquiryWhereUniqueInput
+  }
+
+  /**
+   * Inquiry findUniqueOrThrow
+   */
+  export type InquiryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Inquiry
+     */
+    select?: InquirySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Inquiry
+     */
+    omit?: InquiryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InquiryInclude<ExtArgs> | null
+    /**
+     * Filter, which Inquiry to fetch.
+     */
+    where: InquiryWhereUniqueInput
+  }
+
+  /**
+   * Inquiry findFirst
+   */
+  export type InquiryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Inquiry
+     */
+    select?: InquirySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Inquiry
+     */
+    omit?: InquiryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InquiryInclude<ExtArgs> | null
+    /**
+     * Filter, which Inquiry to fetch.
+     */
+    where?: InquiryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Inquiries to fetch.
+     */
+    orderBy?: InquiryOrderByWithRelationInput | InquiryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Inquiries.
+     */
+    cursor?: InquiryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Inquiries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Inquiries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Inquiries.
+     */
+    distinct?: InquiryScalarFieldEnum | InquiryScalarFieldEnum[]
+  }
+
+  /**
+   * Inquiry findFirstOrThrow
+   */
+  export type InquiryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Inquiry
+     */
+    select?: InquirySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Inquiry
+     */
+    omit?: InquiryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InquiryInclude<ExtArgs> | null
+    /**
+     * Filter, which Inquiry to fetch.
+     */
+    where?: InquiryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Inquiries to fetch.
+     */
+    orderBy?: InquiryOrderByWithRelationInput | InquiryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Inquiries.
+     */
+    cursor?: InquiryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Inquiries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Inquiries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Inquiries.
+     */
+    distinct?: InquiryScalarFieldEnum | InquiryScalarFieldEnum[]
+  }
+
+  /**
+   * Inquiry findMany
+   */
+  export type InquiryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Inquiry
+     */
+    select?: InquirySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Inquiry
+     */
+    omit?: InquiryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InquiryInclude<ExtArgs> | null
+    /**
+     * Filter, which Inquiries to fetch.
+     */
+    where?: InquiryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Inquiries to fetch.
+     */
+    orderBy?: InquiryOrderByWithRelationInput | InquiryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Inquiries.
+     */
+    cursor?: InquiryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Inquiries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Inquiries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Inquiries.
+     */
+    distinct?: InquiryScalarFieldEnum | InquiryScalarFieldEnum[]
+  }
+
+  /**
+   * Inquiry create
+   */
+  export type InquiryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Inquiry
+     */
+    select?: InquirySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Inquiry
+     */
+    omit?: InquiryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InquiryInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Inquiry.
+     */
+    data: XOR<InquiryCreateInput, InquiryUncheckedCreateInput>
+  }
+
+  /**
+   * Inquiry createMany
+   */
+  export type InquiryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Inquiries.
+     */
+    data: InquiryCreateManyInput | InquiryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Inquiry createManyAndReturn
+   */
+  export type InquiryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Inquiry
+     */
+    select?: InquirySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Inquiry
+     */
+    omit?: InquiryOmit<ExtArgs> | null
+    /**
+     * The data used to create many Inquiries.
+     */
+    data: InquiryCreateManyInput | InquiryCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InquiryIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Inquiry update
+   */
+  export type InquiryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Inquiry
+     */
+    select?: InquirySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Inquiry
+     */
+    omit?: InquiryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InquiryInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Inquiry.
+     */
+    data: XOR<InquiryUpdateInput, InquiryUncheckedUpdateInput>
+    /**
+     * Choose, which Inquiry to update.
+     */
+    where: InquiryWhereUniqueInput
+  }
+
+  /**
+   * Inquiry updateMany
+   */
+  export type InquiryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Inquiries.
+     */
+    data: XOR<InquiryUpdateManyMutationInput, InquiryUncheckedUpdateManyInput>
+    /**
+     * Filter which Inquiries to update
+     */
+    where?: InquiryWhereInput
+    /**
+     * Limit how many Inquiries to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Inquiry updateManyAndReturn
+   */
+  export type InquiryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Inquiry
+     */
+    select?: InquirySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Inquiry
+     */
+    omit?: InquiryOmit<ExtArgs> | null
+    /**
+     * The data used to update Inquiries.
+     */
+    data: XOR<InquiryUpdateManyMutationInput, InquiryUncheckedUpdateManyInput>
+    /**
+     * Filter which Inquiries to update
+     */
+    where?: InquiryWhereInput
+    /**
+     * Limit how many Inquiries to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InquiryIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Inquiry upsert
+   */
+  export type InquiryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Inquiry
+     */
+    select?: InquirySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Inquiry
+     */
+    omit?: InquiryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InquiryInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Inquiry to update in case it exists.
+     */
+    where: InquiryWhereUniqueInput
+    /**
+     * In case the Inquiry found by the `where` argument doesn't exist, create a new Inquiry with this data.
+     */
+    create: XOR<InquiryCreateInput, InquiryUncheckedCreateInput>
+    /**
+     * In case the Inquiry was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<InquiryUpdateInput, InquiryUncheckedUpdateInput>
+  }
+
+  /**
+   * Inquiry delete
+   */
+  export type InquiryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Inquiry
+     */
+    select?: InquirySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Inquiry
+     */
+    omit?: InquiryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InquiryInclude<ExtArgs> | null
+    /**
+     * Filter which Inquiry to delete.
+     */
+    where: InquiryWhereUniqueInput
+  }
+
+  /**
+   * Inquiry deleteMany
+   */
+  export type InquiryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Inquiries to delete
+     */
+    where?: InquiryWhereInput
+    /**
+     * Limit how many Inquiries to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Inquiry without action
+   */
+  export type InquiryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Inquiry
+     */
+    select?: InquirySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Inquiry
+     */
+    omit?: InquiryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: InquiryInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -24703,6 +25960,22 @@ export namespace Prisma {
   export type WorkspaceTagAnalyticsScalarFieldEnum = (typeof WorkspaceTagAnalyticsScalarFieldEnum)[keyof typeof WorkspaceTagAnalyticsScalarFieldEnum]
 
 
+  export const InquiryScalarFieldEnum: {
+    id: 'id',
+    title: 'title',
+    content: 'content',
+    isSecret: 'isSecret',
+    status: 'status',
+    answer: 'answer',
+    answeredAt: 'answeredAt',
+    authorId: 'authorId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type InquiryScalarFieldEnum = (typeof InquiryScalarFieldEnum)[keyof typeof InquiryScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -24860,6 +26133,7 @@ export namespace Prisma {
     nanoHistorys?: NanoHistoryListRelationFilter
     joinRequests?: WorkspaceJoinRequestListRelationFilter
     auditLogs?: AuditLogListRelationFilter
+    inquiries?: InquiryListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -24883,6 +26157,7 @@ export namespace Prisma {
     nanoHistorys?: NanoHistoryOrderByRelationAggregateInput
     joinRequests?: WorkspaceJoinRequestOrderByRelationAggregateInput
     auditLogs?: AuditLogOrderByRelationAggregateInput
+    inquiries?: InquiryOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -24909,6 +26184,7 @@ export namespace Prisma {
     nanoHistorys?: NanoHistoryListRelationFilter
     joinRequests?: WorkspaceJoinRequestListRelationFilter
     auditLogs?: AuditLogListRelationFilter
+    inquiries?: InquiryListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -26260,6 +27536,86 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"WorkspaceTagAnalytics"> | Date | string
   }
 
+  export type InquiryWhereInput = {
+    AND?: InquiryWhereInput | InquiryWhereInput[]
+    OR?: InquiryWhereInput[]
+    NOT?: InquiryWhereInput | InquiryWhereInput[]
+    id?: StringFilter<"Inquiry"> | string
+    title?: StringFilter<"Inquiry"> | string
+    content?: StringFilter<"Inquiry"> | string
+    isSecret?: BoolFilter<"Inquiry"> | boolean
+    status?: StringFilter<"Inquiry"> | string
+    answer?: StringNullableFilter<"Inquiry"> | string | null
+    answeredAt?: DateTimeNullableFilter<"Inquiry"> | Date | string | null
+    authorId?: StringFilter<"Inquiry"> | string
+    createdAt?: DateTimeFilter<"Inquiry"> | Date | string
+    updatedAt?: DateTimeFilter<"Inquiry"> | Date | string
+    author?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type InquiryOrderByWithRelationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    content?: SortOrder
+    isSecret?: SortOrder
+    status?: SortOrder
+    answer?: SortOrderInput | SortOrder
+    answeredAt?: SortOrderInput | SortOrder
+    authorId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    author?: UserOrderByWithRelationInput
+  }
+
+  export type InquiryWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: InquiryWhereInput | InquiryWhereInput[]
+    OR?: InquiryWhereInput[]
+    NOT?: InquiryWhereInput | InquiryWhereInput[]
+    title?: StringFilter<"Inquiry"> | string
+    content?: StringFilter<"Inquiry"> | string
+    isSecret?: BoolFilter<"Inquiry"> | boolean
+    status?: StringFilter<"Inquiry"> | string
+    answer?: StringNullableFilter<"Inquiry"> | string | null
+    answeredAt?: DateTimeNullableFilter<"Inquiry"> | Date | string | null
+    authorId?: StringFilter<"Inquiry"> | string
+    createdAt?: DateTimeFilter<"Inquiry"> | Date | string
+    updatedAt?: DateTimeFilter<"Inquiry"> | Date | string
+    author?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type InquiryOrderByWithAggregationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    content?: SortOrder
+    isSecret?: SortOrder
+    status?: SortOrder
+    answer?: SortOrderInput | SortOrder
+    answeredAt?: SortOrderInput | SortOrder
+    authorId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: InquiryCountOrderByAggregateInput
+    _max?: InquiryMaxOrderByAggregateInput
+    _min?: InquiryMinOrderByAggregateInput
+  }
+
+  export type InquiryScalarWhereWithAggregatesInput = {
+    AND?: InquiryScalarWhereWithAggregatesInput | InquiryScalarWhereWithAggregatesInput[]
+    OR?: InquiryScalarWhereWithAggregatesInput[]
+    NOT?: InquiryScalarWhereWithAggregatesInput | InquiryScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Inquiry"> | string
+    title?: StringWithAggregatesFilter<"Inquiry"> | string
+    content?: StringWithAggregatesFilter<"Inquiry"> | string
+    isSecret?: BoolWithAggregatesFilter<"Inquiry"> | boolean
+    status?: StringWithAggregatesFilter<"Inquiry"> | string
+    answer?: StringNullableWithAggregatesFilter<"Inquiry"> | string | null
+    answeredAt?: DateTimeNullableWithAggregatesFilter<"Inquiry"> | Date | string | null
+    authorId?: StringWithAggregatesFilter<"Inquiry"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Inquiry"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Inquiry"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     email?: string | null
@@ -26281,6 +27637,7 @@ export namespace Prisma {
     nanoHistorys?: NanoHistoryCreateNestedManyWithoutWriterInput
     joinRequests?: WorkspaceJoinRequestCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutAdminInput
+    inquiries?: InquiryCreateNestedManyWithoutAuthorInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -26304,6 +27661,7 @@ export namespace Prisma {
     nanoHistorys?: NanoHistoryUncheckedCreateNestedManyWithoutWriterInput
     joinRequests?: WorkspaceJoinRequestUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutAdminInput
+    inquiries?: InquiryUncheckedCreateNestedManyWithoutAuthorInput
   }
 
   export type UserUpdateInput = {
@@ -26327,6 +27685,7 @@ export namespace Prisma {
     nanoHistorys?: NanoHistoryUpdateManyWithoutWriterNestedInput
     joinRequests?: WorkspaceJoinRequestUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutAdminNestedInput
+    inquiries?: InquiryUpdateManyWithoutAuthorNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -26350,6 +27709,7 @@ export namespace Prisma {
     nanoHistorys?: NanoHistoryUncheckedUpdateManyWithoutWriterNestedInput
     joinRequests?: WorkspaceJoinRequestUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutAdminNestedInput
+    inquiries?: InquiryUncheckedUpdateManyWithoutAuthorNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -27794,6 +29154,96 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type InquiryCreateInput = {
+    id?: string
+    title: string
+    content: string
+    isSecret?: boolean
+    status?: string
+    answer?: string | null
+    answeredAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    author: UserCreateNestedOneWithoutInquiriesInput
+  }
+
+  export type InquiryUncheckedCreateInput = {
+    id?: string
+    title: string
+    content: string
+    isSecret?: boolean
+    status?: string
+    answer?: string | null
+    answeredAt?: Date | string | null
+    authorId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InquiryUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    isSecret?: BoolFieldUpdateOperationsInput | boolean
+    status?: StringFieldUpdateOperationsInput | string
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
+    answeredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    author?: UserUpdateOneRequiredWithoutInquiriesNestedInput
+  }
+
+  export type InquiryUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    isSecret?: BoolFieldUpdateOperationsInput | boolean
+    status?: StringFieldUpdateOperationsInput | string
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
+    answeredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    authorId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InquiryCreateManyInput = {
+    id?: string
+    title: string
+    content: string
+    isSecret?: boolean
+    status?: string
+    answer?: string | null
+    answeredAt?: Date | string | null
+    authorId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InquiryUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    isSecret?: BoolFieldUpdateOperationsInput | boolean
+    status?: StringFieldUpdateOperationsInput | string
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
+    answeredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InquiryUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    isSecret?: BoolFieldUpdateOperationsInput | boolean
+    status?: StringFieldUpdateOperationsInput | string
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
+    answeredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    authorId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -27887,6 +29337,12 @@ export namespace Prisma {
     none?: AuditLogWhereInput
   }
 
+  export type InquiryListRelationFilter = {
+    every?: InquiryWhereInput
+    some?: InquiryWhereInput
+    none?: InquiryWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -27913,6 +29369,10 @@ export namespace Prisma {
   }
 
   export type AuditLogOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type InquiryOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -28975,6 +30435,45 @@ export namespace Prisma {
     growthRate?: SortOrder
   }
 
+  export type InquiryCountOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    content?: SortOrder
+    isSecret?: SortOrder
+    status?: SortOrder
+    answer?: SortOrder
+    answeredAt?: SortOrder
+    authorId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type InquiryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    content?: SortOrder
+    isSecret?: SortOrder
+    status?: SortOrder
+    answer?: SortOrder
+    answeredAt?: SortOrder
+    authorId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type InquiryMinOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    content?: SortOrder
+    isSecret?: SortOrder
+    status?: SortOrder
+    answer?: SortOrder
+    answeredAt?: SortOrder
+    authorId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
   export type UserPreferenceCreateNestedOneWithoutUserInput = {
     create?: XOR<UserPreferenceCreateWithoutUserInput, UserPreferenceUncheckedCreateWithoutUserInput>
     connectOrCreate?: UserPreferenceCreateOrConnectWithoutUserInput
@@ -29023,6 +30522,13 @@ export namespace Prisma {
     connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
   }
 
+  export type InquiryCreateNestedManyWithoutAuthorInput = {
+    create?: XOR<InquiryCreateWithoutAuthorInput, InquiryUncheckedCreateWithoutAuthorInput> | InquiryCreateWithoutAuthorInput[] | InquiryUncheckedCreateWithoutAuthorInput[]
+    connectOrCreate?: InquiryCreateOrConnectWithoutAuthorInput | InquiryCreateOrConnectWithoutAuthorInput[]
+    createMany?: InquiryCreateManyAuthorInputEnvelope
+    connect?: InquiryWhereUniqueInput | InquiryWhereUniqueInput[]
+  }
+
   export type UserPreferenceUncheckedCreateNestedOneWithoutUserInput = {
     create?: XOR<UserPreferenceCreateWithoutUserInput, UserPreferenceUncheckedCreateWithoutUserInput>
     connectOrCreate?: UserPreferenceCreateOrConnectWithoutUserInput
@@ -29069,6 +30575,13 @@ export namespace Prisma {
     connectOrCreate?: AuditLogCreateOrConnectWithoutAdminInput | AuditLogCreateOrConnectWithoutAdminInput[]
     createMany?: AuditLogCreateManyAdminInputEnvelope
     connect?: AuditLogWhereUniqueInput | AuditLogWhereUniqueInput[]
+  }
+
+  export type InquiryUncheckedCreateNestedManyWithoutAuthorInput = {
+    create?: XOR<InquiryCreateWithoutAuthorInput, InquiryUncheckedCreateWithoutAuthorInput> | InquiryCreateWithoutAuthorInput[] | InquiryUncheckedCreateWithoutAuthorInput[]
+    connectOrCreate?: InquiryCreateOrConnectWithoutAuthorInput | InquiryCreateOrConnectWithoutAuthorInput[]
+    createMany?: InquiryCreateManyAuthorInputEnvelope
+    connect?: InquiryWhereUniqueInput | InquiryWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -29181,6 +30694,20 @@ export namespace Prisma {
     deleteMany?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
   }
 
+  export type InquiryUpdateManyWithoutAuthorNestedInput = {
+    create?: XOR<InquiryCreateWithoutAuthorInput, InquiryUncheckedCreateWithoutAuthorInput> | InquiryCreateWithoutAuthorInput[] | InquiryUncheckedCreateWithoutAuthorInput[]
+    connectOrCreate?: InquiryCreateOrConnectWithoutAuthorInput | InquiryCreateOrConnectWithoutAuthorInput[]
+    upsert?: InquiryUpsertWithWhereUniqueWithoutAuthorInput | InquiryUpsertWithWhereUniqueWithoutAuthorInput[]
+    createMany?: InquiryCreateManyAuthorInputEnvelope
+    set?: InquiryWhereUniqueInput | InquiryWhereUniqueInput[]
+    disconnect?: InquiryWhereUniqueInput | InquiryWhereUniqueInput[]
+    delete?: InquiryWhereUniqueInput | InquiryWhereUniqueInput[]
+    connect?: InquiryWhereUniqueInput | InquiryWhereUniqueInput[]
+    update?: InquiryUpdateWithWhereUniqueWithoutAuthorInput | InquiryUpdateWithWhereUniqueWithoutAuthorInput[]
+    updateMany?: InquiryUpdateManyWithWhereWithoutAuthorInput | InquiryUpdateManyWithWhereWithoutAuthorInput[]
+    deleteMany?: InquiryScalarWhereInput | InquiryScalarWhereInput[]
+  }
+
   export type UserPreferenceUncheckedUpdateOneWithoutUserNestedInput = {
     create?: XOR<UserPreferenceCreateWithoutUserInput, UserPreferenceUncheckedCreateWithoutUserInput>
     connectOrCreate?: UserPreferenceCreateOrConnectWithoutUserInput
@@ -29273,6 +30800,20 @@ export namespace Prisma {
     update?: AuditLogUpdateWithWhereUniqueWithoutAdminInput | AuditLogUpdateWithWhereUniqueWithoutAdminInput[]
     updateMany?: AuditLogUpdateManyWithWhereWithoutAdminInput | AuditLogUpdateManyWithWhereWithoutAdminInput[]
     deleteMany?: AuditLogScalarWhereInput | AuditLogScalarWhereInput[]
+  }
+
+  export type InquiryUncheckedUpdateManyWithoutAuthorNestedInput = {
+    create?: XOR<InquiryCreateWithoutAuthorInput, InquiryUncheckedCreateWithoutAuthorInput> | InquiryCreateWithoutAuthorInput[] | InquiryUncheckedCreateWithoutAuthorInput[]
+    connectOrCreate?: InquiryCreateOrConnectWithoutAuthorInput | InquiryCreateOrConnectWithoutAuthorInput[]
+    upsert?: InquiryUpsertWithWhereUniqueWithoutAuthorInput | InquiryUpsertWithWhereUniqueWithoutAuthorInput[]
+    createMany?: InquiryCreateManyAuthorInputEnvelope
+    set?: InquiryWhereUniqueInput | InquiryWhereUniqueInput[]
+    disconnect?: InquiryWhereUniqueInput | InquiryWhereUniqueInput[]
+    delete?: InquiryWhereUniqueInput | InquiryWhereUniqueInput[]
+    connect?: InquiryWhereUniqueInput | InquiryWhereUniqueInput[]
+    update?: InquiryUpdateWithWhereUniqueWithoutAuthorInput | InquiryUpdateWithWhereUniqueWithoutAuthorInput[]
+    updateMany?: InquiryUpdateManyWithWhereWithoutAuthorInput | InquiryUpdateManyWithWhereWithoutAuthorInput[]
+    deleteMany?: InquiryScalarWhereInput | InquiryScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutPreferenceInput = {
@@ -30179,6 +31720,20 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAuditLogsInput, UserUpdateWithoutAuditLogsInput>, UserUncheckedUpdateWithoutAuditLogsInput>
   }
 
+  export type UserCreateNestedOneWithoutInquiriesInput = {
+    create?: XOR<UserCreateWithoutInquiriesInput, UserUncheckedCreateWithoutInquiriesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutInquiriesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutInquiriesNestedInput = {
+    create?: XOR<UserCreateWithoutInquiriesInput, UserUncheckedCreateWithoutInquiriesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutInquiriesInput
+    upsert?: UserUpsertWithoutInquiriesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutInquiriesInput, UserUpdateWithoutInquiriesInput>, UserUncheckedUpdateWithoutInquiriesInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -30625,6 +32180,40 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type InquiryCreateWithoutAuthorInput = {
+    id?: string
+    title: string
+    content: string
+    isSecret?: boolean
+    status?: string
+    answer?: string | null
+    answeredAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InquiryUncheckedCreateWithoutAuthorInput = {
+    id?: string
+    title: string
+    content: string
+    isSecret?: boolean
+    status?: string
+    answer?: string | null
+    answeredAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type InquiryCreateOrConnectWithoutAuthorInput = {
+    where: InquiryWhereUniqueInput
+    create: XOR<InquiryCreateWithoutAuthorInput, InquiryUncheckedCreateWithoutAuthorInput>
+  }
+
+  export type InquiryCreateManyAuthorInputEnvelope = {
+    data: InquiryCreateManyAuthorInput | InquiryCreateManyAuthorInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserPreferenceUpsertWithoutUserInput = {
     update: XOR<UserPreferenceUpdateWithoutUserInput, UserPreferenceUncheckedUpdateWithoutUserInput>
     create: XOR<UserPreferenceCreateWithoutUserInput, UserPreferenceUncheckedCreateWithoutUserInput>
@@ -30825,6 +32414,38 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"AuditLog"> | Date | string
   }
 
+  export type InquiryUpsertWithWhereUniqueWithoutAuthorInput = {
+    where: InquiryWhereUniqueInput
+    update: XOR<InquiryUpdateWithoutAuthorInput, InquiryUncheckedUpdateWithoutAuthorInput>
+    create: XOR<InquiryCreateWithoutAuthorInput, InquiryUncheckedCreateWithoutAuthorInput>
+  }
+
+  export type InquiryUpdateWithWhereUniqueWithoutAuthorInput = {
+    where: InquiryWhereUniqueInput
+    data: XOR<InquiryUpdateWithoutAuthorInput, InquiryUncheckedUpdateWithoutAuthorInput>
+  }
+
+  export type InquiryUpdateManyWithWhereWithoutAuthorInput = {
+    where: InquiryScalarWhereInput
+    data: XOR<InquiryUpdateManyMutationInput, InquiryUncheckedUpdateManyWithoutAuthorInput>
+  }
+
+  export type InquiryScalarWhereInput = {
+    AND?: InquiryScalarWhereInput | InquiryScalarWhereInput[]
+    OR?: InquiryScalarWhereInput[]
+    NOT?: InquiryScalarWhereInput | InquiryScalarWhereInput[]
+    id?: StringFilter<"Inquiry"> | string
+    title?: StringFilter<"Inquiry"> | string
+    content?: StringFilter<"Inquiry"> | string
+    isSecret?: BoolFilter<"Inquiry"> | boolean
+    status?: StringFilter<"Inquiry"> | string
+    answer?: StringNullableFilter<"Inquiry"> | string | null
+    answeredAt?: DateTimeNullableFilter<"Inquiry"> | Date | string | null
+    authorId?: StringFilter<"Inquiry"> | string
+    createdAt?: DateTimeFilter<"Inquiry"> | Date | string
+    updatedAt?: DateTimeFilter<"Inquiry"> | Date | string
+  }
+
   export type UserCreateWithoutPreferenceInput = {
     id?: string
     email?: string | null
@@ -30845,6 +32466,7 @@ export namespace Prisma {
     nanoHistorys?: NanoHistoryCreateNestedManyWithoutWriterInput
     joinRequests?: WorkspaceJoinRequestCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutAdminInput
+    inquiries?: InquiryCreateNestedManyWithoutAuthorInput
   }
 
   export type UserUncheckedCreateWithoutPreferenceInput = {
@@ -30867,6 +32489,7 @@ export namespace Prisma {
     nanoHistorys?: NanoHistoryUncheckedCreateNestedManyWithoutWriterInput
     joinRequests?: WorkspaceJoinRequestUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutAdminInput
+    inquiries?: InquiryUncheckedCreateNestedManyWithoutAuthorInput
   }
 
   export type UserCreateOrConnectWithoutPreferenceInput = {
@@ -30905,6 +32528,7 @@ export namespace Prisma {
     nanoHistorys?: NanoHistoryUpdateManyWithoutWriterNestedInput
     joinRequests?: WorkspaceJoinRequestUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutAdminNestedInput
+    inquiries?: InquiryUpdateManyWithoutAuthorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPreferenceInput = {
@@ -30927,6 +32551,7 @@ export namespace Prisma {
     nanoHistorys?: NanoHistoryUncheckedUpdateManyWithoutWriterNestedInput
     joinRequests?: WorkspaceJoinRequestUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutAdminNestedInput
+    inquiries?: InquiryUncheckedUpdateManyWithoutAuthorNestedInput
   }
 
   export type WorkspaceMemberCreateWithoutWorkspaceInput = {
@@ -31181,6 +32806,7 @@ export namespace Prisma {
     nanoHistorys?: NanoHistoryCreateNestedManyWithoutWriterInput
     joinRequests?: WorkspaceJoinRequestCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutAdminInput
+    inquiries?: InquiryCreateNestedManyWithoutAuthorInput
   }
 
   export type UserUncheckedCreateWithoutWorkspaceInvitationsInput = {
@@ -31203,6 +32829,7 @@ export namespace Prisma {
     nanoHistorys?: NanoHistoryUncheckedCreateNestedManyWithoutWriterInput
     joinRequests?: WorkspaceJoinRequestUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutAdminInput
+    inquiries?: InquiryUncheckedCreateNestedManyWithoutAuthorInput
   }
 
   export type UserCreateOrConnectWithoutWorkspaceInvitationsInput = {
@@ -31284,6 +32911,7 @@ export namespace Prisma {
     nanoHistorys?: NanoHistoryUpdateManyWithoutWriterNestedInput
     joinRequests?: WorkspaceJoinRequestUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutAdminNestedInput
+    inquiries?: InquiryUpdateManyWithoutAuthorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWorkspaceInvitationsInput = {
@@ -31306,6 +32934,7 @@ export namespace Prisma {
     nanoHistorys?: NanoHistoryUncheckedUpdateManyWithoutWriterNestedInput
     joinRequests?: WorkspaceJoinRequestUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutAdminNestedInput
+    inquiries?: InquiryUncheckedUpdateManyWithoutAuthorNestedInput
   }
 
   export type WorkspaceCreateWithoutJoinRequestsInput = {
@@ -31365,6 +32994,7 @@ export namespace Prisma {
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     nanoHistorys?: NanoHistoryCreateNestedManyWithoutWriterInput
     auditLogs?: AuditLogCreateNestedManyWithoutAdminInput
+    inquiries?: InquiryCreateNestedManyWithoutAuthorInput
   }
 
   export type UserUncheckedCreateWithoutJoinRequestsInput = {
@@ -31387,6 +33017,7 @@ export namespace Prisma {
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     nanoHistorys?: NanoHistoryUncheckedCreateNestedManyWithoutWriterInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutAdminInput
+    inquiries?: InquiryUncheckedCreateNestedManyWithoutAuthorInput
   }
 
   export type UserCreateOrConnectWithoutJoinRequestsInput = {
@@ -31468,6 +33099,7 @@ export namespace Prisma {
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     nanoHistorys?: NanoHistoryUpdateManyWithoutWriterNestedInput
     auditLogs?: AuditLogUpdateManyWithoutAdminNestedInput
+    inquiries?: InquiryUpdateManyWithoutAuthorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutJoinRequestsInput = {
@@ -31490,6 +33122,7 @@ export namespace Prisma {
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     nanoHistorys?: NanoHistoryUncheckedUpdateManyWithoutWriterNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutAdminNestedInput
+    inquiries?: InquiryUncheckedUpdateManyWithoutAuthorNestedInput
   }
 
   export type WorkspaceCreateWithoutMembersInput = {
@@ -31549,6 +33182,7 @@ export namespace Prisma {
     nanoHistorys?: NanoHistoryCreateNestedManyWithoutWriterInput
     joinRequests?: WorkspaceJoinRequestCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutAdminInput
+    inquiries?: InquiryCreateNestedManyWithoutAuthorInput
   }
 
   export type UserUncheckedCreateWithoutWorkspaceMembersInput = {
@@ -31571,6 +33205,7 @@ export namespace Prisma {
     nanoHistorys?: NanoHistoryUncheckedCreateNestedManyWithoutWriterInput
     joinRequests?: WorkspaceJoinRequestUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutAdminInput
+    inquiries?: InquiryUncheckedCreateNestedManyWithoutAuthorInput
   }
 
   export type UserCreateOrConnectWithoutWorkspaceMembersInput = {
@@ -31724,6 +33359,7 @@ export namespace Prisma {
     nanoHistorys?: NanoHistoryUpdateManyWithoutWriterNestedInput
     joinRequests?: WorkspaceJoinRequestUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutAdminNestedInput
+    inquiries?: InquiryUpdateManyWithoutAuthorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutWorkspaceMembersInput = {
@@ -31746,6 +33382,7 @@ export namespace Prisma {
     nanoHistorys?: NanoHistoryUncheckedUpdateManyWithoutWriterNestedInput
     joinRequests?: WorkspaceJoinRequestUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutAdminNestedInput
+    inquiries?: InquiryUncheckedUpdateManyWithoutAuthorNestedInput
   }
 
   export type ChatroomMemberUpsertWithWhereUniqueWithoutWorkspaceMemberInput = {
@@ -32652,6 +34289,7 @@ export namespace Prisma {
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     joinRequests?: WorkspaceJoinRequestCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutAdminInput
+    inquiries?: InquiryCreateNestedManyWithoutAuthorInput
   }
 
   export type UserUncheckedCreateWithoutNanoHistorysInput = {
@@ -32674,6 +34312,7 @@ export namespace Prisma {
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     joinRequests?: WorkspaceJoinRequestUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutAdminInput
+    inquiries?: InquiryUncheckedCreateNestedManyWithoutAuthorInput
   }
 
   export type UserCreateOrConnectWithoutNanoHistorysInput = {
@@ -32787,6 +34426,7 @@ export namespace Prisma {
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     joinRequests?: WorkspaceJoinRequestUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutAdminNestedInput
+    inquiries?: InquiryUpdateManyWithoutAuthorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNanoHistorysInput = {
@@ -32809,6 +34449,7 @@ export namespace Prisma {
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     joinRequests?: WorkspaceJoinRequestUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutAdminNestedInput
+    inquiries?: InquiryUncheckedUpdateManyWithoutAuthorNestedInput
   }
 
   export type NanoHistoryCreateWithoutApprovalRequestInput = {
@@ -33077,6 +34718,7 @@ export namespace Prisma {
     nanoHistorys?: NanoHistoryCreateNestedManyWithoutWriterInput
     joinRequests?: WorkspaceJoinRequestCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogCreateNestedManyWithoutAdminInput
+    inquiries?: InquiryCreateNestedManyWithoutAuthorInput
   }
 
   export type UserUncheckedCreateWithoutRefreshTokensInput = {
@@ -33099,6 +34741,7 @@ export namespace Prisma {
     nanoHistorys?: NanoHistoryUncheckedCreateNestedManyWithoutWriterInput
     joinRequests?: WorkspaceJoinRequestUncheckedCreateNestedManyWithoutUserInput
     auditLogs?: AuditLogUncheckedCreateNestedManyWithoutAdminInput
+    inquiries?: InquiryUncheckedCreateNestedManyWithoutAuthorInput
   }
 
   export type UserCreateOrConnectWithoutRefreshTokensInput = {
@@ -33137,6 +34780,7 @@ export namespace Prisma {
     nanoHistorys?: NanoHistoryUpdateManyWithoutWriterNestedInput
     joinRequests?: WorkspaceJoinRequestUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUpdateManyWithoutAdminNestedInput
+    inquiries?: InquiryUpdateManyWithoutAuthorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRefreshTokensInput = {
@@ -33159,6 +34803,7 @@ export namespace Prisma {
     nanoHistorys?: NanoHistoryUncheckedUpdateManyWithoutWriterNestedInput
     joinRequests?: WorkspaceJoinRequestUncheckedUpdateManyWithoutUserNestedInput
     auditLogs?: AuditLogUncheckedUpdateManyWithoutAdminNestedInput
+    inquiries?: InquiryUncheckedUpdateManyWithoutAuthorNestedInput
   }
 
   export type UserCreateWithoutAuditLogsInput = {
@@ -33181,6 +34826,7 @@ export namespace Prisma {
     refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
     nanoHistorys?: NanoHistoryCreateNestedManyWithoutWriterInput
     joinRequests?: WorkspaceJoinRequestCreateNestedManyWithoutUserInput
+    inquiries?: InquiryCreateNestedManyWithoutAuthorInput
   }
 
   export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -33203,6 +34849,7 @@ export namespace Prisma {
     refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     nanoHistorys?: NanoHistoryUncheckedCreateNestedManyWithoutWriterInput
     joinRequests?: WorkspaceJoinRequestUncheckedCreateNestedManyWithoutUserInput
+    inquiries?: InquiryUncheckedCreateNestedManyWithoutAuthorInput
   }
 
   export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -33241,6 +34888,7 @@ export namespace Prisma {
     refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
     nanoHistorys?: NanoHistoryUpdateManyWithoutWriterNestedInput
     joinRequests?: WorkspaceJoinRequestUpdateManyWithoutUserNestedInput
+    inquiries?: InquiryUpdateManyWithoutAuthorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -33263,6 +34911,115 @@ export namespace Prisma {
     refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     nanoHistorys?: NanoHistoryUncheckedUpdateManyWithoutWriterNestedInput
     joinRequests?: WorkspaceJoinRequestUncheckedUpdateManyWithoutUserNestedInput
+    inquiries?: InquiryUncheckedUpdateManyWithoutAuthorNestedInput
+  }
+
+  export type UserCreateWithoutInquiriesInput = {
+    id?: string
+    email?: string | null
+    password?: string | null
+    firstName: string
+    lastName?: string | null
+    nickname?: string | null
+    profileImage?: string | null
+    defaultNameDisplay?: string
+    provider?: string
+    systemRole?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    preference?: UserPreferenceCreateNestedOneWithoutUserInput
+    workspaceMembers?: WorkspaceMemberCreateNestedManyWithoutUserInput
+    WorkspaceInvitations?: WorkspaceInvitationCreateNestedManyWithoutInviterInput
+    refreshTokens?: RefreshTokenCreateNestedManyWithoutUserInput
+    nanoHistorys?: NanoHistoryCreateNestedManyWithoutWriterInput
+    joinRequests?: WorkspaceJoinRequestCreateNestedManyWithoutUserInput
+    auditLogs?: AuditLogCreateNestedManyWithoutAdminInput
+  }
+
+  export type UserUncheckedCreateWithoutInquiriesInput = {
+    id?: string
+    email?: string | null
+    password?: string | null
+    firstName: string
+    lastName?: string | null
+    nickname?: string | null
+    profileImage?: string | null
+    defaultNameDisplay?: string
+    provider?: string
+    systemRole?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    deletedAt?: Date | string | null
+    preference?: UserPreferenceUncheckedCreateNestedOneWithoutUserInput
+    workspaceMembers?: WorkspaceMemberUncheckedCreateNestedManyWithoutUserInput
+    WorkspaceInvitations?: WorkspaceInvitationUncheckedCreateNestedManyWithoutInviterInput
+    refreshTokens?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    nanoHistorys?: NanoHistoryUncheckedCreateNestedManyWithoutWriterInput
+    joinRequests?: WorkspaceJoinRequestUncheckedCreateNestedManyWithoutUserInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutAdminInput
+  }
+
+  export type UserCreateOrConnectWithoutInquiriesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutInquiriesInput, UserUncheckedCreateWithoutInquiriesInput>
+  }
+
+  export type UserUpsertWithoutInquiriesInput = {
+    update: XOR<UserUpdateWithoutInquiriesInput, UserUncheckedUpdateWithoutInquiriesInput>
+    create: XOR<UserCreateWithoutInquiriesInput, UserUncheckedCreateWithoutInquiriesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutInquiriesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutInquiriesInput, UserUncheckedUpdateWithoutInquiriesInput>
+  }
+
+  export type UserUpdateWithoutInquiriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    profileImage?: NullableStringFieldUpdateOperationsInput | string | null
+    defaultNameDisplay?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    systemRole?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    preference?: UserPreferenceUpdateOneWithoutUserNestedInput
+    workspaceMembers?: WorkspaceMemberUpdateManyWithoutUserNestedInput
+    WorkspaceInvitations?: WorkspaceInvitationUpdateManyWithoutInviterNestedInput
+    refreshTokens?: RefreshTokenUpdateManyWithoutUserNestedInput
+    nanoHistorys?: NanoHistoryUpdateManyWithoutWriterNestedInput
+    joinRequests?: WorkspaceJoinRequestUpdateManyWithoutUserNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutAdminNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutInquiriesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    firstName?: StringFieldUpdateOperationsInput | string
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    profileImage?: NullableStringFieldUpdateOperationsInput | string | null
+    defaultNameDisplay?: StringFieldUpdateOperationsInput | string
+    provider?: StringFieldUpdateOperationsInput | string
+    systemRole?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    deletedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    preference?: UserPreferenceUncheckedUpdateOneWithoutUserNestedInput
+    workspaceMembers?: WorkspaceMemberUncheckedUpdateManyWithoutUserNestedInput
+    WorkspaceInvitations?: WorkspaceInvitationUncheckedUpdateManyWithoutInviterNestedInput
+    refreshTokens?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    nanoHistorys?: NanoHistoryUncheckedUpdateManyWithoutWriterNestedInput
+    joinRequests?: WorkspaceJoinRequestUncheckedUpdateManyWithoutUserNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutAdminNestedInput
   }
 
   export type WorkspaceMemberCreateManyUserInput = {
@@ -33320,6 +35077,18 @@ export namespace Prisma {
     userAgent?: string | null
     details?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
+  }
+
+  export type InquiryCreateManyAuthorInput = {
+    id?: string
+    title: string
+    content: string
+    isSecret?: boolean
+    status?: string
+    answer?: string | null
+    answeredAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type WorkspaceMemberUpdateWithoutUserInput = {
@@ -33497,6 +35266,42 @@ export namespace Prisma {
     userAgent?: NullableStringFieldUpdateOperationsInput | string | null
     details?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InquiryUpdateWithoutAuthorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    isSecret?: BoolFieldUpdateOperationsInput | boolean
+    status?: StringFieldUpdateOperationsInput | string
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
+    answeredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InquiryUncheckedUpdateWithoutAuthorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    isSecret?: BoolFieldUpdateOperationsInput | boolean
+    status?: StringFieldUpdateOperationsInput | string
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
+    answeredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type InquiryUncheckedUpdateManyWithoutAuthorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    isSecret?: BoolFieldUpdateOperationsInput | boolean
+    status?: StringFieldUpdateOperationsInput | string
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
+    answeredAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WorkspaceMemberCreateManyWorkspaceInput = {
