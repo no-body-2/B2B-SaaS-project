@@ -1,6 +1,6 @@
 {
   "name": "@luminano/api",
-  "version": "1.16.1",
+  "version": "2.0.0",
   "description": "B2B Luminano Service's API Package",
   "author": "no-body-2",
   "private": true,
@@ -75,6 +75,7 @@
     "@nestjs/testing": "^11.0.1",
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
+    "@types/k6": "^2.2.0",
     "@types/multer": "^2.2.0",
     "@types/node": "^24.0.0",
     "@types/nodemailer": "^8.0.0",

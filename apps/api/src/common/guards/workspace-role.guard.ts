@@ -34,7 +34,7 @@ export class WorkspaceRoleGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<
       Request<
         Record<string, string>,
-        any,
+        unknown,
         Record<string, string>,
         Record<string, string>
       > & {

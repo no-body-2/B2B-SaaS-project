@@ -26,9 +26,9 @@ describe('WorkspaceRoleGuard', () => {
 
   const createMockContext = (
     userId: string | undefined,
-    params: any,
-    query: any = {},
-    body: any = {},
+    params: Record<string, unknown>,
+    query: Record<string, unknown> = {},
+    body: Record<string, unknown> = {},
   ): ExecutionContext => {
     const req = {
       user: userId ? { userId } : undefined,

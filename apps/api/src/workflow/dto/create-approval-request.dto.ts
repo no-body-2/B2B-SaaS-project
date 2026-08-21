@@ -9,24 +9,41 @@
  * @date 2026-06-08
  */
 
-import { IsNotEmpty, IsString, IsOptional, IsObject } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsString, IsOptional, IsObject } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Prisma } from '@luminano/database';
 
 export class CreateApprovalRequestDto {
-  @ApiProperty({
+  @ApiPropertyOptional({
+    description: '결재 요청에 대한 코멘트/설명',
+    example: 'Test Nano 수정 결재 요청',
+  })
+  @IsOptional()
+  @IsString({ message: 'comment는 문자열 형태여야 합니다.' })
+  comment?: string;
+
+  @ApiPropertyOptional({
     description: '결재 요청에 대한 설명',
     example: 'Test Nano 수정 결재 요청',
   })
-  @IsNotEmpty({ message: '결재 요청 설명은 필수입니다.' })
-  @IsString()
-  comment!: string;
+  @IsOptional()
+  @IsString({ message: 'description은 문자열 형태여야 합니다.' })
+  description?: string;
 
   @ApiPropertyOptional({
-    description: '수정된 Nano Title',
+    description: '대상 Nano 문서 식별자 (CUID 등)',
+    example: 'clx0123456789abcdef01234',
+  })
+  @IsOptional()
+  @IsString({ message: 'nanoId는 문자열 형태여야 합니다.' })
+  nanoId?: string;
+
+  @ApiPropertyOptional({
+    description: '수정된 Nano 제목',
     example: 'Updated Test Nano Title',
   })
   @IsOptional()
-  @IsString()
+  @IsString({ message: 'title은 문자열 형태여야 합니다.' })
   title?: string;
 
   @ApiPropertyOptional({
@@ -35,5 +52,5 @@ export class CreateApprovalRequestDto {
   })
   @IsOptional()
   @IsObject({ message: 'content는 유효한 JSON 객체 형식이어야 합니다.' })
-  content?: Record<string, any>;
+  content?: Prisma.InputJsonObject;
 }

@@ -97,7 +97,11 @@ export class WorkflowService {
           id: historyId,
           nanoId,
           title: title ?? targetNano.title ?? '',
-          content: content ? content : (targetNano.content ?? undefined),
+          content: content
+            ? content
+            : targetNano.content
+              ? (targetNano.content as Prisma.InputJsonObject)
+              : undefined,
           writerId: userId,
           workspaceId,
           version: `v-${Date.now()}`,
@@ -202,7 +206,7 @@ export class WorkflowService {
           data: {
             title: history.title,
             content: history.content
-              ? (history.content as Record<string, any>)
+              ? (history.content as Prisma.InputJsonObject)
               : undefined,
             version: { increment: 1 },
           },

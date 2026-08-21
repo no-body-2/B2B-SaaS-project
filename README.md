@@ -213,6 +213,10 @@
 - v1.16.0 WebSocket 기능 보완 (Gateway 추가 및 Redis Pub/Sub 기능 적용)
 - v1.16.1 WebSocket Gateway 단위 테스트 import 경로 핫픽스
 
+### 2026-08-21
+
+- v2.0.0 Luminano B2B SaaS Major Production Milestone Release (Pure TypeScript 100% Unification, Zero-any Hardening, Gemini AI Custom Prompt Builder, k6 1,000 VU Load Testing & K8s Helm Deployment Ready)
+
 ---
 
 ## TODO

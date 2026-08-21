@@ -36,8 +36,8 @@ export class DistributedLockInterceptor implements NestInterceptor {
     private readonly redisService: RedisService,
   ) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const keyBuilder = this.reflector.get<(args: any[]) => string>(
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
+    const keyBuilder = this.reflector.get<(args: unknown[]) => string>(
       LOCK_KEY_BUILDER,
       context.getHandler(),
     );

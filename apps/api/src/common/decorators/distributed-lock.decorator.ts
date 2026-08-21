@@ -23,7 +23,7 @@ export const LOCK_TTL = 'LOCK_TTL';
  * @param ttlMs 락 유지 시간 (default: 5000ms)
  */
 export function DistributedLock(
-  keyBuilder: (args: any[]) => string,
+  keyBuilder: (args: unknown[]) => string,
   ttlMs: number = 5000,
 ) {
   return applyDecorators(

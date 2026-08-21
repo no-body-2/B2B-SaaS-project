@@ -50,8 +50,28 @@ export class HocuspocusService implements OnModuleInit, OnModuleDestroy {
           user: { id: 'user-123', name: 'John Doe' },
         });
       },
+      onLoadDocument: async (data: {
+        documentName: string;
+        document: Y.Doc;
+      }) => {
+        const nanoId = data.documentName;
+        const nano = await this.prisma.nano.findUnique({
+          where: { id: nanoId },
+        });
+        if (nano && nano.content) {
+          const textContent =
+            typeof nano.content === 'string'
+              ? nano.content
+              : JSON.stringify(nano.content);
+          const yText = data.document.getText('codemirror');
+          if (yText.length === 0) {
+            yText.insert(0, textContent);
+          }
+        }
+        return data.document;
+      },
 
-      // 2. Document Save Hook (Debounce 적용 DB Persistence)
+      // 3. Document Save Hook (Debounce 적용 DB Persistence)
       onStoreDocument: async (data: onStoreDocumentPayload) => {
         const nanoId = data.documentName; // documentName = nanoId
         const _stateVector = Y.encodeStateAsUpdate(data.document);

@@ -19,7 +19,7 @@ export interface CreateOutboxEventInput {
   aggregateType: string;
   aggregateId: string;
   eventType: string;
-  payload: Record<string, any>;
+  payload: Prisma.InputJsonObject;
 }
 
 @Injectable()

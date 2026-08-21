@@ -58,7 +58,8 @@ describe('DistributedLockInterceptor Unit Test', () => {
   it('1. 락 획득 성공 시 비즈니스 로직을 실행하고 완료 후 락을 해제해야 한다.', (done) => {
     reflectorMock.get.mockImplementation((key) => {
       if (key === 'LOCK_KEY_BUILDER') {
-        return (args: any[]) => `lock:${args[0].workspaceId}`;
+        return (args: unknown[]) =>
+          `lock:${(args[0] as { workspaceId: string }).workspaceId}`;
       }
       if (key === 'LOCK_TTL') return 5000;
       return null;
@@ -94,7 +95,8 @@ describe('DistributedLockInterceptor Unit Test', () => {
   it('2. 락 획득 실패 시 ConflictException(409) 예외를 발생시켜야 한다.', (done) => {
     reflectorMock.get.mockImplementation((key) => {
       if (key === 'LOCK_KEY_BUILDER') {
-        return (args: any[]) => `lock:${args[0].workspaceId}`;
+        return (args: unknown[]) =>
+          `lock:${(args[0] as { workspaceId: string }).workspaceId}`;
       }
       if (key === 'LOCK_TTL') return 5000;
       return null;

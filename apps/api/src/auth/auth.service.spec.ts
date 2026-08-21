@@ -76,19 +76,28 @@ describe('AuthService (Unit/Integration Test)', () => {
       // 이메일 중복 없음
       dbMock.user.findUnique.mockResolvedValue(null);
       // 저장 시 가상 응답
-      (dbMock.user.create as any).mockImplementation((args: any) => {
-        return Promise.resolve({
-          id: 'new-cuid-1',
-          email: args.data.email,
-          password: args.data.password, // 해싱된 상태여야 함
-          firstName: args.data.firstName,
-          lastName: args.data.lastName,
-          provider: 'local',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          deletedAt: null,
-        });
-      });
+      (dbMock.user.create as jest.Mock).mockImplementation(
+        (args: {
+          data: {
+            email: string;
+            password: string;
+            firstName: string;
+            lastName: string;
+          };
+        }) => {
+          return Promise.resolve({
+            id: 'new-cuid-1',
+            email: args.data.email,
+            password: args.data.password, // 해싱된 상태여야 함
+            firstName: args.data.firstName,
+            lastName: args.data.lastName,
+            provider: 'local',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            deletedAt: null,
+          });
+        },
+      );
 
       const result = await service.registerUser(registerDto);
 
