@@ -3,7 +3,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { InquiryService } from './inquiry.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { NotFoundException, ForbiddenException } from '@nestjs/common';
+import { ForbiddenException } from '@nestjs/common';
 
 describe('InquiryService (Unit Test)', () => {
   let service: InquiryService;

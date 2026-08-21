@@ -59,7 +59,9 @@ export class InquiryService {
       },
     });
 
-    this.logger.log(`[Inquiry Created] ID: ${inquiry.id} | Author: ${authorId}`);
+    this.logger.log(
+      `[Inquiry Created] ID: ${inquiry.id} | Author: ${authorId}`,
+    );
     return inquiry;
   }
 
@@ -177,7 +179,9 @@ export class InquiryService {
       },
     });
 
-    this.logger.log(`[Inquiry Answered] ID: ${id} by SuperAdmin: ${userCtx.userId}`);
+    this.logger.log(
+      `[Inquiry Answered] ID: ${id} by SuperAdmin: ${userCtx.userId}`,
+    );
     return updated;
   }
 

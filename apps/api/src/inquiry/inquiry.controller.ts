@@ -50,21 +50,33 @@ export class InquiryController {
   /**
    * Request 객체에서 옵셔널 JWT 토큰 추출
    */
-  private async getOptionalUser(headers: Record<string, string | undefined>): Promise<UserPayload | undefined> {
+  private async getOptionalUser(
+    headers: Record<string, string | undefined>,
+  ): Promise<UserPayload | undefined> {
     try {
       const authHeader = headers.authorization;
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return undefined;
       }
       const token = authHeader.replace('Bearer ', '');
-      const payload = (await this.jwtService.verifyAsync(token, {
+      const rawPayload: unknown = await this.jwtService.verifyAsync(token, {
         secret: appConfig.jwtAccessSecret,
-      })) as { sub?: string; userId?: string; systemRole?: string };
+      });
 
-      return {
-        userId: payload.userId || payload.sub || '',
-        systemRole: payload.systemRole || 'USER',
-      };
+      if (typeof rawPayload === 'object' && rawPayload !== null) {
+        const payload = rawPayload as Record<string, unknown>;
+        const userId =
+          typeof payload.userId === 'string'
+            ? payload.userId
+            : typeof payload.sub === 'string'
+              ? payload.sub
+              : '';
+        const systemRole =
+          typeof payload.systemRole === 'string' ? payload.systemRole : 'USER';
+
+        return { userId, systemRole };
+      }
+      return undefined;
     } catch (_err) {
       return undefined;
     }
@@ -83,7 +95,9 @@ export class InquiryController {
 
   @Get()
   @ApiOperation({ summary: '문의글 목록 조회 (비밀글 마스킹)' })
-  async findAllInquiries(@Req() req: { headers: Record<string, string | undefined> }) {
+  async findAllInquiries(
+    @Req() req: { headers: Record<string, string | undefined> },
+  ) {
     const userCtx = await this.getOptionalUser(req.headers);
     return this.inquiryService.findAllInquiries(userCtx);
   }
