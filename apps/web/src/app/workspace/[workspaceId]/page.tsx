@@ -16,7 +16,7 @@ import ChatPanel from '../../../components/ChatPanel';
 import MemberManagement from '../../../components/MemberManagement';
 import { 
   FileText, MessageSquare, ShieldCheck, Settings, 
-  ChevronLeft, ChevronRight, ChevronDown, Plus, Folder, Hash, Lock, Loader2, User, Users, GripVertical
+  ChevronLeft, ChevronRight, Plus, Folder, Hash, Lock, Loader2, User, Users, GripVertical, AlertTriangle, RefreshCw
 } from 'lucide-react';
 
 type Tab = 'doc' | 'approval' | 'chat' | 'settings' | 'profile' | 'members';
@@ -56,6 +56,20 @@ export default function WorkspaceDetailView() {
   const [dropAsChild, setDropAsChild] = useState<boolean>(false);
   const [orderedNanos, setOrderedNanos] = useState<any[]>([]);
   const [expandedNanos, setExpandedNanos] = useState<Record<string, boolean>>({});
+  const [syncTimedOut, setSyncTimedOut] = useState<boolean>(false);
+
+  // 무한 동기화 방지 6초 타이머
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (loadingWorkspace || (!activeWorkspace && workspaceId)) {
+      timer = setTimeout(() => {
+        setSyncTimedOut(true);
+      }, 6000);
+    } else {
+      setTimeout(() => setSyncTimedOut(false), 0);
+    }
+    return () => clearTimeout(timer);
+  }, [loadingWorkspace, activeWorkspace, workspaceId]);
 
   // nanos 동기화
   useEffect(() => {
@@ -258,6 +272,44 @@ export default function WorkspaceDetailView() {
     }
   };
 
+  if (syncTimedOut || (!loadingWorkspace && !activeWorkspace && !authLoading)) {
+    return (
+      <div className="flex flex-1 items-center justify-center min-h-screen bg-background p-6">
+        <div className="max-w-md w-full bg-luminano-point border border-luminano-border rounded-2xl p-6 shadow-2xl flex flex-col items-center text-center gap-4 animate-in fade-in duration-200">
+          <div className="w-12 h-12 rounded-full bg-amber-500/15 text-amber-500 flex items-center justify-center">
+            <AlertTriangle className="w-6 h-6 animate-bounce" />
+          </div>
+          <div>
+            <h3 className="font-bold text-base text-slate-900 dark:text-slate-100">
+              워크스페이스 동기화 지연 / 연결 해제
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+              네트워크 연결이 끊겼거나 워크스페이스 정보를 가져올 수 없습니다. 대시보드로 이동하거나 다시 동기화를 시도해 주세요.
+            </p>
+          </div>
+          <div className="flex items-center gap-3 w-full mt-2">
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="flex-1 px-4 py-2 border border-luminano-border hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-xs font-bold transition cursor-pointer text-slate-700 dark:text-slate-300"
+            >
+              대시보드로 이동
+            </button>
+            <button
+              onClick={() => {
+                setSyncTimedOut(false);
+                selectWorkspace(workspaceId);
+              }}
+              className="flex-1 px-4 py-2 bg-luminano-accent text-white dark:text-slate-950 font-bold rounded-xl text-xs transition cursor-pointer border-0 shadow-md flex items-center justify-center gap-1.5"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              다시 시도
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (authLoading || loadingWorkspace || !activeWorkspace) {
     return (
       <div className="flex flex-1 items-center justify-center min-h-screen bg-background">
@@ -436,17 +488,19 @@ export default function WorkspaceDetailView() {
                               <GripVertical className="w-3 h-3 text-slate-400 opacity-40 group-hover:opacity-100 cursor-grab shrink-0" />
                             )}
 
-                            {/* V 형태 펼치기 / 접기 버튼 (ChevronDown / ChevronRight) */}
+                            {/* 세련된 90도 회전 애니메이션 펼치기/접기 버튼 */}
                             <button
                               onClick={(e) => handleToggleExpand(e, doc.id)}
-                              className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700/50 rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition cursor-pointer border-0 bg-transparent shrink-0 flex items-center justify-center"
-                              title={isExpanded ? '하위 문서 접기 (V)' : '하위 문서 펼치기 (V)'}
+                              className="p-1 hover:bg-slate-200/60 dark:hover:bg-slate-700/60 rounded-md text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 transition-all duration-200 cursor-pointer border-0 bg-transparent shrink-0 flex items-center justify-center"
+                              title={isExpanded ? '하위 문서 접기' : '하위 문서 펼치기'}
                             >
-                              {isExpanded ? (
-                                <ChevronDown className="w-3.5 h-3.5 text-luminano-accent font-bold stroke-[2.5]" />
-                              ) : (
-                                <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 font-bold stroke-[2.5]" />
-                              )}
+                              <ChevronRight
+                                className={`w-3.5 h-3.5 transition-transform duration-200 ease-out ${
+                                  isExpanded
+                                    ? 'rotate-90 text-indigo-500 dark:text-indigo-400 stroke-[2.5]'
+                                    : 'rotate-0 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 stroke-[2]'
+                                }`}
+                              />
                             </button>
 
                             <button

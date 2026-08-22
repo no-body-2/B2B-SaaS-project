@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { useAuth } from '../../../context/AuthContext';
 import { inquiryApi } from '../../../lib/api';
 import LumiNanoIcon from '../../../components/LumiNanoIcon';
-import ThemeToggle from '../../../components/ThemeToggle';
 import {
   HelpCircle,
   Lock,
@@ -149,7 +148,6 @@ export default function InquiryDetailPage({
         </div>
 
         <div className="flex items-center gap-4">
-          <ThemeToggle />
           <Link
             href="/inquiries"
             className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition px-3 py-1.5 rounded-lg border border-slate-800 hover:bg-slate-800"

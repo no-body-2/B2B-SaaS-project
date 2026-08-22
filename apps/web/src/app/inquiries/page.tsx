@@ -4,7 +4,6 @@ import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { inquiryApi } from '../../lib/api';
 import LumiNanoIcon from '../../components/LumiNanoIcon';
-import ThemeToggle from '../../components/ThemeToggle';
 import {
   HelpCircle,
   PlusCircle,
@@ -76,7 +75,6 @@ export default function InquiryListPage() {
         </div>
 
         <div className="flex items-center gap-4">
-          <ThemeToggle />
           <Link
             href="/dashboard"
             className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition px-3 py-1.5 rounded-lg border border-slate-800 hover:bg-slate-800"
