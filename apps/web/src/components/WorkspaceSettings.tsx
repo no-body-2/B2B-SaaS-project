@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { useAuth } from '../context/AuthContext';
@@ -44,38 +44,40 @@ export default function WorkspaceSettings() {
   const [loadingInvitations, setLoadingInvitations] = useState(false);
   const [loadingDeleted, setLoadingDeleted] = useState(false);
 
-  const loadInvitations = async () => {
+  const loadInvitations = useCallback(async () => {
     if (!activeWorkspace) return;
     setLoadingInvitations(true);
     try {
       const res = await apiClient.members.listInvitations(activeWorkspace.id);
       setInvitations(res.data || []);
-    } catch (err) {
-      console.error('Failed to load invitations:', err);
+    } catch (_err) {
+      console.error('Failed to load invitations:', _err);
     } finally {
       setLoadingInvitations(false);
     }
-  };
+  }, [activeWorkspace]);
 
-  const loadDeletedNanos = async () => {
+  const loadDeletedNanos = useCallback(async () => {
     if (!activeWorkspace) return;
     setLoadingDeleted(true);
     try {
       const res = await apiClient.nanos.listDeleted(activeWorkspace.id);
       setDeletedNanos(res.data || []);
-    } catch (err) {
-      console.error('Failed to load deleted nanos:', err);
+    } catch (_err) {
+      console.error('Failed to load deleted nanos:', _err);
     } finally {
       setLoadingDeleted(false);
     }
-  };
+  }, [activeWorkspace]);
 
   useEffect(() => {
     if (activeWorkspace) {
-      loadInvitations();
-      loadDeletedNanos();
+      setTimeout(() => {
+        loadInvitations();
+        loadDeletedNanos();
+      }, 0);
     }
-  }, [activeWorkspace]);
+  }, [activeWorkspace, loadInvitations, loadDeletedNanos]);
 
   const handleRevokeInvite = async (invitationId: string, email: string) => {
     if (!activeWorkspace) return;
@@ -147,7 +149,7 @@ export default function WorkspaceSettings() {
     if (confirm(`정말로 ${targetName} 님을 워크스페이스에서 추방하시겠습니까?`)) {
       try {
         await kickMember(targetUserId);
-      } catch (err) {
+      } catch (_err) {
         alert('추방에 실패했습니다.');
       }
     }

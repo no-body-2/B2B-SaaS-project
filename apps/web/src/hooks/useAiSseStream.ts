@@ -28,9 +28,11 @@ export function useAiSseStream(jobId: string | null): UseAiSseStreamResult {
   useEffect(() => {
     if (!jobId) return;
 
-    setIsStreaming(true);
-    setStreamedText('');
-    setError(null);
+    setTimeout(() => {
+      setIsStreaming(true);
+      setStreamedText('');
+      setError(null);
+    }, 0);
 
     const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || '';
     const eventSource = new EventSource(`${apiBaseUrl}/api/v1/ai/stream/${jobId}`);

@@ -32,7 +32,7 @@ export default function WorkflowPanel() {
       await decideApproval(selectedAppr.id, decision, opinion);
       setOpinion('');
       alert(`성공적으로 결재가 ${actionText} 처리되었습니다.`);
-    } catch (err) {
+    } catch (_err) {
       alert('결재 처리에 실패했습니다.');
     } finally {
       setProcessing(false);
@@ -45,7 +45,7 @@ export default function WorkflowPanel() {
       try {
         await cancelApproval(apprId);
         alert('결재 요청이 성공적으로 취소되었습니다.');
-      } catch (err) {
+      } catch (_err) {
         alert('결재 요청 취소에 실패했습니다.');
       } finally {
         setProcessing(false);

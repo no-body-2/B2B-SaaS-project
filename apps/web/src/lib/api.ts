@@ -298,7 +298,7 @@ const mockApi = {
       localStorage.removeItem('currentUser');
       return { data: { message: '로그아웃 성공' } };
     },
-    googleLogin: async (dto: any) => {
+    googleLogin: async (_dto: any) => {
       const accessToken = `mock_at_google_${Date.now()}`;
       const refreshToken = `mock_rt_google_${Date.now()}`;
       setAccessToken(accessToken);
@@ -315,7 +315,7 @@ const mockApi = {
         },
       };
     },
-    githubLogin: async (dto: any) => {
+    githubLogin: async (_dto: any) => {
       const accessToken = `mock_at_github_${Date.now()}`;
       const refreshToken = `mock_rt_github_${Date.now()}`;
       setAccessToken(accessToken);
@@ -371,19 +371,19 @@ const mockApi = {
       localStorage.setItem('currentUser', JSON.stringify(current));
       return { data: { message: '모크 프로필 변경 완료' } };
     },
-    changePassword: async (dto: any) => {
+    changePassword: async (_dto: any) => {
       return { data: { message: '모크 비밀번호 변경 완료' } };
     },
-    requestEmailChange: async (dto: any) => {
+    requestEmailChange: async (_dto: any) => {
       return { data: { message: '모크 이메일 변경 요청 완료' } };
     },
-    verifyEmailChange: async (token: string) => {
+    verifyEmailChange: async (_token: string) => {
       return { data: { message: '모크 이메일 검증 승인 완료' } };
     },
     getPreference: async () => {
       return { data: { theme: 'light', language: 'ko', timezone: 'Asia/Seoul' } };
     },
-    updatePreference: async (dto: any) => {
+    updatePreference: async (_dto: any) => {
       return { data: { message: '모크 환경설정 변경 완료' } };
     },
   },
@@ -450,7 +450,7 @@ const mockApi = {
       return { data: workspaces[idx] };
     },
 
-    delete: async (workspaceId: string, confirmName?: string) => {
+    delete: async (workspaceId: string, _confirmName?: string) => {
       const workspaces = getMockStorage('b2b_mock_workspaces', [] as any[]);
       const idx = workspaces.findIndex((w) => w.id === workspaceId);
       if (idx === -1) throw { response: { status: 404 } };
@@ -574,7 +574,7 @@ const mockApi = {
       setMockStorage('b2b_mock_workspace_members', filtered);
       return { data: { message: '탈퇴 성공' } };
     },
-    acceptInvite: async (dto: any) => {
+    acceptInvite: async (_dto: any) => {
       return { data: { message: '모크 초대 수락 성공' } };
     },
     listInvitations: async (workspaceId: string) => {
@@ -664,13 +664,13 @@ const mockApi = {
       setMockStorage('b2b_mock_nanos', filtered);
       return { data: { message: '문서 삭제 완료' } };
     },
-    movePosition: async (workspaceId: string, nanoId: string, dto: any) => {
+    movePosition: async (_workspaceId: string, _nanoId: string, _dto: any) => {
       return { data: { message: '모크 문서 위치 변경 성공' } };
     },
-    restore: async (workspaceId: string, nanoId: string) => {
+    restore: async (_workspaceId: string, _nanoId: string) => {
       return { data: { message: '모크 문서 복구 성공' } };
     },
-    listDeleted: async (workspaceId: string) => {
+    listDeleted: async (_workspaceId: string) => {
       return { data: [] };
     },
   },
@@ -780,7 +780,7 @@ const mockApi = {
       return { data: newRoom };
     },
 
-    join: async (workspaceId: string, chatroomId: string) => {
+    join: async (_workspaceId: string, _chatroomId: string) => {
       // Mock 환경에서는 단순 참여 성공 반환
       return { data: { message: '채팅방 합류 완료' } };
     },
@@ -848,10 +848,10 @@ const mockApi = {
       );
       return { data: filtered };
     },
-    delegate: async (workspaceId: string, chatroomId: string, dto: any) => {
+    delegate: async (_workspaceId: string, _chatroomId: string, _dto: any) => {
       return { data: { message: '모크 방장 위임 완료' } };
     },
-    read: async (workspaceId: string, chatroomId: string, dto: any) => {
+    read: async (_workspaceId: string, _chatroomId: string, _dto: any) => {
       return { data: { message: '모크 읽음 동기화 완료' } };
     },
   },

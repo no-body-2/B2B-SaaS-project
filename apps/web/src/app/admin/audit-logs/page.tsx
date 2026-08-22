@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { adminApi } from '@/lib/api';
 import {
   ScrollText,
@@ -39,7 +39,7 @@ export default function AdminAuditLogsPage() {
   const [loading, setLoading] = useState(true);
   const [expandedLogId, setExpandedLogId] = useState<string | null>(null);
 
-  const fetchAuditLogs = async (currentPage = 1, filter = '') => {
+  const fetchAuditLogs = useCallback(async (currentPage = 1, filter = '') => {
     setLoading(true);
     try {
       const res = await adminApi.getAuditLogs({ page: currentPage, limit: 15, action: filter });
@@ -51,11 +51,11 @@ export default function AdminAuditLogsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchAuditLogs(page, actionFilter);
-  }, [page]);
+  }, [page, actionFilter, fetchAuditLogs]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();

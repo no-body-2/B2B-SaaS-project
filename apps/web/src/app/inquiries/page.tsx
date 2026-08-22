@@ -1,9 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import useRouter from 'next/navigation';
+import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { useAuth } from '../../context/AuthContext';
 import { inquiryApi } from '../../lib/api';
 import LumiNanoIcon from '../../components/LumiNanoIcon';
 import ThemeToggle from '../../components/ThemeToggle';
@@ -16,8 +14,6 @@ import {
   Clock,
   ArrowLeft,
   Loader2,
-  Trash2,
-  ShieldCheck,
 } from 'lucide-react';
 
 interface InquiryItem {
@@ -39,16 +35,11 @@ interface InquiryItem {
 }
 
 export default function InquiryListPage() {
-  const { user } = useAuth();
   const [inquiries, setInquiries] = useState<InquiryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
 
-  useEffect(() => {
-    fetchInquiries();
-  }, []);
-
-  const fetchInquiries = async () => {
+  const fetchInquiries = useCallback(async () => {
     setLoading(true);
     setErrorMsg('');
     try {
@@ -60,7 +51,11 @@ export default function InquiryListPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchInquiries();
+  }, [fetchInquiries]);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
@@ -141,7 +136,6 @@ export default function InquiryListPage() {
                   item.author?.firstName ||
                   item.author?.email ||
                   '익명';
-                const isSecretText = item.title.includes('🔒');
 
                 return (
                   <Link

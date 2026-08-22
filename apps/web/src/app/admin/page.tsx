@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { adminApi } from '@/lib/api';
 import {
   Users,
@@ -12,9 +12,7 @@ import {
   Download,
   ShieldCheck,
   RefreshCw,
-  Loader2,
   CheckCircle2,
-  AlertTriangle,
 } from 'lucide-react';
 import SudoModal from '@/components/admin/SudoModal';
 
@@ -41,7 +39,7 @@ export default function AdminDashboardPage() {
   // Sudo Modal state for Notice Creation
   const [sudoModalOpen, setSudoModalOpen] = useState(false);
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     setLoading(true);
     try {
       const [statsRes, healthRes] = await Promise.allSettled([
@@ -60,11 +58,11 @@ export default function AdminDashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+  }, [fetchDashboardData]);
 
   const formatBytes = (bytes: number) => {
     if (bytes === 0) return '0 B';

@@ -16,7 +16,9 @@ function AcceptInviteForm() {
 
   useEffect(() => {
     if (!token) {
-      setErrorMsg('초대 토큰이 존재하지 않습니다. 이메일 링크를 확인해 주세요.');
+      setTimeout(() => {
+        setErrorMsg('초대 토큰이 존재하지 않습니다. 이메일 링크를 확인해 주세요.');
+      }, 0);
     }
   }, [token]);
 

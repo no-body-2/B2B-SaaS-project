@@ -33,7 +33,9 @@ export default function Home() {
       const errParam = urlParams.get('error');
       if (errParam) {
         window.history.replaceState({}, document.title, window.location.pathname);
-        setErrorMsg('Google 계정 인증이 취소되었거나 로그인 처리 도중 오류가 발생했습니다.');
+        setTimeout(() => {
+          setErrorMsg('Google 계정 인증이 취소되었거나 로그인 처리 도중 오류가 발생했습니다.');
+        }, 0);
       }
     }
   }, []);

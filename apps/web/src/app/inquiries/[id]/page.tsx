@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, use } from 'react';
+import React, { useEffect, useState, useCallback, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../../context/AuthContext';
@@ -10,7 +10,6 @@ import ThemeToggle from '../../../components/ThemeToggle';
 import {
   HelpCircle,
   Lock,
-  MessageSquare,
   CheckCircle2,
   Clock,
   ArrowLeft,
@@ -61,11 +60,7 @@ export default function InquiryDetailPage({
   const [answerError, setAnswerError] = useState('');
   const [deleting, setDeleting] = useState(false);
 
-  useEffect(() => {
-    fetchDetail();
-  }, [inquiryId]);
-
-  const fetchDetail = async () => {
+  const fetchDetail = useCallback(async () => {
     setLoading(true);
     setErrorMsg('');
     try {
@@ -83,7 +78,11 @@ export default function InquiryDetailPage({
     } finally {
       setLoading(false);
     }
-  };
+  }, [inquiryId]);
+
+  useEffect(() => {
+    fetchDetail();
+  }, [fetchDetail]);
 
   // SUPER_ADMIN 답변 등록 핸들러
   const handleAnswerSubmit = async (e: React.FormEvent) => {

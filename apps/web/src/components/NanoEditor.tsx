@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useWorkspace } from '../context/WorkspaceContext';
-import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../lib/api';
 import { FileText, Save, Trash2, Calendar, Lock, Unlock, ShieldAlert, Sparkles, Loader2, Plus, ChevronRight, CornerDownRight, Info } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -65,16 +64,21 @@ export default function NanoEditor() {
 
   useEffect(() => {
     if (activeNano) {
-      setTitle(activeNano.title);
-      setContent(activeNano.content || '');
-      setIsEditMode(false);
-      setIsApprModalOpen(false);
-      
-      if (activeWorkspace) {
-        fetchChildren();
-      }
+      setTimeout(() => {
+        setTitle(activeNano.title);
+        setContent(activeNano.content || '');
+        setIsEditMode(false);
+        setIsApprModalOpen(false);
+        
+        if (activeWorkspace) {
+          fetchChildren();
+        }
+      }, 0);
     } else {
-      setChildNanos([]);
+      setTimeout(() => {
+        setTitle('');
+        setContent('');
+      }, 0);
     }
   }, [activeNano, activeWorkspace, fetchChildren]);
 
@@ -111,7 +115,7 @@ export default function NanoEditor() {
         await updateNano(activeNano.id, title, content);
         setIsEditMode(false);
         alert('문서가 즉시 업데이트되었습니다.');
-      } catch (err) {
+      } catch (_err) {
         alert('저장에 실패했습니다.');
       } finally {
         setSaving(false);
@@ -139,7 +143,7 @@ export default function NanoEditor() {
       setIsApprModalOpen(false);
       setIsEditMode(false);
       alert('문서 수정 제안이 최고 관리자(OWNER)의 결재선으로 성공적으로 상신되었습니다.');
-    } catch (err) {
+    } catch (_err) {
       alert('결재 요청 상신에 실패했습니다.');
     } finally {
       setSubmittingAppr(false);
@@ -152,7 +156,7 @@ export default function NanoEditor() {
       try {
         await deleteNano(activeNano.id);
         alert('문서가 삭제되었습니다.');
-      } catch (err) {
+      } catch (_err) {
         alert('삭제에 실패했습니다.');
       }
     }
@@ -160,8 +164,10 @@ export default function NanoEditor() {
 
   useEffect(() => {
     if (isCreatingNewNano) {
-      setTitle(initialNewNanoTitle || '');
-      setContent('');
+      setTimeout(() => {
+        setTitle(initialNewNanoTitle || '');
+        setContent('');
+      }, 0);
     }
   }, [isCreatingNewNano, initialNewNanoTitle]);
 
@@ -174,7 +180,7 @@ export default function NanoEditor() {
     try {
       await createNano(title.trim(), content, null);
       alert('새 문서가 성공적으로 생성 및 저장되었습니다.');
-    } catch (err) {
+    } catch (_err) {
       alert('문서 생성에 실패했습니다.');
     } finally {
       setSaving(false);
@@ -243,7 +249,7 @@ export default function NanoEditor() {
           <div className="bg-indigo-950/30 border border-indigo-800/40 p-3.5 rounded-xl text-xs text-indigo-300 flex items-center gap-2">
             <Info className="w-4 h-4 shrink-0 text-indigo-400" />
             <span>
-              상단 <strong>'문서 생성 및 저장'</strong> 버튼을 클릭하면 작성하신 제목과 본문이 워크스페이스 DB에 정식 등록 및 보존됩니다.
+              상단 <strong>&lsquo;문서 생성 및 저장&rsquo;</strong> 버튼을 클릭하면 작성하신 제목과 본문이 워크스페이스 DB에 정식 등록 및 보존됩니다.
             </span>
           </div>
         </div>

@@ -17,7 +17,9 @@ function GoogleCallbackContent() {
     const errorParam = searchParams.get('error');
 
     if (errorParam) {
-      setErrorMsg('Google 로그인 인증이 취소되었거나 거부되었습니다.');
+      setTimeout(() => {
+        setErrorMsg('Google 로그인 인증이 취소되었거나 거부되었습니다.');
+      }, 0);
       setTimeout(() => router.replace('/'), 2000);
       return;
     }

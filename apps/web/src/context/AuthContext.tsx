@@ -42,7 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const realName = (rawUser.lastName || rawUser.firstName)
       ? `${rawUser.lastName || ''}${rawUser.firstName || ''}`.trim()
       : (rawUser.name || rawUser.email);
-    const nickname = rawUser.nickname || realName;
+    const _nickname = rawUser.nickname || realName;
     const defaultNameDisplay = rawUser.defaultNameDisplay || 'NICKNAME';
     const displayName = (defaultNameDisplay === 'NICKNAME' && rawUser.nickname) 
       ? rawUser.nickname 
@@ -102,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     };
     fetchUser();
-  }, []);
+  }, [IS_MOCK]);
 
   const login = async (email: string, password: string) => {
     try {

@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '../../../context/AuthContext';
 import { inquiryApi } from '../../../lib/api';
 import LumiNanoIcon from '../../../components/LumiNanoIcon';
 import ThemeToggle from '../../../components/ThemeToggle';
@@ -17,7 +16,6 @@ import {
 
 export default function NewInquiryPage() {
   const router = useRouter();
-  const { user } = useAuth();
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');

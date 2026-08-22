@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { apiClient } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { User, Lock, Mail, Settings, Loader2, Sparkles, Trash2, AlertTriangle, Upload } from 'lucide-react';
+import { User, Lock, Mail, Settings, Loader2, Trash2, AlertTriangle, Upload } from 'lucide-react';
 
 export default function UserProfileSettings() {
   const router = useRouter();

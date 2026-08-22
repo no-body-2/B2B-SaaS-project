@@ -1,12 +1,11 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { adminApi } from '@/lib/api';
 import {
   Building2,
   Search,
   Users,
-  Globe,
   Lock,
   Unlock,
   Trash2,
@@ -41,7 +40,7 @@ export default function AdminWorkspacesPage() {
   const [sudoModalOpen, setSudoModalOpen] = useState(false);
   const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<string | null>(null);
 
-  const fetchWorkspaces = async (currentPage = 1, searchQuery = '') => {
+  const fetchWorkspaces = useCallback(async (currentPage = 1, searchQuery = '') => {
     setLoading(true);
     try {
       const res = await adminApi.getWorkspaces({ page: currentPage, limit: 10, search: searchQuery });
@@ -53,11 +52,11 @@ export default function AdminWorkspacesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchWorkspaces(page, search);
-  }, [page]);
+  }, [page, search, fetchWorkspaces]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { adminApi, setAccessToken } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import {
@@ -14,7 +14,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
-  Lock,
 } from 'lucide-react';
 import SudoModal from '@/components/admin/SudoModal';
 
@@ -46,7 +45,7 @@ export default function AdminUsersPage() {
     targetRole?: string;
   } | null>(null);
 
-  const fetchUsers = async (currentPage = 1, searchQuery = '') => {
+  const fetchUsers = useCallback(async (currentPage = 1, searchQuery = '') => {
     setLoading(true);
     try {
       const res = await adminApi.getUsers({ page: currentPage, limit: 10, search: searchQuery });
@@ -58,11 +57,11 @@ export default function AdminUsersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchUsers(page, search);
-  }, [page]);
+  }, [page, search, fetchUsers]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();

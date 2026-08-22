@@ -16,7 +16,7 @@ import ChatPanel from '../../../components/ChatPanel';
 import MemberManagement from '../../../components/MemberManagement';
 import { 
   FileText, MessageSquare, ShieldCheck, Settings, 
-  ChevronLeft, ChevronRight, ChevronDown, Plus, Folder, Hash, Lock, Loader2, User, ArrowUp, ArrowDown, Users, GripVertical, CheckCircle
+  ChevronLeft, ChevronRight, ChevronDown, Plus, Folder, Hash, Lock, Loader2, User, Users, GripVertical
 } from 'lucide-react';
 
 type Tab = 'doc' | 'approval' | 'chat' | 'settings' | 'profile' | 'members';
@@ -31,7 +31,6 @@ export default function WorkspaceDetailView() {
     channels, 
     approvals,
     selectWorkspace, 
-    createNano,
     startNewNanoCreation,
     createChannel,
     selectNano,
@@ -54,13 +53,10 @@ export default function WorkspaceDetailView() {
   const [draggedNanoId, setDraggedNanoId] = useState<string | null>(null);
   const [orderedNanos, setOrderedNanos] = useState<any[]>([]);
   const [expandedNanos, setExpandedNanos] = useState<Record<string, boolean>>({});
-  const [hasUnsavedNanoOrder, setHasUnsavedNanoOrder] = useState(false);
-  const [savingOrder, setSavingOrder] = useState(false);
 
   // nanos 동기화
   useEffect(() => {
     setOrderedNanos(nanos);
-    setHasUnsavedNanoOrder(false);
   }, [nanos]);
 
   // 미승인 결재 건수 카운트

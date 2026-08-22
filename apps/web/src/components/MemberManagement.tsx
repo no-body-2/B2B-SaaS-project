@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { apiClient } from '../lib/api';
 import { Users, UserPlus, UserMinus, Check, X, Clock, Loader2 } from 'lucide-react';
 
@@ -13,15 +13,11 @@ export default function MemberManagement({ workspaceId, userRole }: MemberManage
   const [activeTab, setActiveTab] = useState<'MEMBERS' | 'JOIN_REQUESTS'>('MEMBERS');
   const [members, setMembers] = useState<any[]>([]);
   const [joinRequests, setJoinRequests] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [_loading, setLoading] = useState(true);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviting, setInviting] = useState(false);
 
-  useEffect(() => {
-    loadData();
-  }, [workspaceId, activeTab]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       if (activeTab === 'MEMBERS') {
@@ -37,7 +33,13 @@ export default function MemberManagement({ workspaceId, userRole }: MemberManage
     } finally {
       setLoading(false);
     }
-  };
+  }, [workspaceId, activeTab]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      loadData();
+    }, 0);
+  }, [loadData]);
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();

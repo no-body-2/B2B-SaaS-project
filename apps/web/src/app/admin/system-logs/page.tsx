@@ -1,15 +1,12 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { adminApi } from '../../../lib/api';
 import {
   Terminal,
   RefreshCw,
   Search,
   Filter,
-  ShieldAlert,
-  Info,
-  AlertTriangle,
   Loader2,
 } from 'lucide-react';
 
@@ -30,11 +27,7 @@ export default function AdminSystemLogsPage() {
   const [filterLevel, setFilterLevel] = useState<string>('ALL');
   const [searchKeyword, setSearchKeyword] = useState<string>('');
 
-  useEffect(() => {
-    fetchLogs();
-  }, []);
-
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     setLoading(true);
     try {
       const res = await adminApi.getSystemLogs({ limit: 100 });
@@ -44,7 +37,11 @@ export default function AdminSystemLogsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchLogs();
+  }, [fetchLogs]);
 
   const filteredLogs = logs.filter((log) => {
     const matchesLevel =

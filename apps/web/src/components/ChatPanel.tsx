@@ -59,10 +59,12 @@ export default function ChatPanel() {
   useEffect(() => {
     if (!activeWorkspace || !activeChannel) return;
 
-    setLoading(true);
-    setMessages([]);
-    setShowSearch(false);
-    setSearchQuery('');
+    setTimeout(() => {
+      setLoading(true);
+      setMessages([]);
+      setShowSearch(false);
+      setSearchQuery('');
+    }, 0);
 
     // 과거 대화 목록 로드
     const loadHistory = async () => {

@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import LumiNanoIcon from '../../components/LumiNanoIcon';
 import { apiClient } from '../../lib/api';
-import { Building2, Plus, LogOut, Trash2, ArrowRight, Loader2, Sparkles, ChevronDown, User as UserIcon, Settings, HelpCircle } from 'lucide-react';
+import { Building2, Plus, LogOut, Loader2, ChevronDown, Settings, HelpCircle, ArrowRight, Trash2, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import UserProfileSettings from '../../components/UserProfileSettings';
 
@@ -17,7 +17,7 @@ export default function Dashboard() {
     workspaces, 
     fetchWorkspaces, 
     selectWorkspace, 
-    createWorkspace, 
+    createWorkspace,
     restoreWorkspace
   } = useWorkspace();
 
@@ -35,7 +35,15 @@ export default function Dashboard() {
 
   // 추천 공개 워크스페이스 상태
   const [publicWorkspaces, setPublicWorkspaces] = useState<any[]>([]);
-  const [loadingPublic, setLoadingPublic] = useState(false);
+
+  const loadPublicWorkspaces = useCallback(async () => {
+    try {
+      const res = await apiClient.workspace.listPublic();
+      setPublicWorkspaces(res.data || []);
+    } catch (err) {
+      console.error('Failed to fetch public workspaces:', err);
+    }
+  }, []);
 
   // 세션이 없으면 로그인 페이지로 튕겨냄
   useEffect(() => {
@@ -50,19 +58,7 @@ export default function Dashboard() {
       fetchWorkspaces();
       loadPublicWorkspaces();
     }
-  }, [user, fetchWorkspaces]);
-
-  const loadPublicWorkspaces = async () => {
-    setLoadingPublic(true);
-    try {
-      const res = await apiClient.workspace.listPublic();
-      setPublicWorkspaces(res.data || []);
-    } catch (err) {
-      console.error('Failed to fetch public workspaces:', err);
-    } finally {
-      setLoadingPublic(false);
-    }
-  };
+  }, [user, fetchWorkspaces, loadPublicWorkspaces]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();

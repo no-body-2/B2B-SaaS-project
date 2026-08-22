@@ -24,9 +24,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const savedTheme = (localStorage.getItem('luminano_theme') as ThemePreset) || 'light';
     const savedFont = (localStorage.getItem('luminano_font') as FontFamilyOption) || 'inter';
 
-    setThemeState(savedTheme);
-    setFontState(savedFont);
-    ThemeUtil.applyTheme(savedTheme, savedFont);
+    setTimeout(() => {
+      setThemeState(savedTheme);
+      setFontState(savedFont);
+      ThemeUtil.applyTheme(savedTheme, savedFont);
+    }, 0);
   }, []);
 
   const setTheme = (newTheme: ThemePreset) => {
