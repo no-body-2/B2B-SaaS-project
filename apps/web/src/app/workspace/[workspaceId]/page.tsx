@@ -189,7 +189,6 @@ export default function WorkspaceDetailView() {
         await apiClient.nanos.movePosition(workspaceId, draggedNanoId, {
           targetParentNanoId: targetId,
         });
-        await selectWorkspace(workspaceId);
       } catch (err) {
         console.error('Failed to move nano as child:', err);
       }
@@ -202,7 +201,7 @@ export default function WorkspaceDetailView() {
         const [removed] = list.splice(dragIdx, 1);
         removed.parentNanoId = targetItem.parentNanoId || null;
         list.splice(dropIdx, 0, removed);
-        setOrderedNanos(list);
+        setOrderedNanos([...list]);
 
         const prevNanoId = dropIdx > 0 ? list[dropIdx - 1].id : undefined;
         try {
@@ -210,7 +209,6 @@ export default function WorkspaceDetailView() {
             targetParentNanoId: removed.parentNanoId || undefined,
             prevNanoId,
           });
-          await selectWorkspace(workspaceId);
         } catch (err) {
           console.error('Failed to auto-save nano position:', err);
         }

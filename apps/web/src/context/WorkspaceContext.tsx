@@ -203,29 +203,43 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           order: n.order || 1
         }));
 
-        const childPromises = formattedNanos.map(async (rootNano: any) => {
-          try {
-            const childRes = await apiClient.nanos.listChild(workspaceId, rootNano.id);
-            const childList = Array.isArray(childRes.data)
-              ? childRes.data
-              : (childRes.data?.nanoList || childRes.data?.items || []);
-            return childList.map((cn: any) => ({
-              id: cn.nanoId || cn.id,
-              title: cn.title,
-              type: cn.type,
-              createdAt: cn.createdAt,
-              workspaceId,
-              content: cn.content || '',
-              parentNanoId: cn.parentNanoId || rootNano.id,
-              order: cn.order || 1,
-            }));
-          } catch {
-            return [];
-          }
-        });
+        // 모든 계층의 하위 문서(N-level 자식/손자 문서)를 재귀적으로 조회하여 완벽 동기화
+        const fetchChildrenRecursively = async (parentIds: string[]): Promise<any[]> => {
+          if (parentIds.length === 0) return [];
+          const results = await Promise.all(
+            parentIds.map(async (parentId) => {
+              try {
+                const childRes = await apiClient.nanos.listChild(workspaceId, parentId);
+                const childList = Array.isArray(childRes.data)
+                  ? childRes.data
+                  : (childRes.data?.nanoList || childRes.data?.items || childRes.data?.nanos || []);
+                const formatted = childList.map((cn: any) => ({
+                  id: cn.nanoId || cn.id,
+                  title: cn.title,
+                  type: cn.type,
+                  createdAt: cn.createdAt,
+                  workspaceId,
+                  content: cn.content || '',
+                  parentNanoId: cn.parentNanoId || parentId,
+                  order: cn.order || 1,
+                }));
+                if (formatted.length > 0) {
+                  const subChildren = await fetchChildrenRecursively(formatted.map((f: any) => f.id));
+                  return [...formatted, ...subChildren];
+                }
+                return formatted;
+              } catch {
+                return [];
+              }
+            })
+          );
+          return results.flat();
+        };
 
-        const childResults = await Promise.all(childPromises);
-        setNanos([...formattedNanos, ...childResults.flat()]);
+        const allChildren = await fetchChildrenRecursively(formattedNanos.map((n: any) => n.id));
+        const allNanosMap = new Map<string, any>();
+        [...formattedNanos, ...allChildren].forEach((item) => allNanosMap.set(item.id, item));
+        setNanos(Array.from(allNanosMap.values()));
       } catch (e) {
         console.error('Failed to load nanos:', e);
       }
