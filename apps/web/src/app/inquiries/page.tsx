@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { inquiryApi } from '../../lib/api';
-import LumiNanoIcon from '../../components/LumiNanoIcon';
+import { LumiNanoLogo } from '../../components/LumiNanoBrand';
 import {
   HelpCircle,
   PlusCircle,
@@ -60,19 +60,11 @@ export default function InquiryListPage() {
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
       {/* Top Navbar */}
       <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur px-6 py-4 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition">
-            <LumiNanoIcon className="w-8 h-8 text-indigo-400" />
-            <span className="font-bold text-xl bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
-              LumiNano
-            </span>
-          </Link>
-          <span className="text-slate-600">/</span>
-          <span className="flex items-center gap-1.5 font-medium text-slate-300">
-            <HelpCircle className="w-4 h-4 text-indigo-400" />
-            문의사항 게시판
-          </span>
-        </div>
+        <LumiNanoLogo
+          href="/dashboard"
+          subTitle="문의사항 게시판"
+          subIcon={<HelpCircle className="w-4 h-4 text-indigo-400" />}
+        />
 
         <div className="flex items-center gap-4">
           <Link

@@ -160,11 +160,14 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   }, []);
 
-  // 워크스페이스 세부 데이터 일괄 동기화
+  // 워크스페이스 세부 데이터 일괄 동기화 (부드러운 플리커링 방지)
   const selectWorkspace = useCallback(async (workspaceId: string) => {
-    setLoadingWorkspace(true);
-    setActiveNano(null);
-    setActiveChannel(null);
+    const isDifferentWorkspace = !activeWorkspace || activeWorkspace.id !== workspaceId;
+    if (isDifferentWorkspace) {
+      setLoadingWorkspace(true);
+      setActiveNano(null);
+      setActiveChannel(null);
+    }
     try {
       // 1. 워크스페이스 상세 정보 및 내 권한 파악
       const wsRes = await apiClient.workspace.getDetail(workspaceId);

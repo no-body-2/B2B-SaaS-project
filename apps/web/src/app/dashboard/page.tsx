@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { useWorkspace } from '../../context/WorkspaceContext';
 import LumiNanoIcon from '../../components/LumiNanoIcon';
+import { LumiNanoLogo } from '../../components/LumiNanoBrand';
 import { apiClient } from '../../lib/api';
 import { Building2, Plus, LogOut, Loader2, ChevronDown, Settings, HelpCircle, ArrowRight, Trash2, Sparkles } from 'lucide-react';
 import Link from 'next/link';
@@ -138,12 +139,7 @@ export default function Dashboard() {
       
       {/* 글로벌 상단 내비 바 */}
       <header className="sticky top-0 z-40 bg-luminano-point/80 backdrop-blur border-b border-luminano-border py-4 px-8 flex justify-between items-center shadow-md">
-        <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center overflow-hidden">
-            <LumiNanoIcon size={36} />
-          </div>
-          <span className="font-bold text-lg tracking-tight text-foreground">LumiNano</span>
-        </div>
+        <LumiNanoLogo href="/dashboard" size="md" />
         <div className="flex items-center gap-4 relative">
           <Link
             href="/inquiries"

@@ -6,7 +6,7 @@ import { useWorkspace } from '../../../context/WorkspaceContext';
 import { useAuth } from '../../../context/AuthContext';
 import WorkspaceSettings from '../../../components/WorkspaceSettings';
 import UserProfileSettings from '../../../components/UserProfileSettings';
-import LumiNanoIcon from '../../../components/LumiNanoIcon';
+import { LumiNanoLogo } from '../../../components/LumiNanoBrand';
 import { apiClient } from '../../../lib/api';
 
 import NanoEditor from '../../../components/NanoEditor';
@@ -360,26 +360,16 @@ export default function WorkspaceDetailView() {
       <aside className="w-64 flex flex-col border-r border-luminano-border bg-luminano-point overflow-y-auto h-full max-h-screen">
         
         {/* 상단 로고 및 정보 */}
-        <div className="p-4 border-b border-luminano-border flex items-center justify-between gap-2 relative">
-          <div className="flex items-center gap-2 min-w-0">
+        <div className="p-3.5 border-b border-luminano-border flex items-center justify-between gap-2 relative">
+          <div className="flex items-center gap-1.5 min-w-0">
             <button
               onClick={() => router.push('/dashboard')}
-              className="p-1 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-800/40 rounded-md transition cursor-pointer bg-transparent border-0"
+              className="p-1 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-800/40 rounded-md transition cursor-pointer bg-transparent border-0 shrink-0"
               title="대시보드로 돌아가기"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <div className="w-7 h-7 rounded-md flex items-center justify-center overflow-hidden shrink-0">
-              <LumiNanoIcon size={28} />
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className="font-bold text-sm tracking-tight text-slate-800 dark:text-slate-100 truncate">
-                {activeWorkspace.name}
-              </span>
-              <span className="text-[10px] text-slate-500 dark:text-slate-300 truncate">
-                {user?.name} ({activeWorkspace.role})
-              </span>
-            </div>
+            <LumiNanoLogo size="sm" href="" subTitle={activeWorkspace.name} />
           </div>
 
           <div className="relative shrink-0">

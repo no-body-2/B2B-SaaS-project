@@ -3,6 +3,7 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { LumiNanoLogo } from '../../components/LumiNanoBrand';
 import {
   LayoutDashboard,
   Users,
@@ -40,21 +41,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       <aside className="w-64 border-r border-slate-800/80 bg-[#0c101c] flex flex-col justify-between p-5 select-none shrink-0">
         <div className="space-y-8">
           {/* 로고 브랜드 */}
-          <div className="flex items-center gap-3 px-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-emerald-500 p-0.5 shadow-lg shadow-indigo-950/50 flex items-center justify-center">
-              <div className="w-full h-full bg-[#0c101c] rounded-[10px] flex items-center justify-center">
-                <ShieldCheck className="w-5 h-5 text-emerald-400" />
-              </div>
-            </div>
-            <div>
-              <div className="font-extrabold text-base tracking-wide bg-gradient-to-r from-slate-100 to-slate-400 bg-clip-text text-transparent">
-                LumiNano
-              </div>
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                SuperAdmin Console
-              </div>
-            </div>
+          <div className="px-2">
+            <LumiNanoLogo href="/dashboard" size="lg" subTitle="SuperAdmin" subIcon={<ShieldCheck className="w-4 h-4 text-emerald-400" />} />
           </div>
 
           {/* 내비게이션 메뉴 */}

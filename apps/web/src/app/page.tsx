@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../lib/api';
-import LumiNanoIcon from '../components/LumiNanoIcon';
+import { LumiNanoLogo } from '../components/LumiNanoBrand';
 import { Mail, Lock, User, Sparkles, ArrowRight, Loader2 } from 'lucide-react';
 
 export default function Home() {
@@ -223,12 +223,10 @@ export default function Home() {
         
         {/* 헤더 섹션 */}
         <div className="flex flex-col items-center gap-2 text-center">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg shadow-luminano-accent/10 overflow-hidden">
-            <LumiNanoIcon size={48} />
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            LumiNano B2B 협업 플랫폼
-          </h1>
+          <LumiNanoLogo size="lg" href="" />
+          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-1">
+            차세대 B2B 워크스페이스 & 문서 협업 플랫폼
+          </p>
           <p className="text-sm text-slate-600 dark:text-slate-400">
             {isLogin 
               ? '워크스페이스에 로그인하여 문서를 협업하고 실시간으로 채팅하세요.' 
