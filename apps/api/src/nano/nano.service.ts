@@ -154,6 +154,7 @@ export class NanoService {
         orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
         select: {
           id: true,
+          parentNanoId: true,
           type: true,
           title: true,
           writerId: true,
@@ -173,6 +174,7 @@ export class NanoService {
       totalPages: totalPages === 0 ? 1 : totalPages,
       nanoList: nanos.map((nano) => ({
         nanoId: nano.id,
+        parentNanoId: nano.parentNanoId ?? null,
         type: nano.type ?? 'PAGE',
         title: nano.title ?? '',
         createdAt: nano.createdAt,
@@ -235,6 +237,7 @@ export class NanoService {
         orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
         select: {
           id: true,
+          parentNanoId: true,
           type: true,
           title: true,
           createdAt: true,
@@ -253,6 +256,7 @@ export class NanoService {
       totalPages: totalPages === 0 ? 1 : totalPages,
       nanos: nanos.map((nano) => ({
         nanoId: nano.id,
+        parentNanoId: nano.parentNanoId,
         type: nano.type ?? 'PAGE',
         title: nano.title ?? '',
         createdAt: nano.createdAt,
@@ -453,8 +457,8 @@ export class NanoService {
     const { workspaceId, nanoId } = param;
     const { targetParentNanoId, prevNanoId } = dto;
 
-    // 1. api/v1에서는 OWNER 권한의 사용자만 위치 수정 권한이 부여됨
-    await this.workspaceGuard.verifyWorkspaceOwner(userId, workspaceId);
+    // 1. 사용자 워크스페이스 소속 권한 검증
+    await this.workspaceGuard.validateMembership(userId, workspaceId);
 
     const currentNano = await this.prisma.nano.findUnique({
       where: { id: nanoId },

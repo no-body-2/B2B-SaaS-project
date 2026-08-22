@@ -115,7 +115,22 @@ export default function WorkspaceDetailView() {
     }
   };
 
-  // Drag & Drop 핸들러 (Re-parenting 및 순서 변경 지원)
+  // 순환 참조 검증 헬퍼 (targetId가 ancestorId 자신 또는 ancestorId의 후손 문서인지 검사)
+  const isDescendantOf = (targetId: string, ancestorId: string, nodes: any[]): boolean => {
+    if (!targetId || !ancestorId) return false;
+    if (targetId === ancestorId) return true;
+    let current = nodes.find((n) => n.id === targetId);
+    const visited = new Set<string>();
+    while (current && current.parentNanoId) {
+      if (visited.has(current.id)) break;
+      visited.add(current.id);
+      if (current.parentNanoId === ancestorId) return true;
+      current = nodes.find((n) => n.id === current.parentNanoId);
+    }
+    return false;
+  };
+
+  // Drag & Drop 핸들러 (Re-parenting 및 순서 변경 지원, 순환참조 방지)
   const handleDragStart = (e: React.DragEvent, id: string) => {
     setDraggedNanoId(id);
     e.dataTransfer.setData('text/plain', id);
@@ -125,10 +140,15 @@ export default function WorkspaceDetailView() {
     e.preventDefault();
     if (draggedNanoId && draggedNanoId !== targetId) {
       setDragOverTargetId(targetId);
-      const rect = e.currentTarget.getBoundingClientRect();
-      const offsetY = e.clientY - rect.top;
-      // Shift 키 누르거나 행 중앙/하단부 드래그 시 하위 문서로 속하게 처리
-      setDropAsChild(e.shiftKey || offsetY > rect.height * 0.35);
+      // 순환 참조 검사: 드래그 중인 문서의 하위/후손 문서 위로 드래그 시 하위 이동 차단
+      const isCircular = isDescendantOf(targetId, draggedNanoId, orderedNanos);
+      if (isCircular) {
+        setDropAsChild(false);
+      } else {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const offsetY = e.clientY - rect.top;
+        setDropAsChild(e.shiftKey || offsetY > rect.height * 0.35);
+      }
     }
   };
 
@@ -145,6 +165,13 @@ export default function WorkspaceDetailView() {
     setDropAsChild(false);
 
     if (!draggedNanoId || draggedNanoId === targetId) return;
+
+    // 프론트엔드 계층 순환 참조 차단 가드
+    if (isChildDrop && isDescendantOf(targetId, draggedNanoId, orderedNanos)) {
+      alert('🚫 선택한 문서를 자신의 하위(자식/후손) 문서 내부로 이동할 수 없습니다. (순환 참조 방지)');
+      setDraggedNanoId(null);
+      return;
+    }
 
     const list = [...orderedNanos];
     const draggedItem = list.find((n) => n.id === draggedNanoId);
@@ -460,6 +487,8 @@ export default function WorkspaceDetailView() {
                     const isDragOver = dragOverTargetId === doc.id;
                     const isSelected = activeNano?.id === doc.id;
 
+                    const isCircular = draggedNanoId ? isDescendantOf(doc.id, draggedNanoId, orderedNanos) : false;
+
                     return (
                       <React.Fragment key={doc.id}>
                         <div
@@ -476,7 +505,9 @@ export default function WorkspaceDetailView() {
                           } ${
                             draggedNanoId === doc.id ? 'opacity-40 border border-dashed border-luminano-accent' : ''
                           } ${
-                            isDragOver && dropAsChild
+                            isDragOver && isCircular
+                              ? 'bg-rose-500/15 border-2 border-dashed border-rose-500 ring-2 ring-rose-500/30 text-rose-300'
+                              : isDragOver && dropAsChild
                               ? 'bg-indigo-500/20 border-2 border-dashed border-indigo-500 ring-2 ring-indigo-500/40 text-indigo-200'
                               : isDragOver
                               ? 'border-t-2 border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40'
@@ -520,11 +551,15 @@ export default function WorkspaceDetailView() {
                           </div>
 
                           {/* 드래그 상태 드롭 타겟 가이드 툴팁 */}
-                          {isDragOver && dropAsChild && (
+                          {isDragOver && isCircular ? (
+                            <span className="absolute right-2 text-[9px] font-bold text-rose-300 bg-rose-950 px-1.5 py-0.5 rounded border border-rose-700 animate-bounce">
+                              🚫 하위 이동 불가 (순환 참조)
+                            </span>
+                          ) : isDragOver && dropAsChild ? (
                             <span className="absolute right-2 text-[9px] font-bold text-indigo-400 bg-indigo-950 px-1.5 py-0.5 rounded border border-indigo-700 animate-pulse">
                               📥 하위 문서로 속함
                             </span>
-                          )}
+                          ) : null}
                         </div>
 
                         {/* 하위 문서 펼침 상태 렌더링 */}

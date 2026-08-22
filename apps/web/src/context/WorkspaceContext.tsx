@@ -216,7 +216,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
               createdAt: cn.createdAt,
               workspaceId,
               content: cn.content || '',
-              parentNanoId: rootNano.id,
+              parentNanoId: cn.parentNanoId || rootNano.id,
               order: cn.order || 1,
             }));
           } catch {

@@ -664,7 +664,15 @@ const mockApi = {
       setMockStorage('b2b_mock_nanos', filtered);
       return { data: { message: '문서 삭제 완료' } };
     },
-    movePosition: async (_workspaceId: string, _nanoId: string, _dto: any) => {
+    movePosition: async (workspaceId: string, nanoId: string, dto: any) => {
+      const nanos = getMockStorage('b2b_mock_nanos', [] as any[]);
+      const idx = nanos.findIndex((n) => n.workspaceId === workspaceId && n.id === nanoId);
+      if (idx !== -1) {
+        if (dto.targetParentNanoId !== undefined) {
+          nanos[idx].parentNanoId = dto.targetParentNanoId || null;
+        }
+        setMockStorage('b2b_mock_nanos', nanos);
+      }
       return { data: { message: '모크 문서 위치 변경 성공' } };
     },
     restore: async (_workspaceId: string, _nanoId: string) => {
