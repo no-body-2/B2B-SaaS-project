@@ -39,7 +39,40 @@ export default function NanoEditor() {
   const [apprOpinion, setApprOpinion] = useState('');
   const [submittingAppr, setSubmittingAppr] = useState(false);
 
+  // Gemini AI 초안 자동 생성 모달 상태
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiCategory, setAiCategory] = useState<'기안서' | '보고서' | '회의록' | '안내문'>('기안서');
+  const [aiTone, setAiTone] = useState<'격식있는' | '친근한' | '간결한'>('격식있는');
+  const [generatingAi, setGeneratingAi] = useState(false);
+
   const isOwner = activeWorkspace?.role === 'OWNER' || activeWorkspace?.role === 'ADMIN';
+
+  const handleAiDraftSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!aiPrompt.trim()) {
+      alert('AI 초안 주제를 입력해 주세요.');
+      return;
+    }
+    setGeneratingAi(true);
+    try {
+      const res = await apiClient.ai.generateDraft({
+        prompt: aiPrompt.trim(),
+        category: aiCategory,
+        tone: aiTone,
+      });
+      if (res.data?.title) setTitle(res.data.title);
+      if (res.data?.content) setContent(res.data.content);
+      setIsAiModalOpen(false);
+      setAiPrompt('');
+      setIsEditMode(true);
+      alert('✨ Gemini AI 초안이 에디터에 성공적으로 생성 및 적용되었습니다!');
+    } catch (_err) {
+      alert('AI 초안 생성 중 오류가 발생했습니다.');
+    } finally {
+      setGeneratingAi(false);
+    }
+  };
 
   const fetchChildren = useCallback(async () => {
     if (!activeWorkspace || !activeNano) return;
@@ -193,7 +226,7 @@ export default function NanoEditor() {
         {/* Creation Header Toolbar */}
         <div className="p-4 border-b border-luminano-border flex justify-between items-center shadow-xs bg-luminano-point z-10">
           <div className="flex items-center gap-3">
-            <Sparkles className="w-5 h-5 text-indigo-400 animate-pulse" />
+            <Sparkles className="w-5 h-5 text-indigo-500 dark:text-indigo-400 animate-pulse" />
             <h2 className="text-base font-bold text-foreground">
               ✨ 새 Nano 문서 작성 에디터
             </h2>
@@ -201,8 +234,16 @@ export default function NanoEditor() {
 
           <div className="flex items-center gap-2">
             <button
+              onClick={() => setIsAiModalOpen(true)}
+              className="px-3.5 py-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1.5 cursor-pointer border-0"
+              title="Gemini AI 기반 비즈니스 문서 초안 자동 생성"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              AI 초안 생성
+            </button>
+            <button
               onClick={cancelNewNanoCreation}
-              className="px-3 py-1.5 border border-slate-700 text-slate-300 hover:bg-slate-800 rounded-lg text-xs font-semibold transition cursor-pointer"
+              className="px-3 py-1.5 border border-luminano-border text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg text-xs font-semibold transition cursor-pointer bg-transparent"
             >
               취소
             </button>
@@ -220,21 +261,21 @@ export default function NanoEditor() {
         {/* Creation Editor Body */}
         <div className="flex-1 overflow-y-auto p-6 space-y-5">
           <div>
-            <label className="block text-xs font-bold text-slate-300 mb-1.5">
-              문서 제목 <span className="text-rose-400">*</span>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+              문서 제목 <span className="text-rose-500">*</span>
             </label>
             <input
               type="text"
               placeholder="문서 제목을 입력하세요 (예: 2026년 3분기 사업 기안서)"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-2.5 bg-slate-900/60 border border-slate-800 rounded-xl text-sm font-bold text-slate-100 focus:outline-none focus:border-indigo-500"
+              className="w-full px-4 py-2.5 bg-white dark:bg-slate-900/60 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 shadow-xs"
               autoFocus
             />
           </div>
 
           <div className="flex-1 flex flex-col">
-            <label className="block text-xs font-bold text-slate-300 mb-1.5">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
               문서 본문 내용 (Markdown 지원)
             </label>
             <textarea
@@ -242,12 +283,12 @@ export default function NanoEditor() {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={16}
-              className="w-full px-4 py-3 bg-slate-900/40 border border-slate-800 rounded-xl text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500 resize-none leading-relaxed"
+              className="w-full px-4 py-3 bg-white dark:bg-slate-900/40 border border-slate-300 dark:border-slate-800 rounded-xl text-xs font-mono text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 resize-none leading-relaxed shadow-xs"
             />
           </div>
 
-          <div className="bg-indigo-950/30 border border-indigo-800/40 p-3.5 rounded-xl text-xs text-indigo-300 flex items-center gap-2">
-            <Info className="w-4 h-4 shrink-0 text-indigo-400" />
+          <div className="bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/50 p-3.5 rounded-xl text-xs text-indigo-900 dark:text-indigo-200 flex items-center gap-2 font-medium">
+            <Info className="w-4 h-4 shrink-0 text-indigo-600 dark:text-indigo-400" />
             <span>
               상단 <strong>&lsquo;문서 생성 및 저장&rsquo;</strong> 버튼을 클릭하면 작성하신 제목과 본문이 워크스페이스 DB에 정식 등록 및 보존됩니다.
             </span>
@@ -260,7 +301,7 @@ export default function NanoEditor() {
   if (!activeNano) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-8 bg-background">
-        <FileText className="w-12 h-12 text-slate-500 mb-3" />
+        <FileText className="w-12 h-12 text-slate-400 dark:text-slate-500 mb-3" />
         <h3 className="text-slate-800 dark:text-slate-200 font-bold text-base">선택된 문서가 없습니다</h3>
         <p className="text-slate-600 dark:text-slate-400 text-xs mt-1">좌측 사이드바에서 편집하거나 조회할 협업 문서를 골라보세요.</p>
       </div>
@@ -289,6 +330,16 @@ export default function NanoEditor() {
         </div>
 
         <div className="flex items-center gap-3">
+          {/* AI 초안 자동 생성 버튼 */}
+          <button
+            onClick={() => setIsAiModalOpen(true)}
+            className="px-3 py-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1.5 cursor-pointer border-0"
+            title="Gemini AI 문서 초안 자동 생성"
+          >
+            <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+            <span className="hidden sm:inline">AI 초안 생성</span>
+          </button>
+
           {/* Lock / Unlock 아이콘 전용 토글 버튼 */}
           <button
             onClick={() => setIsEditMode(!isEditMode)}
@@ -486,6 +537,95 @@ export default function NanoEditor() {
                 </button>
               </div>
 
+            </form>
+
+          </div>
+        </div>
+      )}
+
+      {/* Gemini AI 문서 초안 자동 생성 모달 */}
+      {isAiModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex justify-center items-center p-4">
+          <div className="w-full max-w-lg bg-luminano-point rounded-2xl border border-luminano-border shadow-2xl p-6 flex flex-col gap-4 animate-in fade-in zoom-in duration-150">
+            
+            <div className="flex justify-between items-center border-b border-luminano-border pb-3">
+              <div className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
+                <Sparkles className="w-5 h-5 text-indigo-500 animate-pulse" />
+                <h3 className="font-bold text-base">Gemini AI 비즈니스 문서 초안 생성기</h3>
+              </div>
+              <button
+                onClick={() => setIsAiModalOpen(false)}
+                className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 bg-transparent border-0 cursor-pointer text-lg font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              원하시는 비즈니스 주제와 문서 양식, 톤앤매너를 지정하면 AI가 검증된 Markdown 초안을 자동으로 구성해 드립니다.
+            </p>
+
+            <form onSubmit={handleAiDraftSubmit} className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                  문서 주제 / 핵심 안건 <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="예: 2026년 3분기 B2B SaaS 신규 기능 출시 기안서"
+                  value={aiPrompt}
+                  onChange={(e) => setAiPrompt(e.target.value)}
+                  className="w-full px-3.5 py-2.5 border border-luminano-border rounded-xl text-xs bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
+                  autoFocus
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-800 dark:text-slate-200">문서 양식 / 카테고리</label>
+                  <select
+                    value={aiCategory}
+                    onChange={(e: any) => setAiCategory(e.target.value)}
+                    className="w-full px-3 py-2 border border-luminano-border rounded-xl text-xs bg-background text-foreground focus:outline-none font-semibold cursor-pointer"
+                  >
+                    <option value="기안서">📋 기안서 (Business Proposal)</option>
+                    <option value="보고서">📊 보고서 (Status Report)</option>
+                    <option value="회의록">📝 회의록 (Meeting Minutes)</option>
+                    <option value="안내문">📢 안내문 (Announcement)</option>
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-bold text-slate-800 dark:text-slate-200">톤앤매너 (Tone)</label>
+                  <select
+                    value={aiTone}
+                    onChange={(e: any) => setAiTone(e.target.value)}
+                    className="w-full px-3 py-2 border border-luminano-border rounded-xl text-xs bg-background text-foreground focus:outline-none font-semibold cursor-pointer"
+                  >
+                    <option value="격식있는">👔 격식있는 (Professional)</option>
+                    <option value="친근한">😊 친근한 (Friendly)</option>
+                    <option value="간결한">⚡ 간결한 (Concise)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2.5 mt-2 border-t border-luminano-border pt-4">
+                <button
+                  type="button"
+                  onClick={() => setIsAiModalOpen(false)}
+                  className="px-4 py-2 border border-luminano-border hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold transition cursor-pointer bg-transparent"
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  disabled={generatingAi || !aiPrompt.trim()}
+                  className="px-5 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition cursor-pointer border-0 shadow-md flex items-center gap-1.5"
+                >
+                  {generatingAi ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                  AI 초안 자동 작성
+                </button>
+              </div>
             </form>
 
           </div>

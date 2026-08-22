@@ -860,6 +860,19 @@ const mockApi = {
       return { data: { url: 'https://placeholder.com/mock-avatar.png' } };
     },
   },
+  ai: {
+    generateDraft: async (dto: { prompt: string; category?: string; tone?: string }) => {
+      const topic = dto.prompt || '비즈니스 계획서';
+      const category = dto.category || '기안서';
+      const tone = dto.tone || '격식있는';
+      return {
+        data: {
+          title: `[AI 초안] ${topic}`,
+          content: `# [${category}] ${topic}\n\n**작성 일자**: ${new Date().toLocaleDateString()}\n**작성 톤앤매너**: ${tone}\n\n---\n\n## 1. 개요 및 목적\n본 문서는 **${topic}**에 대한 비즈니스 기안 및 실행 계획을 위해 Gemini AI 엔진에 의해 자동 생성된 초안입니다.\n\n## 2. 주요 실행 과제\n- **과제 A**: 타겟 고객 세그먼트 분석 및 핵심가치 정의\n- **과제 B**: 서비스 런칭 일정 및 기술 아키텍처 수립\n- **과제 C**: 리소스 할당 및 성과 측정 지표(KPI) 설정\n\n## 3. 세부 추진 일정\n| 단계 | 주요 추진 내용 | 담당 조직 | 완료 목표일 |\n| :--- | :--- | :--- | :--- |\n| 1단계 | 요구사항 도출 및 기획서 확정 | 기획팀 | W1 |\n| 2단계 | 시스템 개발 및 샌드박스 테스팅 | 개발팀 | W3 |\n| 3단계 | 최종 승인 및 프로덕션 배포 | 운영팀 | W4 |\n\n---\n*본 초안은 검토 후 자유롭게 편집하여 사용할 수 있습니다.*`,
+        },
+      };
+    },
+  },
   inquiry: {
     create: async (dto: any) => ({
       data: {
@@ -1009,6 +1022,10 @@ export const apiClient = IS_MOCK
           realApi.patch(`/workspace/${workspaceId}/channels/${chatRoomId}/delegate`, dto),
         read: (workspaceId: string, chatRoomId: string, dto: any) =>
           realApi.patch(`/workspace/${workspaceId}/channels/${chatRoomId}/read`, dto),
+      },
+      ai: IS_MOCK ? mockApi.ai : {
+        generateDraft: (dto: { prompt: string; category?: string; tone?: string }) =>
+          realApi.post('/ai/generate-draft', dto),
       },
     };
 

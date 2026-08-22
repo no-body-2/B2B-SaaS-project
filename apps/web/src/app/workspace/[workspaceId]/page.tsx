@@ -28,6 +28,7 @@ export default function WorkspaceDetailView() {
   const { 
     activeWorkspace, 
     nanos, 
+    activeNano,
     channels, 
     approvals,
     selectWorkspace, 
@@ -51,65 +52,127 @@ export default function WorkspaceDetailView() {
 
   // Drag & Drop Nanos 및 트리 접기/펼치기 상태
   const [draggedNanoId, setDraggedNanoId] = useState<string | null>(null);
+  const [dragOverTargetId, setDragOverTargetId] = useState<string | null>(null);
+  const [dropAsChild, setDropAsChild] = useState<boolean>(false);
   const [orderedNanos, setOrderedNanos] = useState<any[]>([]);
   const [expandedNanos, setExpandedNanos] = useState<Record<string, boolean>>({});
 
   // nanos 동기화
   useEffect(() => {
-    setOrderedNanos(nanos);
+    setTimeout(() => setOrderedNanos(nanos), 0);
   }, [nanos]);
 
   // 미승인 결재 건수 카운트
   const pendingApprovalsCount = approvals.filter((a) => a.status === 'PENDING').length;
 
-  // 비로그인 튕겨내기
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/');
-    }
-  }, [user, authLoading, router]);
+  // V 아이콘 토글 및 동적 하위 Nano 로딩
+  const handleToggleExpand = async (e: React.MouseEvent, docId: string) => {
+    e.stopPropagation();
+    const isCurrentlyExpanded = expandedNanos[docId] !== false;
+    setExpandedNanos((prev) => ({ ...prev, [docId]: !isCurrentlyExpanded }));
 
-  // 워크스페이스 선택 및 정보 동기화
-  useEffect(() => {
-    const isAlreadyLoaded = activeWorkspace && (activeWorkspace.id === workspaceId || activeWorkspace.domain === workspaceId);
-    if (workspaceId && user && !isAlreadyLoaded) {
-      selectWorkspace(workspaceId);
+    if (!isCurrentlyExpanded) {
+      const existingChildren = orderedNanos.filter((n) => n.parentNanoId === docId);
+      if (existingChildren.length === 0) {
+        try {
+          const res = await apiClient.nanos.listChild(workspaceId, docId);
+          const childList = Array.isArray(res.data) ? res.data : (res.data?.nanoList || res.data?.items || []);
+          if (childList.length > 0) {
+            const formatted = childList.map((cn: any) => ({
+              id: cn.nanoId || cn.id,
+              title: cn.title,
+              type: cn.type,
+              createdAt: cn.createdAt,
+              workspaceId,
+              content: cn.content || '',
+              parentNanoId: docId,
+              order: cn.order || 1,
+            }));
+            setOrderedNanos((prev) => {
+              const existingIds = new Set(prev.map((p) => p.id));
+              const newItems = formatted.filter((f: any) => !existingIds.has(f.id));
+              return [...prev, ...newItems];
+            });
+          }
+        } catch (err) {
+          console.error('Failed to fetch child nanos on expand:', err);
+        }
+      }
     }
-  }, [workspaceId, user, activeWorkspace, selectWorkspace]);
+  };
 
-  // Drag & Drop 핸들러
+  // Drag & Drop 핸들러 (Re-parenting 및 순서 변경 지원)
   const handleDragStart = (e: React.DragEvent, id: string) => {
     setDraggedNanoId(id);
     e.dataTransfer.setData('text/plain', id);
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOverItem = (e: React.DragEvent, targetId: string) => {
     e.preventDefault();
+    if (draggedNanoId && draggedNanoId !== targetId) {
+      setDragOverTargetId(targetId);
+      const rect = e.currentTarget.getBoundingClientRect();
+      const offsetY = e.clientY - rect.top;
+      // Shift 키 누르거나 행 중앙/하단부 드래그 시 하위 문서로 속하게 처리
+      setDropAsChild(e.shiftKey || offsetY > rect.height * 0.35);
+    }
   };
 
-  const handleDrop = async (e: React.DragEvent, targetId: string) => {
+  const handleDragLeaveItem = (e: React.DragEvent) => {
     e.preventDefault();
+    setDragOverTargetId(null);
+    setDropAsChild(false);
+  };
+
+  const handleDropItem = async (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    setDragOverTargetId(null);
+    const isChildDrop = dropAsChild;
+    setDropAsChild(false);
+
     if (!draggedNanoId || draggedNanoId === targetId) return;
 
     const list = [...orderedNanos];
-    const dragIdx = list.findIndex((n) => n.id === draggedNanoId);
-    const dropIdx = list.findIndex((n) => n.id === targetId);
+    const draggedItem = list.find((n) => n.id === draggedNanoId);
+    const targetItem = list.find((n) => n.id === targetId);
 
-    if (dragIdx !== -1 && dropIdx !== -1) {
-      const [removed] = list.splice(dragIdx, 1);
-      list.splice(dropIdx, 0, removed);
-      setOrderedNanos(list);
+    if (!draggedItem || !targetItem) return;
 
-      // 드롭 즉시 위치 자동 저장 (Auto-save on drop)
-      const prevNanoId = dropIdx > 0 ? list[dropIdx - 1].id : undefined;
+    if (isChildDrop) {
+      // --- [하위 Nano로속하게 변경 Case] targetId의 자식으로 이동 ---
+      draggedItem.parentNanoId = targetId;
+      setOrderedNanos([...list]);
+      setExpandedNanos((prev) => ({ ...prev, [targetId]: true }));
+
       try {
         await apiClient.nanos.movePosition(workspaceId, draggedNanoId, {
-          targetParentNanoId: removed.parentNanoId || undefined,
-          prevNanoId,
+          targetParentNanoId: targetId,
         });
         await selectWorkspace(workspaceId);
       } catch (err) {
-        console.error('Failed to auto-save nano position:', err);
+        console.error('Failed to move nano as child:', err);
+      }
+    } else {
+      // --- [같은 레벨 순서 변경 Case] ---
+      const dragIdx = list.findIndex((n) => n.id === draggedNanoId);
+      const dropIdx = list.findIndex((n) => n.id === targetId);
+
+      if (dragIdx !== -1 && dropIdx !== -1) {
+        const [removed] = list.splice(dragIdx, 1);
+        removed.parentNanoId = targetItem.parentNanoId || null;
+        list.splice(dropIdx, 0, removed);
+        setOrderedNanos(list);
+
+        const prevNanoId = dropIdx > 0 ? list[dropIdx - 1].id : undefined;
+        try {
+          await apiClient.nanos.movePosition(workspaceId, draggedNanoId, {
+            targetParentNanoId: removed.parentNanoId || undefined,
+            prevNanoId,
+          });
+          await selectWorkspace(workspaceId);
+        } catch (err) {
+          console.error('Failed to auto-save nano position:', err);
+        }
       }
     }
     setDraggedNanoId(null);
@@ -165,7 +228,7 @@ export default function WorkspaceDetailView() {
     }
   };
 
-  const handleMoveNano = async (nanoId: string, direction: 'up' | 'down') => {
+  const _handleMoveNano = async (nanoId: string, direction: 'up' | 'down') => {
     try {
       const index = nanos.findIndex((n) => n.id === nanoId);
       if (index === -1) return;
@@ -342,17 +405,30 @@ export default function WorkspaceDetailView() {
                     const hasChildren = children.length > 0;
                     const isExpanded = expandedNanos[doc.id] !== false;
                     const canDrag = activeWorkspace?.role === 'OWNER' || activeWorkspace?.role === 'ADMIN';
+                    const isDragOver = dragOverTargetId === doc.id;
+                    const isSelected = activeNano?.id === doc.id;
 
                     return (
                       <React.Fragment key={doc.id}>
                         <div
                           draggable={canDrag}
                           onDragStart={(e) => canDrag && handleDragStart(e, doc.id)}
-                          onDragOver={handleDragOver}
-                          onDrop={(e) => canDrag && handleDrop(e, doc.id)}
-                          style={{ paddingLeft: `${level * 12 + 10}px` }}
-                          className={`w-full flex items-center justify-between py-1 pr-2.5 rounded-lg text-xs font-semibold tracking-wide text-left transition hover:bg-slate-800/40 text-slate-600 dark:text-slate-400 group ${
+                          onDragOver={(e) => canDrag && handleDragOverItem(e, doc.id)}
+                          onDragLeave={handleDragLeaveItem}
+                          onDrop={(e) => canDrag && handleDropItem(e, doc.id)}
+                          style={{ paddingLeft: `${level * 14 + 8}px` }}
+                          className={`w-full flex items-center justify-between py-1.5 pr-2 rounded-lg text-xs font-semibold tracking-wide text-left transition group relative cursor-pointer ${
+                            isSelected
+                              ? 'bg-luminano-accent/15 text-luminano-accent font-bold border border-luminano-accent/30'
+                              : 'hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300'
+                          } ${
                             draggedNanoId === doc.id ? 'opacity-40 border border-dashed border-luminano-accent' : ''
+                          } ${
+                            isDragOver && dropAsChild
+                              ? 'bg-indigo-500/20 border-2 border-dashed border-indigo-500 ring-2 ring-indigo-500/40 text-indigo-200'
+                              : isDragOver
+                              ? 'border-t-2 border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40'
+                              : ''
                           }`}
                         >
                           <div className="flex items-center gap-1 flex-1 min-w-0">
@@ -360,34 +436,41 @@ export default function WorkspaceDetailView() {
                               <GripVertical className="w-3 h-3 text-slate-400 opacity-40 group-hover:opacity-100 cursor-grab shrink-0" />
                             )}
 
-                            {/* 펼치기 / 접기 아이콘 버튼 */}
-                            {hasChildren ? (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setExpandedNanos((prev) => ({ ...prev, [doc.id]: !isExpanded }));
-                                }}
-                                className="p-0.5 hover:bg-slate-700/30 rounded text-slate-400 transition cursor-pointer border-0 bg-transparent shrink-0"
-                                title={isExpanded ? '하위 문서 접기' : '하위 문서 펼치기'}
-                              >
-                                {isExpanded ? (
-                                  <ChevronDown className="w-3.5 h-3.5 text-luminano-accent" />
-                                ) : (
-                                  <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-                                )}
-                              </button>
-                            ) : (
-                              <span className="w-3.5 h-3.5 shrink-0" />
-                            )}
+                            {/* V 형태 펼치기 / 접기 버튼 (ChevronDown / ChevronRight) */}
+                            <button
+                              onClick={(e) => handleToggleExpand(e, doc.id)}
+                              className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700/50 rounded text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition cursor-pointer border-0 bg-transparent shrink-0 flex items-center justify-center"
+                              title={isExpanded ? '하위 문서 접기 (V)' : '하위 문서 펼치기 (V)'}
+                            >
+                              {isExpanded ? (
+                                <ChevronDown className="w-3.5 h-3.5 text-luminano-accent font-bold stroke-[2.5]" />
+                              ) : (
+                                <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 font-bold stroke-[2.5]" />
+                              )}
+                            </button>
 
                             <button
                               onClick={() => clickNano(doc.id)}
-                              className="flex items-center gap-1.5 flex-1 text-left bg-transparent border-0 cursor-pointer text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-50 font-semibold truncate"
+                              className="flex items-center gap-1.5 flex-1 text-left bg-transparent border-0 cursor-pointer text-slate-800 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-slate-50 font-semibold truncate min-w-0"
                             >
                               <FileText className="w-3.5 h-3.5 text-slate-500 shrink-0" />
                               <span className="truncate">{doc.title}</span>
                             </button>
+
+                            {/* 하위 문서 개수 뱃지 표시 */}
+                            {hasChildren && (
+                              <span className="px-1.5 py-0.2 bg-slate-200 dark:bg-slate-800 text-[9px] rounded-full text-slate-600 dark:text-slate-400 font-mono font-bold shrink-0">
+                                {children.length}
+                              </span>
+                            )}
                           </div>
+
+                          {/* 드래그 상태 드롭 타겟 가이드 툴팁 */}
+                          {isDragOver && dropAsChild && (
+                            <span className="absolute right-2 text-[9px] font-bold text-indigo-400 bg-indigo-950 px-1.5 py-0.5 rounded border border-indigo-700 animate-pulse">
+                              📥 하위 문서로 속함
+                            </span>
+                          )}
                         </div>
 
                         {/* 하위 문서 펼침 상태 렌더링 */}
