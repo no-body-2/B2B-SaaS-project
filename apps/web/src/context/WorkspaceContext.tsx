@@ -58,10 +58,15 @@ interface WorkspaceContextType {
   members: Member[];
   nanos: Nano[];
   activeNano: Nano | null;
+  isCreatingNewNano: boolean;
+  initialNewNanoTitle: string;
   channels: Channel[];
   activeChannel: Channel | null;
   approvals: ApprovalRequest[];
   loadingWorkspace: boolean;
+
+  startNewNanoCreation: (initialTitle?: string) => void;
+  cancelNewNanoCreation: () => void;
 
   fetchWorkspaces: () => Promise<void>;
   selectWorkspace: (workspaceId: string) => Promise<void>;
@@ -100,10 +105,23 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [members, setMembers] = useState<Member[]>([]);
   const [nanos, setNanos] = useState<Nano[]>([]);
   const [activeNano, setActiveNano] = useState<Nano | null>(null);
+  const [isCreatingNewNano, setIsCreatingNewNano] = useState(false);
+  const [initialNewNanoTitle, setInitialNewNanoTitle] = useState('');
   const [channels, setChannels] = useState<Channel[]>([]);
   const [activeChannel, setActiveChannel] = useState<Channel | null>(null);
   const [approvals, setApprovals] = useState<ApprovalRequest[]>([]);
   const [loadingWorkspace, setLoadingWorkspace] = useState(false);
+
+  const startNewNanoCreation = (initialTitle = '') => {
+    setActiveNano(null);
+    setInitialNewNanoTitle(initialTitle);
+    setIsCreatingNewNano(true);
+  };
+
+  const cancelNewNanoCreation = () => {
+    setIsCreatingNewNano(false);
+    setInitialNewNanoTitle('');
+  };
 
   // 백엔드의 평탄화된 멤버 DTO를 프런트엔드의 중첩된 Member 모델 규격으로 변환하는 헬퍼
   const formatMembers = useCallback((memberList: any[]): Member[] => {
@@ -184,7 +202,30 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           parentNanoId: n.parentNanoId || null,
           order: n.order || 1
         }));
-        setNanos(formattedNanos);
+
+        const childPromises = formattedNanos.map(async (rootNano: any) => {
+          try {
+            const childRes = await apiClient.nanos.listChild(workspaceId, rootNano.id);
+            const childList = Array.isArray(childRes.data)
+              ? childRes.data
+              : (childRes.data?.nanoList || childRes.data?.items || []);
+            return childList.map((cn: any) => ({
+              id: cn.nanoId || cn.id,
+              title: cn.title,
+              type: cn.type,
+              createdAt: cn.createdAt,
+              workspaceId,
+              content: cn.content || '',
+              parentNanoId: rootNano.id,
+              order: cn.order || 1,
+            }));
+          } catch {
+            return [];
+          }
+        });
+
+        const childResults = await Promise.all(childPromises);
+        setNanos([...formattedNanos, ...childResults.flat()]);
       } catch (e) {
         console.error('Failed to load nanos:', e);
       }
@@ -375,7 +416,30 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         parentNanoId: n.parentNanoId || null,
         order: n.order || 1
       }));
-      setNanos(formattedNanos);
+
+      const childPromises = formattedNanos.map(async (rootNano: any) => {
+        try {
+          const childRes = await apiClient.nanos.listChild(activeWorkspace.id, rootNano.id);
+          const childList = Array.isArray(childRes.data)
+            ? childRes.data
+            : (childRes.data?.nanoList || childRes.data?.items || []);
+          return childList.map((cn: any) => ({
+            id: cn.nanoId || cn.id,
+            title: cn.title,
+            type: cn.type,
+            createdAt: cn.createdAt,
+            workspaceId: activeWorkspace.id,
+            content: cn.content || '',
+            parentNanoId: rootNano.id,
+            order: cn.order || 1,
+          }));
+        } catch {
+          return [];
+        }
+      });
+
+      const childResults = await Promise.all(childPromises);
+      setNanos([...formattedNanos, ...childResults.flat()]);
     } catch (err) {
       console.error('Failed to fetch nanos:', err);
     }
@@ -383,6 +447,7 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const selectNano = async (nanoId: string) => {
     if (!activeWorkspace) return;
+    setIsCreatingNewNano(false);
     try {
       const res = await apiClient.nanos.getDetail(activeWorkspace.id, nanoId);
       const raw = res.data;
@@ -401,13 +466,19 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (!activeWorkspace) return;
     try {
       const contentPayload = { blockStyle: 'default', markdown: content || '' };
-      await apiClient.nanos.create(activeWorkspace.id, { 
+      const res = await apiClient.nanos.create(activeWorkspace.id, { 
         title, 
         type: 'PAGE',
         content: contentPayload, 
         parentNanoId: parentNanoId || undefined 
       });
       await fetchNanos();
+      setIsCreatingNewNano(false);
+      setInitialNewNanoTitle('');
+      const createdId = res.data?.nanoId || res.data?.id;
+      if (createdId) {
+        await selectNano(createdId);
+      }
     } catch (err) {
       console.error('Failed to create nano:', err);
       throw err;
@@ -599,6 +670,10 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         members,
         nanos,
         activeNano,
+        isCreatingNewNano,
+        initialNewNanoTitle,
+        startNewNanoCreation,
+        cancelNewNanoCreation,
         channels,
         activeChannel,
         approvals,

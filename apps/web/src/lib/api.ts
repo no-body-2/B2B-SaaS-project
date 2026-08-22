@@ -856,9 +856,52 @@ const mockApi = {
     },
   },
   storage: {
-    upload: async (formData: FormData) => {
+    upload: async (_formData: FormData) => {
       return { data: { url: 'https://placeholder.com/mock-avatar.png' } };
     },
+  },
+  inquiry: {
+    create: async (dto: any) => ({
+      data: {
+        id: 'mock-inquiry-1',
+        title: dto.title,
+        content: dto.content,
+        isSecret: !!dto.isSecret,
+        status: 'PENDING',
+        createdAt: new Date().toISOString(),
+      },
+    }),
+    list: async () => ({
+      data: [
+        {
+          id: 'mock-inquiry-1',
+          title: 'LumiNano 서비스 모바일 지원 문의',
+          content: '모바일 앱 출시 일정이 궁금합니다.',
+          isSecret: false,
+          status: 'ANSWERED',
+          answer: '현재 iOS 및 Android 전용 앱 개발 중입니다.',
+          answeredAt: new Date().toISOString(),
+          createdAt: new Date().toISOString(),
+          author: { id: 'u1', email: 'user@luminano.xyz', nickname: '개발자' },
+        },
+      ],
+    }),
+    getDetail: async (id: string) => ({
+      data: {
+        id,
+        title: '🔒 비밀 문의사항입니다.',
+        content: '문의 내용입니다.',
+        isSecret: true,
+        status: 'PENDING',
+        createdAt: new Date().toISOString(),
+        authorId: 'u1',
+        author: { id: 'u1', email: 'user@luminano.xyz', nickname: '작성자' },
+      },
+    }),
+    answer: async (id: string, answer: string) => ({
+      data: { id, status: 'ANSWERED', answer, answeredAt: new Date().toISOString() },
+    }),
+    delete: async (_id: string) => ({ data: { success: true } }),
   },
 };
 
@@ -987,15 +1030,17 @@ export const adminApi = {
   createNotice: (dto: { title: string; content: string; type: 'INFO' | 'MAINTENANCE' }, sudoVerifiedAt?: number) =>
     realApi.post('/admin/notice', dto, { headers: { 'x-sudo-verified-at': sudoVerifiedAt ? String(sudoVerifiedAt) : '' } }),
   exportUsersCsvUrl: `${BASE_URL}/admin/users/csv`,
+  getSystemLogs: (params?: { limit?: number; level?: string }) => realApi.get('/admin/system-logs', { params }),
 };
 
-export const inquiryApi = {
-  create: (dto: { title: string; content: string; isSecret?: boolean }) =>
-    realApi.post('/inquiries', dto),
-  list: () => realApi.get('/inquiries'),
-  getDetail: (id: string) => realApi.get(`/inquiries/${id}`),
-  answer: (id: string, answer: string) =>
-    realApi.patch(`/inquiries/${id}/answer`, { answer }),
-  delete: (id: string) => realApi.delete(`/inquiries/${id}`),
-};
-
+export const inquiryApi = IS_MOCK
+  ? mockApi.inquiry
+  : {
+      create: (dto: { title: string; content: string; isSecret?: boolean }) =>
+        realApi.post('/inquiries', dto),
+      list: () => realApi.get('/inquiries'),
+      getDetail: (id: string) => realApi.get(`/inquiries/${id}`),
+      answer: (id: string, answer: string) =>
+        realApi.patch(`/inquiries/${id}/answer`, { answer }),
+      delete: (id: string) => realApi.delete(`/inquiries/${id}`),
+    };

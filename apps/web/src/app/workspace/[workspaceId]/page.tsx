@@ -32,6 +32,7 @@ export default function WorkspaceDetailView() {
     approvals,
     selectWorkspace, 
     createNano,
+    startNewNanoCreation,
     createChannel,
     selectNano,
     selectChannel,
@@ -118,17 +119,13 @@ export default function WorkspaceDetailView() {
     setDraggedNanoId(null);
   };
 
-  const handleCreateRootDoc = async (e: React.FormEvent) => {
+  const handleCreateRootDoc = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newDocTitle) return;
-    try {
-      await createNano(newDocTitle, '', null);
-      setNewDocTitle('');
-      setIsCreatingDoc(false);
-    } catch (err) {
-      console.error(err);
-      alert('문서 생성에 실패했습니다.');
-    }
+    if (!newDocTitle.trim()) return;
+    startNewNanoCreation(newDocTitle.trim());
+    setCurrentTab('doc');
+    setNewDocTitle('');
+    setIsCreatingDoc(false);
   };
 
   const handleCreateChatroom = async (e: React.FormEvent) => {
@@ -311,9 +308,12 @@ export default function WorkspaceDetailView() {
                 협업 문서 (Nanos)
               </span>
               <button
-                onClick={() => setIsCreatingDoc(!isCreatingDoc)}
-                className="p-1 hover:bg-slate-800/40 rounded-md transition cursor-pointer text-slate-500 hover:text-luminano-accent bg-transparent border-0"
-                title="새 문서 추가"
+                onClick={() => {
+                  startNewNanoCreation();
+                  setCurrentTab('doc');
+                }}
+                className="p-1 hover:bg-slate-800/40 rounded-md transition cursor-pointer text-slate-500 hover:text-luminano-accent bg-transparent border-0 flex items-center gap-1 text-[11px] font-medium"
+                title="새 문서 작성 에디터 열기"
               >
                 <Plus className="w-3.5 h-3.5" />
               </button>
@@ -333,7 +333,7 @@ export default function WorkspaceDetailView() {
                   type="submit"
                   className="px-2 py-1 bg-luminano-accent text-white dark:text-slate-950 font-bold rounded text-[10px] cursor-pointer border-0"
                 >
-                  등록
+                  작성
                 </button>
               </form>
             )}

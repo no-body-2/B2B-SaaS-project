@@ -481,4 +481,33 @@ export class AdminService {
     );
     return notice;
   }
+
+  /**
+   * 13. 전체 시스템 로그 통합 조회 (Winston 및 Audit Log 연동)
+   */
+  async getSystemLogs(limit = 100, level?: string) {
+    const auditLogs = await this.prisma.auditLog.findMany({
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        admin: { select: { email: true, firstName: true } },
+      },
+    });
+
+    const formattedLogs = auditLogs.map((log) => ({
+      id: log.id,
+      timestamp: log.createdAt.toISOString(),
+      level: 'INFO',
+      type: log.action,
+      message: `[${log.action}] Admin (${log.admin?.email || 'System'}) performed action on target ${log.targetId || 'N/A'}`,
+      details: log.details || {},
+      ip: log.ipAddress || '127.0.0.1',
+      userAgent: log.userAgent || 'Internal System',
+    }));
+
+    if (level) {
+      return formattedLogs.filter((l) => l.level === level.toUpperCase());
+    }
+    return formattedLogs;
+  }
 }

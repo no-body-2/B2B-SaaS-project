@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   ExternalLink,
   Activity,
+  Terminal,
 } from 'lucide-react';
 import { adminApi } from '@/lib/api';
 
@@ -30,6 +31,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     { label: '사용자 관리', href: '/admin/users', icon: Users },
     { label: '워크스페이스 관리', href: '/admin/workspaces', icon: Building2 },
     { label: '감사 로그 (Audit)', href: '/admin/audit-logs', icon: ScrollText },
+    { label: '전체 시스템 로그', href: '/admin/system-logs', icon: Terminal },
   ];
 
   return (

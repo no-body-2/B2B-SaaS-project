@@ -26,7 +26,7 @@ export class GoogleLoginDto {
   @ApiProperty({
     description:
       'Google OAuth 리다이렉트 URI (선택 항목, 미지정 시 서버 기본값 사용)',
-    example: 'https://web.luminano.xyz/auth/google/callback',
+    example: 'https://www.luminano.xyz/auth/google/callback',
     required: false,
   })
   @IsOptional()

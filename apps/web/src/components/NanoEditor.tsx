@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../lib/api';
-import { FileText, Save, Trash2, Calendar, Lock, Unlock, ShieldAlert, Sparkles, Loader2, Plus, ChevronRight, CornerDownRight } from 'lucide-react';
+import { FileText, Save, Trash2, Calendar, Lock, Unlock, ShieldAlert, Sparkles, Loader2, Plus, ChevronRight, CornerDownRight, Info } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -12,6 +12,10 @@ export default function NanoEditor() {
   const { 
     activeWorkspace, 
     activeNano, 
+    isCreatingNewNano,
+    initialNewNanoTitle,
+    createNano,
+    cancelNewNanoCreation,
     updateNano, 
     deleteNano, 
     fetchApprovals,
@@ -153,6 +157,99 @@ export default function NanoEditor() {
       }
     }
   };
+
+  useEffect(() => {
+    if (isCreatingNewNano) {
+      setTitle(initialNewNanoTitle || '');
+      setContent('');
+    }
+  }, [isCreatingNewNano, initialNewNanoTitle]);
+
+  const handleCreateNewNanoSubmit = async () => {
+    if (!title.trim()) {
+      alert('문서 제목을 입력해 주세요.');
+      return;
+    }
+    setSaving(true);
+    try {
+      await createNano(title.trim(), content, null);
+      alert('새 문서가 성공적으로 생성 및 저장되었습니다.');
+    } catch (err) {
+      alert('문서 생성에 실패했습니다.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (isCreatingNewNano) {
+    return (
+      <div className="flex-1 flex flex-col overflow-hidden bg-background h-full">
+        {/* Creation Header Toolbar */}
+        <div className="p-4 border-b border-luminano-border flex justify-between items-center shadow-xs bg-luminano-point z-10">
+          <div className="flex items-center gap-3">
+            <Sparkles className="w-5 h-5 text-indigo-400 animate-pulse" />
+            <h2 className="text-base font-bold text-foreground">
+              ✨ 새 Nano 문서 작성 에디터
+            </h2>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={cancelNewNanoCreation}
+              className="px-3 py-1.5 border border-slate-700 text-slate-300 hover:bg-slate-800 rounded-lg text-xs font-semibold transition cursor-pointer"
+            >
+              취소
+            </button>
+            <button
+              onClick={handleCreateNewNanoSubmit}
+              disabled={saving}
+              className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition shadow-md flex items-center gap-2 cursor-pointer border-0"
+            >
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              문서 생성 및 저장
+            </button>
+          </div>
+        </div>
+
+        {/* Creation Editor Body */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-5">
+          <div>
+            <label className="block text-xs font-bold text-slate-300 mb-1.5">
+              문서 제목 <span className="text-rose-400">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="문서 제목을 입력하세요 (예: 2026년 3분기 사업 기안서)"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full px-4 py-2.5 bg-slate-900/60 border border-slate-800 rounded-xl text-sm font-bold text-slate-100 focus:outline-none focus:border-indigo-500"
+              autoFocus
+            />
+          </div>
+
+          <div className="flex-1 flex flex-col">
+            <label className="block text-xs font-bold text-slate-300 mb-1.5">
+              문서 본문 내용 (Markdown 지원)
+            </label>
+            <textarea
+              placeholder="문서 초안 내용을 작성하세요... (Markdown 양식을 지원합니다)"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              rows={16}
+              className="w-full px-4 py-3 bg-slate-900/40 border border-slate-800 rounded-xl text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500 resize-none leading-relaxed"
+            />
+          </div>
+
+          <div className="bg-indigo-950/30 border border-indigo-800/40 p-3.5 rounded-xl text-xs text-indigo-300 flex items-center gap-2">
+            <Info className="w-4 h-4 shrink-0 text-indigo-400" />
+            <span>
+              상단 <strong>'문서 생성 및 저장'</strong> 버튼을 클릭하면 작성하신 제목과 본문이 워크스페이스 DB에 정식 등록 및 보존됩니다.
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!activeNano) {
     return (

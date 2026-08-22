@@ -21,6 +21,12 @@ export class ThemeUtil {
     root.setAttribute('data-theme', theme);
     root.setAttribute('data-font', font);
 
+    if (theme === 'dark' || theme === 'neon') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+
     // CSS Variables 변경
     switch (theme) {
       case 'dark':

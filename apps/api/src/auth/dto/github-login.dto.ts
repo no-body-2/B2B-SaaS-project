@@ -24,7 +24,7 @@ export class GitHubLoginDto {
 
   @ApiProperty({
     description: 'Frontend에서 인증에 사용하는 Redirect URI',
-    example: 'https://web.luminano.xyz/auth/github/callback',
+    example: 'https://www.luminano.xyz/auth/github/callback',
     required: false,
   })
   @IsOptional()

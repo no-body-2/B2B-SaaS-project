@@ -218,4 +218,16 @@ export class AdminController {
       req.get('user-agent'),
     );
   }
+
+  /**
+   * 12. 전체 시스템 로그 실시간 조회 (SUPER_ADMIN)
+   */
+  @Get('system-logs')
+  async getSystemLogs(
+    @Query('limit') limit?: string,
+    @Query('level') level?: string,
+  ) {
+    const limitNum = limit ? parseInt(limit, 10) : 100;
+    return this.adminService.getSystemLogs(limitNum, level);
+  }
 }
