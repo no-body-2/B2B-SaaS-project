@@ -60,10 +60,11 @@ export default function WorkspaceDetailView() {
 
   // 워크스페이스 직접 진입 / 새로고침 시 자동 selectWorkspace 동기화
   useEffect(() => {
-    if (workspaceId && (!activeWorkspace || activeWorkspace.id !== workspaceId)) {
+    const isSameWorkspace = activeWorkspace && (activeWorkspace.id === workspaceId || activeWorkspace.domain === workspaceId);
+    if (workspaceId && !isSameWorkspace) {
       selectWorkspace(workspaceId);
     }
-  }, [workspaceId, activeWorkspace, selectWorkspace]);
+  }, [workspaceId, activeWorkspace?.id, activeWorkspace?.domain, selectWorkspace]);
 
   // 무한 동기화 방지 6초 타이머
   useEffect(() => {
@@ -342,7 +343,9 @@ export default function WorkspaceDetailView() {
     );
   }
 
-  if (authLoading || loadingWorkspace || !activeWorkspace) {
+  const isSameWorkspace = activeWorkspace && (activeWorkspace.id === workspaceId || activeWorkspace.domain === workspaceId);
+
+  if (authLoading || (!isSameWorkspace && (loadingWorkspace || !activeWorkspace))) {
     return (
       <div className="flex flex-1 items-center justify-center min-h-screen bg-background">
         <div className="flex flex-col items-center gap-3">

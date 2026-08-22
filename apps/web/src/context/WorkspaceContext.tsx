@@ -162,8 +162,8 @@ export const WorkspaceProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // 워크스페이스 세부 데이터 일괄 동기화 (부드러운 플리커링 방지)
   const selectWorkspace = useCallback(async (workspaceId: string) => {
-    const isDifferentWorkspace = !activeWorkspace || activeWorkspace.id !== workspaceId;
-    if (isDifferentWorkspace) {
+    const isSameWorkspace = activeWorkspace && (activeWorkspace.id === workspaceId || activeWorkspace.domain === workspaceId);
+    if (!isSameWorkspace) {
       setLoadingWorkspace(true);
       setActiveNano(null);
       setActiveChannel(null);
