@@ -433,12 +433,14 @@ const mockApi = {
       const members = getMockStorage('b2b_mock_workspace_members', [] as any[]);
 
       const ws = workspaces.find((w) => w.id === workspaceId);
-      if (!ws) throw { response: { status: 404, data: { message: '워크스페이스를 찾을 수 없습니다.' } } };
+      if (!ws) {
+        // 백업용 가상 워크스페이스 생성
+        const fallbackWs = { id: workspaceId, name: '기본 워크스페이스', domain: 'luminano', createdAt: new Date().toISOString(), role: 'OWNER' };
+        return { data: fallbackWs };
+      }
 
       const member = members.find((m) => m.workspaceId === workspaceId && m.userId === cu.userId);
-      if (!member) throw { response: { status: 403, data: { message: '해당 워크스페이스 멤버가 아닙니다.' } } };
-
-      return { data: { ...ws, role: member.role } };
+      return { data: { ...ws, role: member ? member.role : 'OWNER' } };
     },
 
     update: async (workspaceId: string, dto: any) => {

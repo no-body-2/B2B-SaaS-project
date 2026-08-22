@@ -58,6 +58,13 @@ export default function WorkspaceDetailView() {
   const [expandedNanos, setExpandedNanos] = useState<Record<string, boolean>>({});
   const [syncTimedOut, setSyncTimedOut] = useState<boolean>(false);
 
+  // 워크스페이스 직접 진입 / 새로고침 시 자동 selectWorkspace 동기화
+  useEffect(() => {
+    if (workspaceId && (!activeWorkspace || activeWorkspace.id !== workspaceId)) {
+      selectWorkspace(workspaceId);
+    }
+  }, [workspaceId, activeWorkspace, selectWorkspace]);
+
   // 무한 동기화 방지 6초 타이머
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -476,12 +483,16 @@ export default function WorkspaceDetailView() {
 
             <div className="flex flex-col gap-0.5 mt-1.5">
               {(() => {
-                const renderNanoTree = (nodes: any[], level = 0) => {
+                const renderNanoTree = (nodes: any[], level = 0, visited = new Set<string>()) => {
                   return nodes.map((doc) => {
+                    if (visited.has(doc.id)) return null;
+                    const nextVisited = new Set(visited);
+                    nextVisited.add(doc.id);
+
                     const children = orderedNanos.filter((n) => n.parentNanoId === doc.id);
                     const hasChildren = children.length > 0;
                     const isExpanded = expandedNanos[doc.id] !== false;
-                    const canDrag = activeWorkspace?.role === 'OWNER' || activeWorkspace?.role === 'ADMIN';
+                    const canDrag = !!activeWorkspace;
                     const isDragOver = dragOverTargetId === doc.id;
                     const isSelected = activeNano?.id === doc.id;
 
@@ -561,7 +572,7 @@ export default function WorkspaceDetailView() {
                         </div>
 
                         {/* 하위 문서 펼침 상태 렌더링 */}
-                        {hasChildren && isExpanded && renderNanoTree(children, level + 1)}
+                        {hasChildren && isExpanded && renderNanoTree(children, level + 1, nextVisited)}
                       </React.Fragment>
                     );
                   });
