@@ -32,7 +32,20 @@ async function bootstrap() {
   app.useGlobalInterceptors(new LoggingInterceptor());
 
   app.enableCors({
-    origin: appConfig.frontendUrl,
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      const allowedOrigins = [
+        appConfig.frontendUrl,
+        'https://www.luminano.xyz',
+        'https://web.luminano.xyz',
+        'https://luminano.xyz',
+        'http://localhost:3000',
+      ];
+      if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.luminano.xyz')) {
+        callback(null, true);
+      } else {
+        callback(null, true);
+      }
+    },
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   });
